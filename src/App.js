@@ -7,6 +7,8 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import Expenses from './pages/Expenses';
 import Report from './pages/Report';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
 const { Header, Content, Footer: AntFooter } = Layout;
 
@@ -22,6 +24,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/expenses" element={<Expenses />} />
             <Route path="/report" element={<Report />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
         </Content>
         <AntFooter style={{ textAlign: 'center' }}>
