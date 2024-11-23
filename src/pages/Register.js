@@ -7,13 +7,12 @@ const Register = () => {
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
 
-
-
     const handleRegister = async (values) => {
         setLoading(true)
         try {
             await axios.post('http://localhost:5000/api/v1/auth/register', values)
             message.success('Registration successful')
+
             navigate('/login')
         } catch (error) {
             message.error(error.response?.data?.message || 'Something went wrong') //the reason for ? is to prevent error if response is undefined
@@ -31,7 +30,7 @@ const Register = () => {
             <Form layout='vertical' onFinish={handleRegister}>
                 <Form.Item
                     label='Name'
-                    name='username'
+                    name='name'
                     rules={[{ required: true, message: 'Please enter your name' }]}
                 >
                     <Input placeholder='Name' />
