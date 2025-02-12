@@ -6,12 +6,14 @@ const authRoutes = require('./routes/authRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
 const personRoutes = require('./routes/personRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const incomeRoutes = require('./routes/incomeRoutes');
 
 dotenv.config();
 
 const app = express();
 
 app.use(cors({
+    origin: 'http://localhost:3000',
     credentials: true
 }));
 app.use(express.json());
@@ -25,6 +27,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/expenses', expenseRoutes);
 app.use('/api/v1/persons', personRoutes);
 app.use('/api/v1/categories', categoryRoutes);
+app.use('/api/v1/income', incomeRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
