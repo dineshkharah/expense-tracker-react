@@ -10,6 +10,7 @@ const incomeRoutes = require('./routes/incomeRoutes');
 const recurringExpenseRoutes = require('./routes/recurringExpenseRoutes');
 const debtRoutes = require('./routes/debtRoutes');
 const investmentRoutes = require('./routes/investmentRoutes');
+const savingRoutes = require('./routes/savingRoutes');
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use('/api/v1/income', incomeRoutes);
 app.use('/api/v1/recurring-expenses', recurringExpenseRoutes);
 app.use('/api/v1/debts', debtRoutes);
 app.use('/api/v1/investments', investmentRoutes);
+app.use('/api/v1/savings', savingRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
