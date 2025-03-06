@@ -1,184 +1,379 @@
-import React, { useState } from 'react';
-import { Button, Modal, Form, Select, Switch, DatePicker, Input, message } from 'antd';
+import React, { useState, useEffect, useRef } from "react";
+import { Button, Form, Select, Switch, DatePicker, Input, message, Tabs, Modal } from "antd";
+import axios from "axios";
+import { values } from "lodash";
 
 const { TextArea } = Input;
+const { TabPane } = Tabs;
 
-const Expenses = () => {
+const token = localStorage.getItem("token");
+const headers = {
+    Authorization: `Bearer ${token}`
+};
+
+const FinanceTracker = () => {
     const [form] = Form.useForm();
-    const [isNameModalVisible, setIsNameModalVisible] = useState(false);
-    const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
-    const [personName, setPersonName] = useState('');
-    const [category, setCategory] = useState('');
-    const [isIncoming, setIsIncoming] = useState(false);
-    const [date, setDate] = useState(null);
-    const [notes, setNotes] = useState('');
-    const [existingNames, setExistingNames] = useState(['Alice', 'Bob']);
-    const [existingCategories, setExistingCategories] = useState(['Food', 'Prints']);
+    const [incomeForm] = Form.useForm();
+    const [recurringExpenseForm] = Form.useForm();
+    const [investmentForm] = Form.useForm();
+    const [savingsForm] = Form.useForm();
+    const [debtForm] = Form.useForm();
 
-    const [tempPersonName, setTempPersonName] = useState('');
-    const [tempCategory, setTempCategory] = useState('');
+    const [activeTab, setActiveTab] = useState("income");
+    const [categories, setCategories] = useState([]); // Start with an empty list
+    const [newCategory, setNewCategory] = useState(""); // Track user input for new category
+    const [isModalVisible, setIsModalVisible] = useState(false); // Track modal visibility
+    // Track switch state for recurring fields
+    const [isRecurringIncome, setIsRecurringIncome] = useState(false);
+    const [isRecurringExpense, setIsRecurringExpense] = useState(false);
+    // Track remaining balance for debts
+    const [remainingBalance, setRemainingBalance] = useState(0);
 
-    // Handle adding new person name to the list
-    const handleAddName = () => {
-        setExistingNames([...existingNames, tempPersonName]);
-        setIsNameModalVisible(false);
-        message.success(`Name "${tempPersonName}" added successfully!`);
-        setTempPersonName('');  // Clear temporary value
-        setPersonName('');       // Reset form field
-    };
+    // Handle saving the new category
+    const saveNewCategory = async () => {
+        try {
+            // Prevent duplicate request
+            if (categories.some((cat) => cat.value === newCategory.toLowerCase())) {
+                message.info("Category already exists.");
+                return;
+            }
+            await axios.post(
+                "http://localhost:5000/api/v1/categories",
+                { name: newCategory },
+                { headers }
+            );
 
-    // Handle adding new category to the list
-    const handleAddCategory = () => {
-        setExistingCategories([...existingCategories, tempCategory]);
-        setIsCategoryModalVisible(false);
-        message.success(`Category "${tempCategory}" added successfully!`);
-        setTempCategory('');     // Clear temporary value
-        setCategory('');         // Reset form field
-    };
+            message.success("Category saved successfully!");
 
-    // Clear tempPersonName when name modal is canceled
-    const handleCancelNameModal = () => {
-        setIsNameModalVisible(false);
-        setTempPersonName(''); // Clear temporary value to prevent addition to dropdown
-    };
-
-    // Clear tempCategory when category modal is canceled
-    const handleCancelCategoryModal = () => {
-        setIsCategoryModalVisible(false);
-        setTempCategory(''); // Clear temporary value to prevent addition to dropdown
-    };
-
-    // Save expense form data and clear fields
-    const handleSaveExpense = () => {
-        form.validateFields().then((values) => {
-            console.log('Saved Expense:', {
-                person: values.personName,
-                category: values.category,
-                isIncoming
-            });
-            message.success('Expense saved successfully!');
-            form.resetFields();
-            setPersonName('');
-            setCategory('');
-            setIsIncoming(false);
-        }).catch(() => {
-            message.error('Please complete all required fields.');
-        });
-    };
-
-    // Show modal if typed name is not in existingNames (onBlur or Enter press)
-    const handleNameBlur = () => {
-        if (personName && !existingNames.includes(personName)) {
-            setTempPersonName(personName); // Set temp value for modal
-            setIsNameModalVisible(true);
+            // Refetch categories from backend to keep data fresh
+            fetchCategories();
+        } catch (error) {
+            message.error("Failed to save category.");
+        } finally {
+            setIsModalVisible(false);
+            setNewCategory(""); // Reset input tracking
         }
     };
 
-    // Show modal if typed category is not in existingCategories (onBlur or Enter press)
+    useEffect(() => {
+        form.resetFields();  // Reset form when switching tabs
+    }, [activeTab]);
+
+    const fetchCategories = async () => {
+        try {
+            const res = await axios.get("http://localhost:5000/api/v1/categories", { headers });
+            const categoryOptions = res.data.map((c) => ({ value: c.name.toLowerCase(), label: c.name })); // Convert to lowercase
+            setCategories(categoryOptions);
+        } catch (error) {
+            console.error("Error fetching categories", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCategories();
+    }, []);
+
+    const enterPressed = useRef(false);
+
+    const handleCategoryChange = (value) => {
+        if (!value.trim()) return;
+
+        const lowerValue = value.toLowerCase();
+        if (!categories.some((cat) => cat.value === lowerValue)) {
+            setNewCategory(value);
+        }
+    };
+
     const handleCategoryBlur = () => {
-        if (category && !existingCategories.includes(category)) {
-            setTempCategory(category); // Set temp value for modal
-            setIsCategoryModalVisible(true);
+        if (!newCategory) return;
+
+        const lowerNewCategory = newCategory.toLowerCase();
+        if (!categories.some((cat) => cat.value === lowerNewCategory) && !isModalVisible) {
+            setIsModalVisible(true);
         }
+    };
+
+    const handleCategorySelect = (value) => {
+        const lowerValue = value.toLowerCase();
+        if (!categories.some((cat) => cat.value === lowerValue)) {
+            setNewCategory(lowerValue);
+            setTimeout(() => handleCategoryBlur(), 0);
+        }
+    };
+
+    useEffect(() => {
+        const totalAmount = form.getFieldValue("totalAmount") || 0;
+        const amountPaid = form.getFieldValue("amountPaid") || 0;
+        setRemainingBalance(totalAmount - amountPaid);
+    }, [form.getFieldValue("totalAmount"), form.getFieldValue("amountPaid")]);
+
+
+    const handleSave = async (values) => {
+        console.log("Submitting Data:", values); // Debugging output
+        console.log("Active Tab:", activeTab); // Debugging output
+
+        try {
+            let endpoint = "";
+            let payload = {};
+
+            switch (activeTab) {
+                case "income":
+                    endpoint = "/api/v1/income";
+                    payload = {
+                        source: values.source, // Updated from previous version to match UI
+                        amount: values.amount.toString(), // Convert to string for encryption
+                        dateReceived: values.dateReceived ? values.dateReceived.toISOString() : null, // Convert Moment.js object to ISO string
+                        category: values.category ? values.category.toLowerCase() : "", // Normalize category case
+                        recurring: values.recurring ?? false, // Ensure it's a boolean
+                        notes: values.notes || "", // Ensure notes field is always included
+                    };
+
+                    if (values.recurring) {
+                        payload.frequency = values.frequency;
+                        payload.nextDate = values.nextDate ? values.nextDate.toISOString() : null; // Convert Moment.js object to ISO string
+                    }
+                    break;
+
+                case "recurringExpense":
+                    console.log("Handling Recurring Expense:", values); // Debugging log
+                    console.log("Recurring expense form values:", form.getFieldsValue());
+
+                    endpoint = "/api/v1/recurring-expenses";
+                    payload = {
+                        name: values.name,
+                        amount: values.amount.toString(),
+                        dueDate: values.dueDate ? values.dueDate.toISOString() : null,
+                        frequency: values.frequency,
+                        autoPay: values.autoPay ?? false,
+                        notificationsEnabled: false,
+                        notes: values.notes || "",
+                    };
+                    break;
+
+                case "investment":
+                    endpoint = "/api/v1/investments";
+                    break;
+                case "savings":
+                    endpoint = "/api/v1/savings";
+                    break;
+                case "debt":
+                    endpoint = "/api/v1/debts";
+                    break;
+                default:
+                    return;
+            }
+
+            console.log("Formatted Payload:", payload); // Debugging output
+
+            await axios.post(`http://localhost:5000${endpoint}`, payload, { headers });
+            message.success(`${activeTab} saved successfully!`);
+            form.resetFields();
+            setIsRecurringIncome(false);
+            setIsRecurringExpense(false);
+        } catch (error) {
+            console.error("Error Response:", error.response?.data || error.message);
+            message.error("Error saving data.");
+        }
+    };
+
+    const handleTabChange = (key) => {
+        console.log("Switching Tab To:", key);
+        setActiveTab(key);
     };
 
     return (
-        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
-            <h2>Track Expenses</h2>
-            <Form layout="vertical" form={form}>
-                <Form.Item
-                    label="Person's Name"
-                    name="personName"
-                    rules={[{ required: true, message: 'Please enter a name or select an existing one!' }]}
-                >
-                    <Select
-                        showSearch
-                        placeholder="Enter or select a name"
-                        value={personName || undefined}
-                        onChange={(value) => setPersonName(value)}
-                        onSearch={(value) => setPersonName(value)}
-                        onBlur={handleNameBlur}
-                        onInputKeyDown={(e) => e.key === 'Enter' && handleNameBlur()}  // Handle Enter key for Name
-                        options={existingNames.map((name) => ({ value: name, label: name }))}
-                        dropdownStyle={{ maxHeight: 150, overflowY: 'scroll' }}
-                    />
-                </Form.Item>
+        <div style={{ maxWidth: "700px", margin: "0 auto", padding: "20px" }}>
+            <h2>Financial Tracker</h2>
 
-                <Form.Item
-                    label="Expense Category"
-                    name="category"
-                    rules={[{ required: true, message: 'Please enter a category or select an existing one!' }]}
-                >
-                    <Select
-                        showSearch
-                        placeholder="Enter or select a category"
-                        value={category || undefined}
-                        onChange={(value) => setCategory(value)}
-                        onSearch={(value) => setCategory(value)}
-                        onBlur={handleCategoryBlur}
-                        onInputKeyDown={(e) => e.key === 'Enter' && handleCategoryBlur()}  // Handle Enter key for Category
-                        options={existingCategories.map((cat) => ({ value: cat, label: cat }))}
-                        dropdownStyle={{ maxHeight: 150, overflowY: 'scroll' }}
-                    />
-                </Form.Item>
+            <Tabs activeKey={activeTab} onChange={handleTabChange}>
+                {/* INCOME TAB */}
+                <TabPane TabPane tab="Income" key="income">
+                    <Form form={incomeForm} layout="vertical" onFinish={handleSave}>
+                        <Form.Item name="source" label="Source" rules={[{ required: true }]}>
+                            <Input placeholder="Salary, Business, etc." />
+                        </Form.Item>
+                        <Form.Item name="amount" label="Amount" rules={[{ required: true }]}>
+                            <Input type="number" />
+                        </Form.Item>
+                        <Form.Item name="dateReceived" label="Date Received" rules={[{ required: true }]}>
+                            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
+                        </Form.Item>
 
-                {/* Date Picker */}
-                <Form.Item
-                    label="Expense Date"
-                    name="date"
-                    rules={[{ required: true, message: 'Please select a date for the expense!' }]}
-                >
-                    <DatePicker
-                        style={{ width: '100%' }}
-                        onChange={(date, dateString) => setDate(dateString)}
-                    />
-                </Form.Item>
+                        <Form.Item name="category" label="Category" rules={[{ required: true }]}>
+                            <Select
+                                showSearch
+                                allowClear
+                                placeholder="Select or type a category"
+                                options={categories}
+                                onSearch={handleCategoryChange}  // Detect user input
+                                onBlur={handleCategoryBlur}      // Show modal when focus leaves
+                                onSelect={handleCategorySelect}  // Handle selection or Enter press
+                                onInputKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault(); // Prevent form submission
+                                        handleCategoryBlur(); // Trigger modal check
+                                    }
+                                }}
+                                filterOption={(input, option) =>
+                                    option.label.toLowerCase().includes(input.toLowerCase())
+                                }
+                            />
+                        </Form.Item>
 
-                <Form.Item
-                    label="Notes"
-                    name="notes"
-                >
-                    <TextArea
-                        rows={3}
-                        placeholder="Optional: Add any details about this expense"
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                    />
-                </Form.Item>
+                        <Form.Item label="Recurring?">
+                            <Switch onChange={(checked) => setIsRecurringIncome(checked)} />
+                        </Form.Item>
+                        {isRecurringIncome && (
+                            <>
+                                <Form.Item name="frequency" label="Frequency" rules={[{ required: true }]}>
+                                    <Select options={[
+                                        { value: "daily", label: "Daily" },
+                                        { value: "weekly", label: "Weekly" },
+                                        { value: "monthly", label: "Monthly" },
+                                        { value: "yearly", label: "Yearly" }
+                                    ]} />
+                                </Form.Item>
+                                <Form.Item name="nextDate" label="Next Payment Date">
+                                    <DatePicker style={{ width: "100%" }} />
+                                </Form.Item>
+                            </>
+                        )}
+                        <Form.Item name="notes" label="Notes">
+                            <TextArea rows={3} />
+                        </Form.Item>
+                        <Button type="primary" htmlType="submit">Save Income</Button>
+                    </Form>
+                </TabPane>
 
-                <Form.Item label="Transaction Type">
-                    <Switch
-                        checkedChildren="Incoming"
-                        unCheckedChildren="Outgoing"
-                        checked={isIncoming}
-                        onChange={setIsIncoming}
-                    />
-                </Form.Item>
+                {/* RECURRING EXPENSES TAB */}
+                <TabPane tab="Recurring Expenses" key="recurringExpense">
+                    <Form form={recurringExpenseForm} layout="vertical" onFinish={handleSave}>
 
-                <Button type="primary" onClick={handleSaveExpense} style={{ width: '100%' }}>
-                    Save Expense
-                </Button>
-            </Form>
+                        <Form.Item name="name" label="Expense Name" rules={[{ required: true }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name="amount" label="Amount" rules={[{ required: true }]}>
+                            <Input type="number" />
+                        </Form.Item>
+                        <Form.Item name="dueDate" label="Due Date" rules={[{ required: true }]}>
+                            <DatePicker style={{ width: "100%" }} />
+                        </Form.Item>
+                        <Form.Item name="frequency" label="Frequency" rules={[{ required: true }]}>
+                            <Select options={[
+                                { value: "daily", label: "Daily" },
+                                { value: "weekly", label: "Weekly" },
+                                { value: "monthly", label: "Monthly" },
+                                { value: "yearly", label: "Yearly" }
+                            ]} />
+                        </Form.Item>
+                        <Form.Item name="autoPay" label="Auto Pay" valuePropName="checked">
+                            <Switch />
+                        </Form.Item>
+                        <Form.Item name="notes" label="Notes">
+                            <TextArea rows={3} />
+                        </Form.Item>
+                        <Button type="primary" htmlType="submit" >
+                            Save Expense
+                        </Button>
 
-            <Modal
-                title="Save New Name"
-                visible={isNameModalVisible}
-                onOk={handleAddName}
-                onCancel={handleCancelNameModal}
-            >
-                <p>Do you want to save "{tempPersonName}" for future use?</p>
-            </Modal>
+                    </Form>
+                </TabPane>
 
+                {/* INVESTMENTS TAB */}
+                <TabPane tab="Investments" key="investment">
+                    <Form form={investmentForm} layout="vertical" onFinish={handleSave}>
+                        <Form.Item name="name" label="Investment Name" rules={[{ required: true }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name="type" label="Type" rules={[{ required: true }]}>
+                            <Select options={[
+                                { value: "Stock", label: "Stock" },
+                                { value: "Mutual Fund", label: "Mutual Fund" },
+                                { value: "Crypto", label: "Crypto" },
+                                { value: "Real Estate", label: "Real Estate" }
+                            ]} />
+                        </Form.Item>
+                        <Form.Item name="amount" label="Purchase Amount" rules={[{ required: true }]}>
+                            <Input type="number" />
+                        </Form.Item>
+                        <Form.Item name="purchaseDate" label="Purchase Date">
+                            <DatePicker style={{ width: "100%" }} />
+                        </Form.Item>
+                        <Form.Item name="currentValue" label="Current Value">
+                            <Input type="number" />
+                        </Form.Item>
+                        <Form.Item name="profitLoss" label="Profit/Loss">
+                            <Input type="number" />
+                        </Form.Item>
+                        <Form.Item name="notes" label="Notes">
+                            <TextArea rows={3} />
+                        </Form.Item>
+                        <Button type="primary" htmlType="submit">Save Investment</Button>
+                    </Form>
+                </TabPane>
+
+
+                {/* SAVINGS TAB */}
+                <TabPane tab="Savings" key="savings">
+                    <Form form={savingsForm} layout="vertical" onFinish={handleSave}>
+                        <Form.Item name="goalName" label="Goal Name" rules={[{ required: true }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name="targetAmount" label="Target Amount" rules={[{ required: true }]}>
+                            <Input type="number" />
+                        </Form.Item>
+                        <Form.Item name="currentAmount" label="Current Savings" rules={[{ required: true }]}>
+                            <Input type="number" />
+                        </Form.Item>
+                        <Form.Item name="targetDate" label="Target Date">
+                            <DatePicker style={{ width: "100%" }} />
+                        </Form.Item>
+                        <Form.Item name="notes" label="Notes">
+                            <TextArea rows={3} />
+                        </Form.Item>
+                        <Button type="primary" htmlType="submit">Save Savings Goal</Button>
+                    </Form>
+                </TabPane>
+
+                {/* DEBTS TAB */}
+                <TabPane tab="Debts" key="debt">
+                    <Form form={form} layout="vertical" onFinish={handleSave}>
+                        <Form.Item name="lender" label="Lender" rules={[{ required: true }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name="totalAmount" label="Total Debt Amount" rules={[{ required: true }]}>
+                            <Input type="number" onChange={() => setRemainingBalance(form.getFieldValue("totalAmount") - form.getFieldValue("amountPaid"))} />
+                        </Form.Item>
+                        <Form.Item name="amountPaid" label="Amount Paid">
+                            <Input type="number" onChange={() => setRemainingBalance(form.getFieldValue("totalAmount") - form.getFieldValue("amountPaid"))} />
+                        </Form.Item>
+                        <Form.Item name="remainingBalance" label="Remaining Balance">
+                            <Input type="number" value={remainingBalance} readOnly />
+                        </Form.Item>
+                        <Form.Item name="dueDate" label="Due Date">
+                            <DatePicker style={{ width: "100%" }} />
+                        </Form.Item>
+                        <Form.Item name="notes" label="Notes">
+                            <TextArea rows={3} />
+                        </Form.Item>
+                        <Button type="primary" htmlType="submit">Save Debt</Button>
+                    </Form>
+                </TabPane>
+            </Tabs>
+
+            {/* Modal for confirming new category */}
             <Modal
                 title="Save New Category"
-                visible={isCategoryModalVisible}
-                onOk={handleAddCategory}
-                onCancel={handleCancelCategoryModal}
+                visible={isModalVisible}
+                onOk={saveNewCategory}
+                onCancel={() => setIsModalVisible(false)}
+                okText="Save"
+                cancelText="Cancel"
             >
-                <p>Do you want to save "{tempCategory}" as a new category?</p>
+                <p>Do you want to save "{newCategory}" as a new category?</p>
             </Modal>
-        </div>
+        </div >
     );
 };
 
-export default Expenses;
+export default FinanceTracker;
