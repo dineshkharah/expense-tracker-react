@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button, Form, Select, Switch, DatePicker, Input, message, Tabs, Modal } from "antd";
 import axios from "axios";
-import { values } from "lodash";
 
 const { TextArea } = Input;
 const { TabPane } = Tabs;
@@ -12,7 +11,7 @@ const headers = {
 };
 
 const FinanceTracker = () => {
-    const [form] = Form.useForm();
+    // const [form] = Form.useForm();
     const [incomeForm] = Form.useForm();
     const [recurringExpenseForm] = Form.useForm();
     const [investmentForm] = Form.useForm();
@@ -55,9 +54,28 @@ const FinanceTracker = () => {
         }
     };
 
-    useEffect(() => {
-        form.resetFields();  // Reset form when switching tabs
-    }, [activeTab]);
+    // useEffect(() => {
+    //     switch (activeTab) {
+    //         case "income":
+    //             incomeForm.resetFields();
+    //             break;
+    //         case "recurringExpense":
+    //             recurringExpenseForm.resetFields();
+    //             break;
+    //         case "investment":
+    //             investmentForm.resetFields();
+    //             break;
+    //         case "savings":
+    //             savingsForm.resetFields();
+    //             break;
+    //         case "debt":
+    //             debtForm.resetFields();
+    //             break;
+    //         default:
+    //             form.resetFields();
+    //     }
+    // }, [activeTab]);
+
 
     const fetchCategories = async () => {
         try {
@@ -73,7 +91,7 @@ const FinanceTracker = () => {
         fetchCategories();
     }, []);
 
-    const enterPressed = useRef(false);
+    // const enterPressed = useRef(false);
 
     const handleCategoryChange = (value) => {
         if (!value.trim()) return;
@@ -102,10 +120,13 @@ const FinanceTracker = () => {
     };
 
     useEffect(() => {
-        const totalAmount = form.getFieldValue("totalAmount") || 0;
-        const amountPaid = form.getFieldValue("amountPaid") || 0;
-        setRemainingBalance(totalAmount - amountPaid);
-    }, [form.getFieldValue("totalAmount"), form.getFieldValue("amountPaid")]);
+        if (activeTab === "debt") {
+            const totalAmount = debtForm.getFieldValue("totalAmount") || 0;
+            const amountPaid = debtForm.getFieldValue("amountPaid") || 0;
+            setRemainingBalance(totalAmount - amountPaid);
+        }
+    }, [activeTab, debtForm]);
+
 
 
     const handleSave = async (values) => {
@@ -136,7 +157,7 @@ const FinanceTracker = () => {
 
                 case "recurringExpense":
                     console.log("Handling Recurring Expense:", values); // Debugging log
-                    console.log("Recurring expense form values:", form.getFieldsValue());
+                    console.log("Recurring expense form values:", recurringExpenseForm.getFieldsValue());
 
                     endpoint = "/api/v1/recurring-expenses";
                     payload = {
@@ -151,13 +172,41 @@ const FinanceTracker = () => {
                     break;
 
                 case "investment":
+                    console.log("Handling Investment:", values);
+
                     endpoint = "/api/v1/investments";
+                    payload = {
+                        name: values.name,
+                        type: values.type,
+                        amount: values.amount.toString(), // Convert to string for encryption
+                        purchaseDate: values.purchaseDate ? values.purchaseDate.toISOString() : null,
+                        currentValue: values.currentValue.toString(),
+                        profitLoss: values.profitLoss.toString(),
+                        notes: values.notes || "",
+                    };
                     break;
                 case "savings":
                     endpoint = "/api/v1/savings";
+                    payload = {
+                        goalName: values.goal,
+                        targetAmount: values.targetAmount,
+                        savedAmount: values.currentAmount,
+                        deadline: values.deadline || new Date().toISOString(),  // Ensure deadline is not undefined
+                        progress: ((values.currentAmount / values.targetAmount) * 100).toFixed(2), // Ensure progress exists
+                        notes: values.notes || "" // Default to empty string if undefined
+                    };
                     break;
+
                 case "debt":
                     endpoint = "/api/v1/debts";
+                    payload = {
+                        lender: values.lender,
+                        totalAmount: values.totalAmount ? values.totalAmount.toString() : "0",
+                        paidAmount: values.paidAmount ? values.paidAmount.toString() : "0",
+                        dueDate: values.dueDate ? values.dueDate.toISOString() : new Date().toISOString(),
+                        interestRate: values.interestRate ? values.interestRate.toString() : "0",
+                        notes: values.notes || "",
+                    };
                     break;
                 default:
                     return;
@@ -167,7 +216,17 @@ const FinanceTracker = () => {
 
             await axios.post(`http://localhost:5000${endpoint}`, payload, { headers });
             message.success(`${activeTab} saved successfully!`);
-            form.resetFields();
+            if (activeTab === "income") {
+                incomeForm.resetFields();
+            } else if (activeTab === "recurringExpense") {
+                recurringExpenseForm.resetFields();
+            } else if (activeTab === "investments") {
+                investmentForm.resetFields();
+            } else if (activeTab === "savings") {
+                savingsForm.resetFields();
+            } else if (activeTab === "debts") {
+                debtForm.resetFields();
+            }
             setIsRecurringIncome(false);
             setIsRecurringExpense(false);
         } catch (error) {
@@ -283,18 +342,19 @@ const FinanceTracker = () => {
                 <TabPane tab="Investments" key="investment">
                     <Form form={investmentForm} layout="vertical" onFinish={handleSave}>
                         <Form.Item name="name" label="Investment Name" rules={[{ required: true }]}>
-                            <Input />
+                            <Input placeholder="e.g. Apple Stocks, Bitcoin" />
                         </Form.Item>
                         <Form.Item name="type" label="Type" rules={[{ required: true }]}>
                             <Select options={[
                                 { value: "Stock", label: "Stock" },
                                 { value: "Mutual Fund", label: "Mutual Fund" },
                                 { value: "Crypto", label: "Crypto" },
-                                { value: "Real Estate", label: "Real Estate" }
+                                { value: "Real Estate", label: "Real Estate" },
+                                { value: "Others", label: "Others" }
                             ]} />
                         </Form.Item>
                         <Form.Item name="amount" label="Purchase Amount" rules={[{ required: true }]}>
-                            <Input type="number" />
+                            <Input type="number" placeholder="Enter amount invested (e.g. 5000)" />
                         </Form.Item>
                         <Form.Item name="purchaseDate" label="Purchase Date">
                             <DatePicker style={{ width: "100%" }} />
@@ -306,7 +366,7 @@ const FinanceTracker = () => {
                             <Input type="number" />
                         </Form.Item>
                         <Form.Item name="notes" label="Notes">
-                            <TextArea rows={3} />
+                            <TextArea rows={3} placeholder="Additional details about this investment (optional)" />
                         </Form.Item>
                         <Button type="primary" htmlType="submit">Save Investment</Button>
                     </Form>
@@ -316,36 +376,39 @@ const FinanceTracker = () => {
                 {/* SAVINGS TAB */}
                 <TabPane tab="Savings" key="savings">
                     <Form form={savingsForm} layout="vertical" onFinish={handleSave}>
-                        <Form.Item name="goalName" label="Goal Name" rules={[{ required: true }]}>
-                            <Input />
+                        <Form.Item name="goal" label="Savings Goal" rules={[{ required: true }]} >
+                            <Input placeholder="E.g., Buy a car, Vacation fund" />
                         </Form.Item>
-                        <Form.Item name="targetAmount" label="Target Amount" rules={[{ required: true }]}>
-                            <Input type="number" />
+                        <Form.Item name="targetAmount" label="Target Amount" rules={[{ required: true }]} >
+                            <Input type="number" placeholder="E.g., 5000" />
                         </Form.Item>
-                        <Form.Item name="currentAmount" label="Current Savings" rules={[{ required: true }]}>
-                            <Input type="number" />
+                        <Form.Item name="currentAmount" label="Current Amount">
+                            <Input type="number" placeholder="E.g., 2000" />
                         </Form.Item>
-                        <Form.Item name="targetDate" label="Target Date">
-                            <DatePicker style={{ width: "100%" }} />
+                        <Form.Item name="deadline" label="Deadline">
+                            <DatePicker style={{ width: "100%" }} placeholder="Select deadline" />
                         </Form.Item>
                         <Form.Item name="notes" label="Notes">
-                            <TextArea rows={3} />
+                            <TextArea rows={3} placeholder="Additional details" />
                         </Form.Item>
-                        <Button type="primary" htmlType="submit">Save Savings Goal</Button>
+                        <Button type="primary" htmlType="submit">Save</Button>
                     </Form>
                 </TabPane>
 
                 {/* DEBTS TAB */}
                 <TabPane tab="Debts" key="debt">
-                    <Form form={form} layout="vertical" onFinish={handleSave}>
+                    <Form form={debtForm} layout="vertical" onFinish={handleSave} initialValues={{
+                        amountPaid: 0,
+                        remainingBalance: 0,
+                    }}>
                         <Form.Item name="lender" label="Lender" rules={[{ required: true }]}>
                             <Input />
                         </Form.Item>
                         <Form.Item name="totalAmount" label="Total Debt Amount" rules={[{ required: true }]}>
-                            <Input type="number" onChange={() => setRemainingBalance(form.getFieldValue("totalAmount") - form.getFieldValue("amountPaid"))} />
+                            <Input type="number" onChange={() => setRemainingBalance(debtForm.getFieldValue("totalAmount") - debtForm.getFieldValue("amountPaid"))} />
                         </Form.Item>
                         <Form.Item name="amountPaid" label="Amount Paid">
-                            <Input type="number" onChange={() => setRemainingBalance(form.getFieldValue("totalAmount") - form.getFieldValue("amountPaid"))} />
+                            <Input type="number" onChange={() => setRemainingBalance(debtForm.getFieldValue("totalAmount") - debtForm.getFieldValue("amountPaid"))} />
                         </Form.Item>
                         <Form.Item name="remainingBalance" label="Remaining Balance">
                             <Input type="number" value={remainingBalance} readOnly />

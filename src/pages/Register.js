@@ -10,9 +10,9 @@ const Register = () => {
     const handleRegister = async (values) => {
         setLoading(true)
         try {
-            await axios.post('http://localhost:5000/api/v1/auth/register', values)
-            message.success('Registration successful')
+            const response = await axios.post('http://localhost:5000/api/v1/auth/register', values)
 
+            message.success('Registration successful')
             navigate('/login')
         } catch (error) {
             message.error(error.response?.data?.message || 'Something went wrong') //the reason for ? is to prevent error if response is undefined
@@ -38,7 +38,7 @@ const Register = () => {
                 <Form.Item
                     label='Email'
                     name='email'
-                    rules={[{ required: true, message: 'Please enter your email' }]}
+                    rules={[{ required: true, type: 'email', message: 'Please enter your email' }]}
                 >
                     <Input placeholder='Email' />
                 </Form.Item>

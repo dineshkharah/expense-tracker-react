@@ -88,24 +88,56 @@ const updateDebt = async (req, res) => {
         const decryptedTotalAmount = parseFloat(decrypt(debt.totalAmount));
         const decryptedPaidAmount = parseFloat(decrypt(debt.paidAmount));
 
+        let newTotalAmount = decryptedTotalAmount;
+        let newPaidAmount = decryptedPaidAmount;
 
-        if (totalAmount) {
-            debt.totalAmount = encrypt(totalAmount.toString());
+        // Input Validation to prevent NaN and Non-numerical values
+        if (totalAmount !== undefined) {
+            if (isNaN(totalAmount) || totalAmount < 0) {
+                return res.status(400).json({ message: 'Invalid total amount' });
+            }
+            newTotalAmount = parseFloat(totalAmount);
+            debt.totalAmount = encrypt(newTotalAmount.toString());
         }
 
-        let updatedPaidAmount = decryptedPaidAmount;
-        if (paidAmount) {
-            updatedPaidAmount = parseFloat(paidAmount);
-            debt.paidAmount = encrypt(updatedPaidAmount.toString());
+        if (paidAmount !== undefined) {
+            if (isNaN(paidAmount) || paidAmount < 0) {
+                return res.status(400).json({ message: 'Invalid paid amount' });
+            }
+            newPaidAmount = parseFloat(paidAmount);
+            debt.paidAmount = encrypt(newPaidAmount.toString());
         }
 
-        const newTotalAmount = totalAmount ? parseFloat(totalAmount) : decryptedTotalAmount;
-        const remainingBalance = (newTotalAmount - updatedPaidAmount).toString();
+        // Prevents Overpayment
+        if (newPaidAmount > newTotalAmount) {
+            return res.status(400).json({ message: 'Paid amount cannot be greater than total amount' });
+        }
+
+        debt.paidAmount = encrypt(newPaidAmount.toString());
+
+        const remainingBalance = (newTotalAmount - newPaidAmount).toString();
         debt.remainingBalance = encrypt(remainingBalance);
+
+        // If the debt is fully paid, set the paid date (to be implemented maybe)
+
+        // The commented code to be explored later
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // Prevents Injection  (Review)
+        // if (lender) {
+        //     const sanitizedLender = lender.replace();
+        //     debt.lender = sanitizedLender;
+        // }
+
+        // debt.dueDate = dueDate || debt.dueDate;
+
+        // if (notes) {
+        //     const sanitizedNotes = notes.replace(/['";--]/g, '');
+        //     debt.notes = sanitizedNotes;
+        // }
 
         debt.lender = lender || debt.lender;
         debt.dueDate = dueDate || debt.dueDate;
-        debt.notes = notes || debt.notes;
+        debt.notes = notes || debt.notes
 
         await debt.save();
         res.json({ message: 'Debt updated successfully' });

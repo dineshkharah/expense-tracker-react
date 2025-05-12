@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Form, Input, Button, message } from 'antd'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
@@ -7,13 +7,22 @@ const Login = () => {
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
 
+    useEffect(() => {
+        if (localStorage.getItem('token')) {
+            navigate('/') // Redirect to home if user is already logged in
+        }
+    }, [navigate])
+
 
     const handleLogin = async (values) => {
         setLoading(true)
         try {
             const response = await axios.post('http://localhost:5000/api/v1/auth/login', values)
-            const { token } = response.data
+            const { token, name, email } = response.data
+
             localStorage.setItem('token', token)
+            localStorage.setItem('user', JSON.stringify({ name, email }))
+
             message.success('Login successful')
             navigate('/')
         } catch (error) {
@@ -31,7 +40,7 @@ const Login = () => {
                 <Form.Item
                     label='Email'
                     name='email'
-                    rules={[{ required: true, message: 'Please enter your email' }]}
+                    rules={[{ required: true, type: 'email', message: 'Please enter your email' }]}
                 >
                     <Input placeholder='Email' />
                 </Form.Item>
