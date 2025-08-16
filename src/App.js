@@ -5,7 +5,7 @@ import { Layout } from 'antd';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
-import Expenses from './pages/Expenses';
+import AddTransaction from './pages/AddTransaction';
 import Report from './pages/Report';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -22,7 +22,7 @@ function App() {
         <Content style={{ padding: '20px' }}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/expenses" element={<Expenses />} />
+            <Route path="/add-transaction" element={<AddTransaction />} />
             <Route path="/report" element={<Report />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

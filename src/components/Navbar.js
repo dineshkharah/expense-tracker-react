@@ -30,7 +30,7 @@ const Navbar = () => {
 
     const menuItems = [
         { label: <Link to="/">Home</Link>, key: '/' },
-        { label: <Link to="/expenses">Expenses</Link>, key: '/expenses' },
+        { label: <Link to="/add-transaction">Add Transaction</Link>, key: '/add-transaction' },
         { label: <Link to="/report">Report</Link>, key: '/report' },
         user
             ? {

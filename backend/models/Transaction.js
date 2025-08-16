@@ -1,12 +1,16 @@
 const mongoose = require('mongoose');
 
-const recurringExpenseSchema = new mongoose.Schema({
+const expenseSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },
-    name: {
+    personName: {
+        type: String,
+        required: true,
+    },
+    category: {
         type: String,
         required: true,
     },
@@ -15,27 +19,31 @@ const recurringExpenseSchema = new mongoose.Schema({
         required: true,
         min: [0, 'Amount must be positive.'],
     },
-    dueDate: {
-        type: Date,
+    type: {
+        type: String,
         required: true,
+    }, // income or expense
+    date: {
+        type: Date,
+        required: false,
+    },
+    recurring:{
+        type: Boolean,
+        default: false,
     },
     frequency: {
         type: String,
         enum: ['daily', 'weekly', 'monthly', 'yearly'],
-        required: true,
+        default: 'monthly',
     },
-    autoPay: {
-        type: Boolean,
-        required: true,
-    }, // true if auto pay is enabled
-    notificationsEnabled: {
-        type: Boolean,
-        required: true,
-    }, // true if notifications are enabled and for future feature only
+    nextDate: {
+        type: Date,
+        required: false,
+    },
     notes: {
         type: String,
     },
-
 }, { timestamps: true });
 
-module.exports = mongoose.model('RecurringExpense', recurringExpenseSchema);
+const Expense = mongoose.model('Expense', expenseSchema);
+module.exports = Expense;
