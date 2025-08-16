@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Form, Input, Button, message } from 'antd'
-import axios from 'axios'
+// import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
 const Register = () => {
@@ -10,7 +10,7 @@ const Register = () => {
     const handleRegister = async (values) => {
         setLoading(true)
         try {
-            const response = await axios.post('http://localhost:5000/api/v1/auth/register', values)
+            // const response = await axios.post('http://localhost:5000/api/v1/auth/register', values)
 
             message.success('Registration successful')
             navigate('/login')
