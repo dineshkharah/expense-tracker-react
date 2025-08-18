@@ -31,6 +31,7 @@ const Navbar = () => {
     const menuItems = [
         { label: <Link to="/">Home</Link>, key: '/' },
         { label: <Link to="/add-transaction">Add Transaction</Link>, key: '/add-transaction' },
+        { label: <Link to="/transactions">Transactions</Link>, key: '/transactions' },
         { label: <Link to="/report">Report</Link>, key: '/report' },
         user
             ? {

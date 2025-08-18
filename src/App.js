@@ -6,6 +6,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import AddTransaction from './pages/AddTransaction';
+import Transaction from './pages/Transaction';
 import Report from './pages/Report';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -23,6 +24,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/add-transaction" element={<AddTransaction />} />
+            <Route path="/transactions" element={<Transaction />} />
             <Route path="/report" element={<Report />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
