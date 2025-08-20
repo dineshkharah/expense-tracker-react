@@ -114,7 +114,6 @@ const FinanceTracker = () => {
 
   return (
     <div style={{ maxWidth: "700px", margin: "0 auto", padding: "20px" }}>
-      <h2>Financial Tracker</h2>
 
       <Form form={form} layout="vertical" onFinish={handleSave}>
         <Form.Item name="type" label="Type" rules={[{ required: true }]}>
