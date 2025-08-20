@@ -1,4 +1,5 @@
 const Transaction = require('../models/Transaction');
+const User = require('../models/User');
 const { encrypt, decrypt } = require('../utils/encryption');
 
 const createTransaction = async (req, res) => {
@@ -47,6 +48,20 @@ const createTransaction = async (req, res) => {
             nextDate,
             notes,
         });
+
+        const user = await User.findById(req.user.userId);
+        const numericValue = parseFloat(amount)
+
+        if (type === 'income') {
+            user.balance += numericValue;
+            user.totalIncome += numericValue;
+        } else {
+            user.balance -= numericValue;
+            user.totalExpenses += numericValue;
+        }
+
+        await user.save();
+
         res.status(201).json(transaction);
     } catch (error) {
         res.status(500).json({ message: 'Server Error', error: error.message });
@@ -96,25 +111,56 @@ const getTransactionById = async (req, res) => {
 };
 
 const updateTransaction = async (req, res) => {
-    const updateFields = {};
-
-    if (req.body.personName) updateFields.personName = req.body.personName;
-    if (req.body.category) updateFields.category = req.body.category;
-    if (req.body.amount) updateFields.amount = encrypt(req.body.amount.toString());
-    if (req.body.type) updateFields.type = req.body.type;
-    if (req.body.date) updateFields.date = req.body.date;
-    if (req.body.notes) updateFields.notes = req.body.notes;
-
     try {
-        const transaction = await Transaction.findOneAndUpdate(
-            { _id: req.params.id, userId: req.user.userId },
-            updateFields,
-            { new: true }
-        );
+        // Find the transaction to update
+        const transaction = await Transaction.findOne({ 
+                _id: req.params.id, 
+                userId: req.user.userId 
+            });
 
         if (!transaction) {
             return res.status(404).json({ message: 'Transaction not found' });
         }
+
+        // Update user balance and totals
+        const user = await User.findById(req.user.userId);
+
+        const oldAmount = parseFloat(decrypt(transaction.amount));
+        const oldType = transaction.type;
+
+        if (oldType === 'income') {
+            user.balance -= oldAmount;
+            user.totalIncome -= oldAmount;
+        } else {
+            user.balance += oldAmount;
+            user.totalExpenses -= oldAmount;
+        }
+
+        // Calculate new amounts and update user totals
+        const newAmount = req.body.amount ? parseFloat(req.body.amount) : oldAmount;
+        const newType = req.body.type ? req.body.type : oldType;
+
+        if (newType === 'income') {
+            user.balance += newAmount;
+            user.totalIncome += newAmount;
+        } else {
+            user.balance -= newAmount;
+            user.totalExpenses += newAmount;
+        }
+
+        // Update the transaction with new values
+        transaction.personName = req.body.personName || transaction.personName;
+        transaction.category = req.body.category || transaction.category;
+        if(req.body.amount) {
+            transaction.amount = encrypt(newAmount.toString());
+        }
+        transaction.type = req.body.type || transaction.type;
+        transaction.date = req.body.date || transaction.date;
+        transaction.notes = req.body.notes || transaction.notes;
+
+        // Save the updated transaction and user
+        await transaction.save();
+        await user.save();
 
         res.status(200).json(transaction);
     } catch (error) {
@@ -129,6 +175,22 @@ const deleteTransaction = async (req, res) => {
         if (!transaction) {
             return res.status(404).json({ message: 'Transaction not found' });
         }
+
+        const user = await User.findById(req.user.userId);
+        const amount = parseFloat(decrypt(transaction.amount));
+
+        if (transaction.type === 'income') {
+            user.balance -= amount;
+            user.totalIncome -= amount;
+        } else {
+            user.balance += amount;
+            user.totalExpenses -= amount;
+        }
+
+        await user.save();
+
+        await transaction.deleteOne();
+
         res.json({ message: 'Transaction Deleted' });
     } catch (error) {
         res.status(500).json({ message: 'Server Error', error: error.message });
