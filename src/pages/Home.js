@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {Card, Row, Col, Table, Typography } from "antd";
+import {Card, Row, Col, Table, Typography, Button } from "antd";
+import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 
@@ -11,6 +12,7 @@ const Home = () => {
         totalExpenses:0
     });
     const[transactions, setTransactions] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -87,13 +89,17 @@ const Home = () => {
 
     return (
         <div className='p-6'>
-            <Title level={2}>Dashboard</Title>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
+                <Title level={2} style={{ margin: "0" }}>Dashboard</Title>
+                <Button type="primary" size='medium' onClick={() => navigate('/add-transaction')} style={{ marginLeft: 'auto' }}>
+                    + Add Transaction
+                </Button>
+            </div>
 
             {/* Summary Cards */}
             <Row gutter={16}>
                 <Col xs={24} md={8} style={{padding:"1rem"}}>
                     <Card
-                        bordered={false}
                         style={{
                         background: "#e0f2fe", 
                         borderRadius: "16px",
@@ -111,7 +117,6 @@ const Home = () => {
 
                 <Col xs={24} md={8} style={{padding:"1rem"}}>
                     <Card
-                        bordered={false}
                         style={{
                         background: "#dcfce7", 
                         borderRadius: "16px",
@@ -129,7 +134,6 @@ const Home = () => {
 
                 <Col xs={24} md={8} style={{padding:"1rem"}}>
                     <Card
-                        bordered={false}
                         style={{
                         background: "#fee2e2", 
                         borderRadius: "16px",
@@ -147,7 +151,19 @@ const Home = () => {
             </Row>
 
             {/* Recent Transactions */}
-            <Card title="Recent Transactions" className="mt-6">
+            <Card 
+                title="Recent Transactions" 
+                className="mt-6"
+                extra={
+                    <Button
+                        type="link"
+                        onClick={() => navigate('/transactions')}
+                        style={{ fontSize: '14px' }}
+                    >
+                        View All
+                    </Button>
+                }
+            >
                 <Table 
                     dataSource={transactions}
                     columns={columns}
