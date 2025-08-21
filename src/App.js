@@ -10,6 +10,7 @@ import Transaction from './pages/Transaction';
 import Report from './pages/Report';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Profile from './pages/Profile';
 
 const { Header, Content, Footer: AntFooter } = Layout;
 
@@ -28,6 +29,7 @@ function App() {
             <Route path="/report" element={<Report />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </Content>
         <AntFooter style={{ textAlign: 'center' }}>
