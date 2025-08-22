@@ -98,7 +98,7 @@ const Navbar = () => {
               <Space style={{ cursor: "pointer", color: "white" }}>
                 <Avatar
                   icon={<UserOutlined />}
-                  style={{ backgroundColor: "#1677ff" }}
+                  style={{ backgroundColor: "#1677ff", paddingLeft: "0.5px" }}
                 />
                 {user.name}
               </Space>
