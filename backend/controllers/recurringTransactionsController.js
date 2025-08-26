@@ -103,9 +103,77 @@ const deleteRecurring = async (req, res) => {
     }
 };
 
+const executeRecurring = async (req, res) => {
+    try {
+        const recurring = await RecurringTransaction.findOne({
+            _id: req.params.id,
+            userId: req.user.userId,
+            isActive: true,
+        });
+
+        if (!recurring) {
+            return res.status(404).json({ message: "Active recurring rule not found" });
+        }
+
+        const today = new Date();
+
+        const latest = recurring.amounts
+            .filter(a => new Date(a.effectiveFrom) <= today)
+            .sort((a, b) => new Date(b.effectiveFrom) - new Date(a.effectiveFrom))[0];
+
+        if (!latest) {
+            return res.status(404).json({ message: "No valid amount found" });
+        }
+
+        const decryptedAmount = decrypt(latest.amount);
+
+        const transaction = await Transaction.create({
+            userId: req.user.userId,
+            personName: recurring.source,
+            category: recurring.category,
+            amount: latest.amount,
+            type: recurring.type,
+            date: today,
+            recurring: true,
+            frequency: recurring.frequency,
+            notes: recurring.notes,
+        });
+
+        recurring.history.push({
+            transactionId: transaction._id,
+            amount: latest.amount,
+            date: today,
+        });
+
+        recurring.nextDate = getNextDate(recurring.nextDate, recurring.frequency);
+
+        await recurring.save();
+
+        // Update user total
+        const user = await User.findById(req.user.userId);
+        const numericValue = parseFloat(decryptedAmount);
+        if (recurring.type === "income") {
+            user.balance += numericValue
+            user.totalIncome += numericValue
+        } else {
+            user.balance -= numericValue
+            user.totalExpenses += numericValue
+        }
+
+        await user.save();
+
+        res.status(201).json({ message: "Transaction created", transaction, nextDate: recurring.nextDate });
+
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+
+}
+
 module.exports = {
     createRecurring,
     getRecurring,
     updateRecurring,
     deleteRecurring,
+    executeRecurring,
 };
