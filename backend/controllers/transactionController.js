@@ -3,11 +3,11 @@ const User = require('../models/User');
 const { encrypt, decrypt } = require('../utils/encryption');
 
 const createTransaction = async (req, res) => {
-    const { personName, category, amount, type, date, notes, recurring, frequency } = req.body;
+    const { source, category, amount, type, date, notes, recurring, frequency } = req.body;
     try {
         console.log(req.body);
 
-        if (!amount || !personName || !category || !type) {
+        if (!amount || !source || !category || !type) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
@@ -16,7 +16,7 @@ const createTransaction = async (req, res) => {
 
         let nextDate = null
 
-        if(recurring && frequency) {
+        if (recurring && frequency) {
             nextDate = new Date(date);
             switch (frequency) {
                 case 'daily':
@@ -38,7 +38,7 @@ const createTransaction = async (req, res) => {
 
         const transaction = await Transaction.create({
             userId: req.user.userId,
-            personName,
+            source,
             category,
             amount: encryptedAmount,
             type,
@@ -113,10 +113,10 @@ const getTransactionById = async (req, res) => {
 const updateTransaction = async (req, res) => {
     try {
         // Find the transaction to update
-        const transaction = await Transaction.findOne({ 
-                _id: req.params.id, 
-                userId: req.user.userId 
-            });
+        const transaction = await Transaction.findOne({
+            _id: req.params.id,
+            userId: req.user.userId
+        });
 
         if (!transaction) {
             return res.status(404).json({ message: 'Transaction not found' });
@@ -149,9 +149,9 @@ const updateTransaction = async (req, res) => {
         }
 
         // Update the transaction with new values
-        transaction.personName = req.body.personName || transaction.personName;
+        transaction.source = req.body.source || transaction.source;
         transaction.category = req.body.category || transaction.category;
-        if(req.body.amount) {
+        if (req.body.amount) {
             transaction.amount = encrypt(newAmount.toString());
         }
         transaction.type = req.body.type || transaction.type;

@@ -129,7 +129,7 @@ const executeRecurring = async (req, res) => {
 
         const transaction = await Transaction.create({
             userId: req.user.userId,
-            personName: recurring.source,
+            source: recurring.source,
             category: recurring.category,
             amount: latest.amount,
             type: recurring.type,

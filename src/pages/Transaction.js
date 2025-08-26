@@ -69,7 +69,7 @@ const Transactions = () => {
     }
     if (filters.search) {
       data = data.filter((t) =>
-        t.personName.toLowerCase().includes(filters.search.toLowerCase())
+        t.source.toLowerCase().includes(filters.search.toLowerCase())
       );
     }
 
@@ -126,7 +126,7 @@ const Transactions = () => {
     const rows = transactions.map(t => [
       dayjs(t.date).format("DD-MM-YYYY"),
       t.type,
-      t.personName,
+      t.source,
       t.category,
       t.amount,
       t.notes || ""
@@ -149,7 +149,7 @@ const Transactions = () => {
     const tableRows = transactions.map(t => [
       dayjs(t.date).format("DD-MM-YYYY"),
       t.type,
-      t.personName,
+      t.source,
       t.category,
       t.amount,
       t.notes || ""
@@ -162,7 +162,7 @@ const Transactions = () => {
       styles: { fontSize: 10 },
       headStyles: { fillColor: [41, 128, 185] },
     });
-    
+
     doc.save("transactions.pdf");
   };
 
@@ -186,7 +186,7 @@ const Transactions = () => {
       // ],
       onFilter: (value, record) => record.type === value,
     },
-    { title: "Source", dataIndex: "personName", key: "personName", align: "center" },
+    { title: "Source", dataIndex: "source", key: "source", align: "center" },
     { title: "Category", dataIndex: "category", key: "category", align: "center" },
     {
       title: "Amount",
@@ -300,7 +300,7 @@ const Transactions = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item name="personName" label="Source" rules={[{ required: true }]}>
+          <Form.Item name="source" label="Source" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
 

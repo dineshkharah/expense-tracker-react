@@ -85,7 +85,7 @@ const FinanceTracker = () => {
   const handleSave = async (values) => {
     try {
       const payload = {
-        personName: values.personName,
+        source: values.source,
         category: values.category ? values.category.toLowerCase() : "",
         amount: values.amount.toString(),
         type: values.type,
@@ -125,7 +125,7 @@ const FinanceTracker = () => {
           />
         </Form.Item>
 
-        <Form.Item name="personName" label="Person / Source Name" rules={[{ required: true }]}>
+        <Form.Item name="source" label="Person / Source Name" rules={[{ required: true }]}>
           <Input placeholder="e.g. Salary, Grocery Store" />
         </Form.Item>
 

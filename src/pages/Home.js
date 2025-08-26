@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {Card, Row, Col, Table, Typography, Button } from "antd";
+import { Card, Row, Col, Table, Typography, Button } from "antd";
 import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 
 const Home = () => {
-    const[summary, setSummary] = useState({
-        balance:0,
-        totalIncome:0,
-        totalExpenses:0
+    const [summary, setSummary] = useState({
+        balance: 0,
+        totalIncome: 0,
+        totalExpenses: 0
     });
-    const[transactions, setTransactions] = useState([]);
+    const [transactions, setTransactions] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,7 +22,7 @@ const Home = () => {
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     }
                 });
-                
+
                 setSummary({
                     balance: userRes.data.balance,
                     totalIncome: userRes.data.totalIncome,
@@ -47,8 +47,8 @@ const Home = () => {
     const columns = [
         {
             title: "Source",
-            dataIndex: "personName",
-            key: "personName"
+            dataIndex: "source",
+            key: "source"
         },
         {
             title: "Category",
@@ -61,7 +61,7 @@ const Home = () => {
             key: "amount",
             render: (text, record) => (
                 <span style={{ color: record.type === "income" ? "green" : "red", fontWeight: "bold" }}>
-                ₹{text}
+                    ₹{text}
                 </span>
             ),
         },
@@ -98,61 +98,61 @@ const Home = () => {
 
             {/* Summary Cards */}
             <Row gutter={16}>
-                <Col xs={24} md={8} style={{padding:"1rem"}}>
+                <Col xs={24} md={8} style={{ padding: "1rem" }}>
                     <Card
                         style={{
-                        background: "#e0f2fe", 
-                        borderRadius: "16px",
-                        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                            background: "#e0f2fe",
+                            borderRadius: "16px",
+                            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
                         }}
                     >
                         <h2 style={{ fontSize: "1rem", fontWeight: "600", color: "#1d4ed8" }}>
-                        Balance
+                            Balance
                         </h2>
                         <p style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#1e3a8a" }}>
-                        ₹{summary.balance}
+                            ₹{summary.balance}
                         </p>
                     </Card>
                 </Col>
 
-                <Col xs={24} md={8} style={{padding:"1rem"}}>
+                <Col xs={24} md={8} style={{ padding: "1rem" }}>
                     <Card
                         style={{
-                        background: "#dcfce7", 
-                        borderRadius: "16px",
-                        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                            background: "#dcfce7",
+                            borderRadius: "16px",
+                            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
                         }}
                     >
                         <h2 style={{ fontSize: "1rem", fontWeight: "600", color: "#166534" }}>
-                        Total Income
+                            Total Income
                         </h2>
                         <p style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#14532d" }}>
-                        ₹{summary.totalIncome}
+                            ₹{summary.totalIncome}
                         </p>
                     </Card>
                 </Col>
 
-                <Col xs={24} md={8} style={{padding:"1rem"}}>
+                <Col xs={24} md={8} style={{ padding: "1rem" }}>
                     <Card
                         style={{
-                        background: "#fee2e2", 
-                        borderRadius: "16px",
-                        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                            background: "#fee2e2",
+                            borderRadius: "16px",
+                            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
                         }}
                     >
                         <h2 style={{ fontSize: "1rem", fontWeight: "600", color: "#991b1b" }}>
-                        Total Expenses
+                            Total Expenses
                         </h2>
                         <p style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#7f1d1d" }}>
-                        ₹{summary.totalExpenses}
+                            ₹{summary.totalExpenses}
                         </p>
                     </Card>
                 </Col>
             </Row>
 
             {/* Recent Transactions */}
-            <Card 
-                title="Recent Transactions" 
+            <Card
+                title="Recent Transactions"
                 className="mt-6"
                 extra={
                     <Button
@@ -164,7 +164,7 @@ const Home = () => {
                     </Button>
                 }
             >
-                <Table 
+                <Table
                     dataSource={transactions}
                     columns={columns}
                     rowKey="_id"
@@ -177,7 +177,7 @@ const Home = () => {
 
         </div>
 
-        
+
     );
 };
 

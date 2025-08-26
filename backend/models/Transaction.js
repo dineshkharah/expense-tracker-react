@@ -6,7 +6,7 @@ const expenseSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
-    personName: {
+    source: {
         type: String,
         required: true,
     },
@@ -27,7 +27,7 @@ const expenseSchema = new mongoose.Schema({
         type: Date,
         required: false,
     },
-    recurring:{
+    recurring: {
         type: Boolean,
         default: false,
     },
