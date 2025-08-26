@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const recurringExpenseSchema = new mongoose.Schema({
+const recurringTransactionSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -69,4 +69,5 @@ const recurringExpenseSchema = new mongoose.Schema({
     ]
 }, { timestamps: true });
 
-module.exports = mongoose.model('RecurringExpense', recurringExpenseSchema);
+const RecurringTransaction = mongoose.model('RecurringTransaction', recurringTransactionSchema);
+module.exports = RecurringTransaction;
