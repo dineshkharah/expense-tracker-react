@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Select, DatePicker, Popconfirm, message } from "antd";
+import { Table, Button, Modal, Form, Input, Select, DatePicker, Popconfirm, message, Tag } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 import { saveAs } from "file-saver";
@@ -184,7 +184,11 @@ const Transactions = () => {
       //   { text: "Income", value: "income" },
       //   { text: "Expense", value: "expense" },
       // ],
-      onFilter: (value, record) => record.type === value,
+      render: (type) => (
+        <Tag color={type === "income" ? "green" : "red"}>
+          {type.toUpperCase()}
+        </Tag>
+      ),
     },
     { title: "Source", dataIndex: "source", key: "source", align: "center" },
     { title: "Category", dataIndex: "category", key: "category", align: "center" },
@@ -194,6 +198,11 @@ const Transactions = () => {
       key: "amount",
       align: "center",
       sorter: (a, b) => a.amount - b.amount,
+      render: (amt, record) => (
+        <span style={{ color: record.type === "income" ? "green" : "red", fontWeight: "bold" }}>
+          ₹{amt}
+        </span>
+      ),
     },
     {
       title: "Actions",
