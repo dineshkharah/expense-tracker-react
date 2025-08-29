@@ -14,6 +14,7 @@ function getNextDate(currentDate, frequency) {
     return nextDate;
 }
 
+// Create
 const createRecurring = async (req, res) => {
     try {
         const { source, category, amount, type, startDate, frequency, notes } = req.body;
@@ -37,28 +38,30 @@ const createRecurring = async (req, res) => {
             notes,
         });
 
-        res.status(201).json(recurring);
+        res.status(201).json({
+            ...recurring._doc,
+            latestAmount: decrypt(recurring.amounts[recurring.amounts.length - 1].amount),
+        });
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
+// Get all
 const getRecurring = async (req, res) => {
     try {
         const recurs = await RecurringTransaction.find({ userId: req.user.userId });
-        const response = recurs.map(r => {
-            const latest = r.amounts[r.amounts.length - 1];
-            return {
-                ...r._doc,
-                latestAmount: decrypt(latest.amount),
-            };
-        });
+        const response = recurs.map(r => ({
+            ...r._doc,
+            latestAmount: decrypt(r.amounts[r.amounts.length - 1].amount),
+        }));
         res.json(response);
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
+// Update
 const updateRecurring = async (req, res) => {
     try {
         const recurring = await RecurringTransaction.findOne({
@@ -68,7 +71,6 @@ const updateRecurring = async (req, res) => {
 
         if (!recurring) return res.status(404).json({ message: "Recurring rule not found" });
 
-        // if new amount given -> push into amounts history
         if (req.body.amount) {
             recurring.amounts.push({
                 amount: encrypt(req.body.amount.toString()),
@@ -81,14 +83,20 @@ const updateRecurring = async (req, res) => {
         recurring.type = req.body.type || recurring.type;
         recurring.frequency = req.body.frequency || recurring.frequency;
         recurring.notes = req.body.notes || recurring.notes;
+        recurring.isActive = req.body.isActive ?? recurring.isActive;
 
         await recurring.save();
-        res.json(recurring);
+
+        res.json({
+            ...recurring._doc,
+            latestAmount: decrypt(recurring.amounts[recurring.amounts.length - 1].amount),
+        });
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
+// Delete
 const deleteRecurring = async (req, res) => {
     try {
         const recurring = await RecurringTransaction.findOneAndDelete({
@@ -97,12 +105,19 @@ const deleteRecurring = async (req, res) => {
         });
         if (!recurring) return res.status(404).json({ message: "Recurring rule not found" });
 
-        res.json({ message: "Recurring rule deleted" });
+        res.json({
+            message: "Recurring rule deleted",
+            deleted: {
+                ...recurring._doc,
+                latestAmount: decrypt(recurring.amounts[recurring.amounts.length - 1].amount),
+            }
+        });
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
+// Execute
 const executeRecurring = async (req, res) => {
     try {
         const recurring = await RecurringTransaction.findOne({
@@ -149,7 +164,6 @@ const executeRecurring = async (req, res) => {
 
         await recurring.save();
 
-        // Update user total
         const user = await User.findById(req.user.userId);
         const numericValue = parseFloat(decryptedAmount);
         if (recurring.type === "income") {
@@ -162,13 +176,20 @@ const executeRecurring = async (req, res) => {
 
         await user.save();
 
-        res.status(201).json({ message: "Transaction created", transaction, nextDate: recurring.nextDate });
+        res.status(201).json({
+            message: "Transaction created",
+            transaction,
+            nextDate: recurring.nextDate,
+            recurring: {
+                ...recurring._doc,
+                latestAmount: decryptedAmount,
+            }
+        });
 
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
     }
-
-}
+};
 
 module.exports = {
     createRecurring,
