@@ -1,4 +1,5 @@
 const Transaction = require('../models/Transaction');
+const RecurringTransaction = require('../models/recurringTransactions');
 const User = require('../models/User');
 const { encrypt, decrypt } = require('../utils/encryption');
 
@@ -171,7 +172,11 @@ const updateTransaction = async (req, res) => {
 
 const deleteTransaction = async (req, res) => {
     try {
-        const transaction = await Transaction.findByIdAndDelete({ _id: req.params.id, userId: req.user.userId });
+        const transaction = await Transaction.findOneAndDelete({
+            _id: req.params.id,
+            userId: req.user.userId
+        });
+
         if (!transaction) {
             return res.status(404).json({ message: 'Transaction not found' });
         }
@@ -189,7 +194,10 @@ const deleteTransaction = async (req, res) => {
 
         await user.save();
 
-        await transaction.deleteOne();
+        await RecurringTransaction.updateMany(
+            { "history.transactionId": transaction._id },
+            { $pull: { history: { transactionId: transaction._id } } }
+        );
 
         res.json({ message: 'Transaction Deleted' });
     } catch (error) {
