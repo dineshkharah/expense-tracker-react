@@ -54,8 +54,7 @@ const recurringTransactionSchema = new mongoose.Schema({
         {
             transactionId: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'Transaction',
-                required: true
+                ref: 'Transaction'
             },
             date: {
                 type: Date,
@@ -64,7 +63,13 @@ const recurringTransactionSchema = new mongoose.Schema({
             amount: {
                 type: String,
                 required: true
-            }
+            },
+            status: {
+                type: String,
+                enum: ['paid', 'skipped', 'snoozed', 'pending'],
+                default: 'paid'
+            },
+            snoozedUntil: { type: Date } // only if snoozed
         }
     ]
 }, { timestamps: true });

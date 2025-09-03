@@ -120,6 +120,8 @@ const deleteRecurring = async (req, res) => {
 // Execute
 const executeRecurring = async (req, res) => {
     try {
+        const { action = "paid", snoozeDays = 7 } = req.body;
+
         const recurring = await RecurringTransaction.findOne({
             _id: req.params.id,
             userId: req.user.userId,
@@ -141,48 +143,116 @@ const executeRecurring = async (req, res) => {
         }
 
         const decryptedAmount = decrypt(latest.amount);
+        let transaction = null;
 
-        const transaction = await Transaction.create({
-            userId: req.user.userId,
-            source: recurring.source,
-            category: recurring.category,
-            amount: latest.amount,
-            type: recurring.type,
-            date: today,
-            recurring: true,
-            frequency: recurring.frequency,
-            notes: recurring.notes,
-        });
+        if (action === "paid") {
 
-        recurring.history.push({
-            transactionId: transaction._id,
-            amount: latest.amount,
-            date: today,
-        });
+            const alreadyPaid = recurring.history.some(
+                h => h.status === "paid" &&
+                    h.date >= recurring.startDate &&
+                    h.date <= recurring.nextDate
+            );
 
-        recurring.nextDate = getNextDate(recurring.nextDate, recurring.frequency);
+            if (alreadyPaid) {
+                return res.status(400).json({ message: "Transaction already paid for this period" });
+            }
+
+            transaction = await Transaction.create({
+                userId: req.user.userId,
+                source: recurring.source,
+                category: recurring.category,
+                amount: latest.amount,
+                type: recurring.type,
+                date: today,
+                recurring: true,
+                frequency: recurring.frequency,
+                notes: recurring.notes,
+            });
+
+            const user = await User.findById(req.user.userId);
+            const numericValue = parseFloat(decryptedAmount);
+            if (recurring.type === "income") {
+                user.balance += numericValue
+                user.totalIncome += numericValue
+            } else {
+                user.balance -= numericValue
+                user.totalExpenses += numericValue
+            }
+
+            await user.save();
+
+            recurring.history.push({
+                transactionId: transaction._id,
+                amount: latest.amount,
+                date: today,
+                status: "paid"
+            });
+
+        } else if (action === "skipped") {
+            recurring.history.push({
+                transactionId: null,
+                amount: latest.amount,
+                date: today,
+                status: "skipped"
+            });
+
+        } else if (action === "snoozed") {
+            const snoozedUntil = new Date(recurring.nextDate || today);
+            snoozedUntil.setDate(snoozedUntil.getDate() + parseInt(snoozeDays));
+
+            recurring.history.push({
+                transactionId: null,
+                amount: latest.amount,
+                date: today,
+                status: "snoozed",
+                snoozedUntil
+            });
+            recurring.nextDate = snoozedUntil;
+        }
+
+        if (action !== "snoozed") {
+            recurring.nextDate = getNextDate(recurring.nextDate, recurring.frequency);
+        }
 
         await recurring.save();
 
-        const user = await User.findById(req.user.userId);
-        const numericValue = parseFloat(decryptedAmount);
-        if (recurring.type === "income") {
-            user.balance += numericValue
-            user.totalIncome += numericValue
-        } else {
-            user.balance -= numericValue
-            user.totalExpenses += numericValue
-        }
-
-        await user.save();
-
         res.status(201).json({
             message: "Transaction created",
-            transaction,
+            _id: recurring._id,
+            userId: recurring.userId,
+            source: recurring.source,
+            category: recurring.category,
+            type: recurring.type,
+            frequency: recurring.frequency,
+            startDate: recurring.startDate,
             nextDate: recurring.nextDate,
-            recurring: {
-                ...recurring._doc,
-                latestAmount: decryptedAmount,
+            isActive: recurring.isActive,
+            notes: recurring.notes,
+
+            latestAmount: parseFloat(decryptedAmount),
+
+            amounts: recurring.amounts.map(a => ({
+                amount: parseFloat(decrypt(a.amount)),
+                effectiveFrom: a.effectiveFrom,
+            })),
+
+            history: recurring.history.map(h => ({
+                date: h.date,
+                amount: parseFloat(decrypt(h.amount)),
+                status: h.status || "paid",
+                snoozedUntil: h.snoozedUntil || null,
+                transactionId: h.transactionId
+            })),
+
+            createdAt: recurring.createdAt,
+            updatedAt: recurring.updatedAt,
+
+            transactionCreated: transaction && {
+                _id: transaction._id,
+                date: transaction.date,
+                amount: parseFloat(decryptedAmount),
+                type: transaction.type,
+                category: transaction.category,
             }
         });
 
