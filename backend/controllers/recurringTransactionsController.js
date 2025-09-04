@@ -114,6 +114,45 @@ const updateRecurring = async (req, res) => {
     }
 };
 
+// Get by ID
+const getRecurringById = async (req, res) => {
+    try {
+        const recurring = await RecurringTransaction.findOne({
+            _id: req.params.id,
+            userId: req.user.userId,
+        });
+
+        if (!recurring) {
+            return res.status(404).json({ message: "Recurring rule not found" });
+        }
+
+        const latestAmount = decrypt(recurring.amounts[recurring.amounts.length - 1].amount);
+
+        res.json({
+            ...recurring._doc,
+            latestAmount: parseFloat(latestAmount),
+
+            amounts: recurring.amounts.map(a => ({
+                _id: a._id,
+                amount: parseFloat(decrypt(a.amount)),
+                effectiveFrom: a.effectiveFrom
+            })),
+
+            history: recurring.history.map(h => ({
+                _id: h._id,
+                date: h.date,
+                amount: parseFloat(decrypt(h.amount)),
+                status: h.status || "paid",
+                snoozedUntil: h.snoozedUntil || null,
+                transactionId: h.transactionId || null
+            }))
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+
 // Delete
 const deleteRecurring = async (req, res) => {
     try {
@@ -282,6 +321,7 @@ const executeRecurring = async (req, res) => {
 module.exports = {
     createRecurring,
     getRecurring,
+    getRecurringById,
     updateRecurring,
     deleteRecurring,
     executeRecurring,

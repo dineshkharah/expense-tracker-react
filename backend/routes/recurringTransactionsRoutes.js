@@ -5,12 +5,14 @@ const {
     updateRecurring,
     deleteRecurring,
     executeRecurring,
+    getRecurringById
 } = require('../controllers/recurringTransactionsController');
 const authenticateUser = require("../middleware/authenticateUser");
 const router = express.Router();
 
 router.post('/', authenticateUser, createRecurring);
 router.get('/', authenticateUser, getRecurring);
+router.get('/:id', authenticateUser, getRecurringById);
 router.put('/:id', authenticateUser, updateRecurring);
 router.delete('/:id', authenticateUser, deleteRecurring);
 router.post('/:id/execute', authenticateUser, executeRecurring);
