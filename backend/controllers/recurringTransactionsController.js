@@ -51,10 +51,28 @@ const createRecurring = async (req, res) => {
 const getRecurring = async (req, res) => {
     try {
         const recurs = await RecurringTransaction.find({ userId: req.user.userId });
-        const response = recurs.map(r => ({
-            ...r._doc,
-            latestAmount: decrypt(r.amounts[r.amounts.length - 1].amount),
-        }));
+        const response = recurs.map(r => {
+            const latestAmount = decrypt(r.amounts[r.amounts.length - 1].amount);
+            return {
+                ...r._doc,
+                latestAmount: parseFloat(latestAmount),
+
+                amounts: r.amounts.map(a => ({
+                    _id: a._id,
+                    amount: parseFloat(decrypt(a.amount)),
+                    effectiveFrom: a.effectiveFrom
+                })),
+
+                history: r.history.map(h => ({
+                    _id: h._id,
+                    date: h.date,
+                    amount: parseFloat(decrypt(h.amount)),
+                    status: h.status || "paid",
+                    snoozedUntil: h.snoozedUntil || null,
+                    transactionId: h.transactionId || null
+                }))
+            };
+        });
         res.json(response);
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
