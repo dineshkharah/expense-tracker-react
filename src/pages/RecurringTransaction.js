@@ -3,6 +3,8 @@ import { Table, Button, Modal, Form, Input, Select, Popconfirm, message, Tag, Sw
 import axios from "axios";
 import dayjs from "dayjs";
 
+import RecurringTransactionsDetail from "./RecurringTransactionDetail";
+
 const { Option } = Select;
 
 const token = localStorage.getItem("token");
@@ -12,6 +14,7 @@ const RecurringTransactions = () => {
     const [recurrings, setRecurrings] = useState([]);
     const [loading, setLoading] = useState(false);
     const [editing, setEditing] = useState(null);
+    const [detail, setDetail] = useState(null);
     const [form] = Form.useForm();
 
     const fetchRecurrings = async () => {
@@ -146,6 +149,7 @@ const RecurringTransactions = () => {
                     >
                         <Button type="link" danger>Delete</Button>
                     </Popconfirm>
+                    <Button type="link" onClick={() => setDetail(record)}>View</Button>
                 </>
             ),
         },
@@ -201,6 +205,12 @@ const RecurringTransactions = () => {
                     </Form.Item>
                 </Form>
             </Modal>
+            <RecurringTransactionsDetail
+                visible={!!detail}
+                onClose={() => setDetail(null)}
+                recurring={detail}
+                refreshList={fetchRecurrings}
+            />
         </div>
     );
 };
