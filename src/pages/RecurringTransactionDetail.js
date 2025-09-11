@@ -24,28 +24,51 @@ const RecurringTransactionDetail = ({ visible, onClose, recurring, refreshList }
             onClose()
         } catch (error) {
             console.error("Error:", error)
-            message.error("An error occurred.")
+
+            const backendMessage = error.response?.data?.message || "An error occurred."
+            message.error(backendMessage)
         } finally {
             setLoading(false)
         }
-
     }
 
+    const historyData = [...recurring.history].sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+    )
+
+    const alreadyPaid = historyData.some(
+        h => h.status === 'paid' &&
+            new Date(h.date) >= new Date(recurring.startDate) &&
+            new Date(h.date) <= new Date(recurring.nextDate)
+    )
+
+    const latestSnooze = historyData.find(h => h.status === 'snoozed')?.snoozedUntil
+
+
     const historyColumns = [
-        { title: 'Date', dataIndex: 'date', key: 'date', render: d => dayjs(d).format('DD MMM YYYY') },
-        { title: 'Amount', dataIndex: 'amount', key: 'amount', render: a => `$${a.toFixed(2)}` },
         {
-            title: 'Status', dataIndex: 'status', key: 'status', render: status => (
-                <Tag color={status === 'paid' ? 'green' : status === 'skipped' ? 'orange' : 'blue'}>
+            title: 'Date',
+            dataIndex: 'date',
+            key: 'date',
+            render: d => dayjs(d).format('DD MMM YYYY')
+        },
+        {
+            title: 'Amount',
+            dataIndex: 'amount',
+            key: 'amount',
+            render: a => `$${a.toFixed(2)}`
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            render: status => (
+                <Tag color={
+                    status === 'paid' ? 'green' : status === 'skipped' ? 'orange' : 'blue'}>
                     {status.toUpperCase()}
                 </Tag>
             )
-        },
-        {
-            title: "Snoozed Until", dataIndex: "snoozedUntil", key: "snoozedUntil",
-            render: d => d ? dayjs(d).format("DD MMM YYYY") : "-"
         }
-
     ]
 
     return (
@@ -54,13 +77,13 @@ const RecurringTransactionDetail = ({ visible, onClose, recurring, refreshList }
             open={visible}
             onCancel={onClose}
             footer={[
-                <Button key="skip" onClick={() => handleAction("skipped")} disabled={loading}>
+                <Button key="skip" onClick={() => handleAction("skipped")} disabled={loading || alreadyPaid}>
                     Skip
                 </Button>,
-                <Button key="snooze" onClick={() => handleAction("snoozed")} disabled={loading}>
+                <Button key="snooze" onClick={() => handleAction("snoozed")} disabled={loading || alreadyPaid}>
                     Snooze
                 </Button>,
-                <Button key="paid" type="primary" onClick={() => handleAction("paid")} loading={loading}>
+                <Button key="paid" type="primary" onClick={() => handleAction("paid")} loading={loading} disabled={alreadyPaid}>
                     Mark Paid
                 </Button>
             ]}
@@ -70,6 +93,14 @@ const RecurringTransactionDetail = ({ visible, onClose, recurring, refreshList }
             <p><b>Amount:</b> ₹{recurring.latestAmount}</p>
             <p><b>Frequency:</b> {recurring.frequency}</p>
             <p><b>Next Date:</b> {dayjs(recurring.nextDate).format("DD MMM YYYY")}</p>
+            {latestSnooze && (
+                <p><b>Last Snoozed Until:</b> {dayjs(latestSnooze).format("DD MMM YYYY")}</p>
+            )}
+            {alreadyPaid && (
+                <p style={{ color: "green", fontWeight: "bold" }}>
+                    This transaction has already been paid (until {dayjs(recurring.nextDate).format("DD MMM YYYY")}).
+                </p>
+            )}
             <p><b>Notes:</b> {recurring.notes || "-"}</p>
 
             <h3 style={{ marginTop: "20px" }}>History</h3>
