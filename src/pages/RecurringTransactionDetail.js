@@ -106,7 +106,7 @@ const RecurringTransactionDetail = ({ visible, onClose, recurring, refreshList }
             <h3 style={{ marginTop: "20px" }}>History</h3>
             <Table
                 columns={historyColumns}
-                dataSource={recurring.history}
+                dataSource={historyData}
                 rowKey="_id"
                 pagination={{ pageSize: 5 }}
                 size="small"
