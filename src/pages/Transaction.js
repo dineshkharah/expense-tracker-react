@@ -2,10 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Form, Input, Select, DatePicker, Popconfirm, message, Tag } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
-import { saveAs } from "file-saver";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import isBetween from "dayjs/plugin/isBetween";
+import { exportCSV, exportPDF } from "../utils/exportUtils";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -120,52 +118,6 @@ const Transactions = () => {
     }
   };
 
-  // Export to CSV
-  const exportCSV = () => {
-    const headers = ["Date", "Type", "Source", "Category", "Amount", "Notes"];
-    const rows = transactions.map(t => [
-      dayjs(t.date).format("DD-MM-YYYY"),
-      t.type,
-      t.source,
-      t.category,
-      t.amount,
-      t.notes || ""
-    ]);
-
-    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    saveAs(blob, "transactions.csv");
-  };
-
-  // Export to PDF
-  const exportPDF = () => {
-    const doc = new jsPDF();
-
-    doc.setFontSize(14);
-    doc.text("Transactions Report", 14, 15);
-
-    const tableColumn = ["Date", "Type", "Source", "Category", "Amount", "Notes"];
-    const tableRows = transactions.map(t => [
-      dayjs(t.date).format("DD-MM-YYYY"),
-      t.type,
-      t.source,
-      t.category,
-      t.amount,
-      t.notes || ""
-    ]);
-
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 25,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [41, 128, 185] },
-    });
-
-    doc.save("transactions.pdf");
-  };
-
   const columns = [
     {
       title: "Date",
@@ -274,8 +226,8 @@ const Transactions = () => {
 
         {/* Export buttons */}
         <div className="flex gap-2 mt-3">
-          <Button onClick={exportCSV} type="primary">Export CSV</Button>
-          <Button onClick={exportPDF} type="default">Export PDF</Button>
+          <Button onClick={() => exportCSV(transactions)} type="primary">Export CSV</Button>
+          <Button onClick={() => exportPDF(transactions)} type="default">Export PDF</Button>
         </div>
       </div>
 
