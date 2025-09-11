@@ -282,7 +282,7 @@ const Transactions = () => {
       {/* Table */}
       <div className="w-full overflow-x-auto">
         <Table
-          dataSource={filteredTransactions}
+          dataSource={[...filteredTransactions].sort((a, b) => new Date(b.date) - new Date(a.date))}
           columns={columns}
           rowKey="_id"
           loading={loading}
