@@ -3,6 +3,17 @@ const RecurringTransaction = require('../models/recurringTransactions');
 const User = require('../models/User');
 const { encrypt, decrypt } = require('../utils/encryption');
 
+function getNextDate(currentDate, frequency) {
+    const nextDate = new Date(currentDate);
+    switch (frequency) {
+        case "daily": nextDate.setDate(nextDate.getDate() + 1); break;
+        case "weekly": nextDate.setDate(nextDate.getDate() + 7); break;
+        case "monthly": nextDate.setMonth(nextDate.getMonth() + 1); break;
+        case "yearly": nextDate.setFullYear(nextDate.getFullYear() + 1); break;
+    }
+    return nextDate;
+}
+
 const createTransaction = async (req, res) => {
     const { source, category, amount, type, date, notes, recurring, frequency } = req.body;
     try {
@@ -194,10 +205,36 @@ const deleteTransaction = async (req, res) => {
 
         await user.save();
 
-        await RecurringTransaction.updateMany(
+        const recurrings = await RecurringTransaction.find(
             { "history.transactionId": transaction._id },
-            { $pull: { history: { transactionId: transaction._id } } }
         );
+
+        for (const recurring of recurrings) {
+            recurring.history = recurring.history.filter(
+                h => !h.transactionId || h.transactionId.toString() !== transaction._id.toString()
+            );
+
+            const snoozedEntries = recurring.history
+                .filter(h => h.status === 'snoozed' && h.snoozedUntil)
+                .sort((a, b) => new Date(b.snoozedUntil) - new Date(a.snoozedUntil));
+
+            if (snoozedEntries.length > 0) {
+                recurring.nextDate = new Date(snoozedEntries[0].snoozedUntil);
+            } else if (recurring.history.length > 0) {
+                const remainingSorted = recurring.history
+                    .slice()
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                const last = remainingSorted[0];
+
+                recurring.nextDate = getNextDate(new Date(last.date), recurring.frequency);
+            } else {
+                recurring.nextDate = getNextDate(new Date(recurring.startDate), recurring.frequency);
+            }
+            await recurring.save();
+        }
+
+        await transaction.deleteOne();
 
         res.json({ message: 'Transaction Deleted' });
     } catch (error) {
