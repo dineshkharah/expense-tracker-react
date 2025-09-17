@@ -3,7 +3,7 @@ import { Table, Button, Modal, Form, Input, Select, Popconfirm, message, Tag, Sw
 import axios from "axios";
 import dayjs from "dayjs";
 
-import RecurringTransactionsDetail from "./RecurringTransactionDetail";
+import RecurringTransactionsDetail from "./../components/RecurringTransactionDetail";
 
 const { Option } = Select;
 
