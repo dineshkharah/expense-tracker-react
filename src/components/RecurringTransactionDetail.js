@@ -8,6 +8,7 @@ const headers = { Authorization: `Bearer ${token}` }
 
 const RecurringTransactionDetail = ({ visible, onClose, recurring, refreshList }) => {
     const [loading, setLoading] = useState(false)
+    const [confirmAction, setConfirmAction] = useState(null)
 
     if (!recurring) return null
 
@@ -16,7 +17,7 @@ const RecurringTransactionDetail = ({ visible, onClose, recurring, refreshList }
             setLoading(true);
             await axios.post(
                 `http://localhost:5000/api/v1/recurring-transactions/${recurring._id}/execute`,
-                { action },
+                { action: confirmAction },
                 { headers }
             )
             message.success("Action executed successfully.")
@@ -72,46 +73,61 @@ const RecurringTransactionDetail = ({ visible, onClose, recurring, refreshList }
     ]
 
     return (
-        <Modal
-            title={`${recurring.source}`}
-            open={visible}
-            onCancel={onClose}
-            footer={[
-                <Button key="skip" onClick={() => handleAction("skipped")} disabled={loading || alreadyPaid}>
-                    Skip
-                </Button>,
-                <Button key="snooze" onClick={() => handleAction("snoozed")} disabled={loading || alreadyPaid}>
-                    Snooze
-                </Button>,
-                <Button key="paid" type="primary" onClick={() => handleAction("paid")} loading={loading} disabled={alreadyPaid}>
-                    Mark Paid
-                </Button>
-            ]}
-            width={800}
-        >
-            <p><b>Category:</b> {recurring.category}</p>
-            <p><b>Amount:</b> ₹{recurring.latestAmount}</p>
-            <p><b>Frequency:</b> {recurring.frequency}</p>
-            <p><b>Next Date:</b> {dayjs(recurring.nextDate).format("DD MMM YYYY")}</p>
-            {latestSnooze && (
-                <p><b>Last Snoozed Until:</b> {dayjs(latestSnooze).format("DD MMM YYYY")}</p>
-            )}
-            {alreadyPaid && (
-                <p style={{ color: "green", fontWeight: "bold" }}>
-                    This transaction has already been paid (until {dayjs(recurring.nextDate).format("DD MMM YYYY")}).
-                </p>
-            )}
-            <p><b>Notes:</b> {recurring.notes || "-"}</p>
+        <>
+            <Modal
+                title={`${recurring.source}`}
+                open={visible}
+                onCancel={onClose}
+                footer={[
+                    <Button key="skip" onClick={() => setConfirmAction("skipped")} disabled={loading || alreadyPaid}>
+                        Skip
+                    </Button>,
+                    <Button key="snooze" onClick={() => setConfirmAction("snoozed")} disabled={loading || alreadyPaid}>
+                        Snooze
+                    </Button>,
+                    <Button key="paid" type="primary" onClick={() => setConfirmAction("paid")} loading={loading} disabled={alreadyPaid}>
+                        Mark Paid
+                    </Button>
+                ]}
+                width={800}
+            >
+                <p><b>Category:</b> {recurring.category}</p>
+                <p><b>Amount:</b> ₹{recurring.latestAmount}</p>
+                <p><b>Frequency:</b> {recurring.frequency}</p>
+                <p><b>Next Date:</b> {dayjs(recurring.nextDate).format("DD MMM YYYY")}</p>
+                {latestSnooze && (
+                    <p><b>Last Snoozed Until:</b> {dayjs(latestSnooze).format("DD MMM YYYY")}</p>
+                )}
+                {alreadyPaid && (
+                    <p style={{ color: "green", fontWeight: "bold" }}>
+                        This transaction has already been paid (until {dayjs(recurring.nextDate).format("DD MMM YYYY")}).
+                    </p>
+                )}
+                <p><b>Notes:</b> {recurring.notes || "-"}</p>
 
-            <h3 style={{ marginTop: "20px" }}>History</h3>
-            <Table
-                columns={historyColumns}
-                dataSource={historyData}
-                rowKey="_id"
-                pagination={{ pageSize: 5 }}
-                size="small"
-            />
-        </Modal>
+                <h3 style={{ marginTop: "20px" }}>History</h3>
+                <Table
+                    columns={historyColumns}
+                    dataSource={historyData}
+                    rowKey="_id"
+                    pagination={{ pageSize: 5 }}
+                    size="small"
+                />
+            </Modal>
+
+            <Modal
+                open={!!confirmAction}
+                onCancel={() => setConfirmAction(null)}
+                onOk={handleAction}
+                okText="Confirm"
+                confirmLoading={loading}
+                cancelText="Cancel"
+                title="Confirm Action"
+            >
+                Are you sure you want to mark "{confirmAction}" this transaction?
+
+            </Modal>
+        </>
     );
 };
 
