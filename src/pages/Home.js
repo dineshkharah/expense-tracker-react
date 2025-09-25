@@ -35,7 +35,8 @@ const Home = () => {
                     }
                 });
 
-                setTransactions(transactionRes.data.slice(0, 5));
+                const sorted = transactionRes.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                setTransactions(sorted.slice(0, 5));
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -165,7 +166,7 @@ const Home = () => {
                 }
             >
                 <Table
-                    dataSource={[...transactions].sort((a, b) => new Date(b.date) - new Date(a.date))}
+                    dataSource={transactions}
                     columns={columns}
                     rowKey="_id"
                     pagination={false}
