@@ -127,6 +127,7 @@ const Transactions = () => {
       sorter: (a, b) => dayjs(a.date).unix() - dayjs(b.date).unix(),
       render: (d) => dayjs(d).format("DD MMM YYYY"),
     },
+    { title: "Source", dataIndex: "source", key: "source", align: "center" },
     {
       title: "Type",
       dataIndex: "type",
@@ -142,7 +143,6 @@ const Transactions = () => {
         </Tag>
       ),
     },
-    { title: "Source", dataIndex: "source", key: "source", align: "center" },
     { title: "Category", dataIndex: "category", key: "category", align: "center" },
     {
       title: "Amount",
@@ -155,6 +155,19 @@ const Transactions = () => {
           ₹{amt}
         </span>
       ),
+    },
+    {
+      title: "Recurring",
+      key: "recurring",
+      align: "center",
+      render: (_, record) =>
+        record.recurring ? (
+          <Tag color="blue" style={{ fontWeight: "bold" }}>
+            Recurring
+          </Tag>
+        ) : (
+          <Tag color="default">Not-Recurring</Tag>
+        ),
     },
     {
       title: "Actions",
@@ -178,6 +191,9 @@ const Transactions = () => {
         </div>
       ),
     },
+
+
+
   ];
 
   return (
