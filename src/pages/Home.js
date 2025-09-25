@@ -165,7 +165,7 @@ const Home = () => {
                 }
             >
                 <Table
-                    dataSource={transactions}
+                    dataSource={[...transactions].sort((a, b) => new Date(b.date) - new Date(a.date))}
                     columns={columns}
                     rowKey="_id"
                     pagination={false}
