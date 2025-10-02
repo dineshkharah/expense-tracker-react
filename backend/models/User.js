@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    balance:{
+    balance: {
         type: Number,
         default: 0
     },
@@ -27,7 +27,31 @@ const userSchema = new mongoose.Schema({
     totalExpenses: {
         type: Number,
         default: 0
-    },
+    }, notifications: [
+        {
+            message: { type: String, required: true },
+            date: { type: Date, default: Date.now },
+            read: { type: Boolean, default: false },
+            recurringId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "RecurringTransaction",
+                default: null
+            },
+            transactionId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Transaction",
+                default: null
+            },
+            type: {
+                type: String,
+                enum: ["recurring", "transaction", "system"],
+                default: "system"
+            }
+        }
+    ]
+
+
+
 
 }, { timestamps: true });
 
