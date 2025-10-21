@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Layout, Menu, Button, Dropdown, Avatar, Space, Drawer } from "antd";
+import { Layout, Menu, Button, Dropdown, Avatar, Space, Drawer, Badge } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LogoutOutlined,
@@ -10,6 +10,7 @@ import {
   TableOutlined,
   BarChartOutlined,
   MenuOutlined,
+  BellOutlined,
 } from "@ant-design/icons";
 
 const { Header } = Layout;
@@ -17,8 +18,39 @@ const { Header } = Layout;
 const Navbar = () => {
   const [user, setUser] = useState(null);
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/v1/notifications", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Failed to fetch notifications");
+        setNotifications([]);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        setNotifications(data);
+      } else if (Array.isArray(data.notifications)) {
+        setNotifications(data.notifications);
+      } else {
+        console.error("Unexpected notifications format:", data);
+        setNotifications([]);
+      }
+    } catch (error) {
+      console.log("Error fetching notifications:", error);
+      console.error("Error fetching notifications:", error);
+    }
+  };
 
   useEffect(() => {
     const updateUser = () => {
@@ -27,6 +59,7 @@ const Navbar = () => {
     };
 
     updateUser();
+    fetchNotifications();
 
     window.addEventListener("storage", updateUser);
 
@@ -78,6 +111,7 @@ const Navbar = () => {
     },
   ];
 
+
   return (
     <>
       <Header
@@ -94,15 +128,24 @@ const Navbar = () => {
           />
           {/* Profile on desktop */}
           {user ? (
-            <Dropdown menu={{ items: profileMenu }} placement="bottomRight">
-              <Space style={{ cursor: "pointer", color: "white" }}>
-                <Avatar
-                  icon={<UserOutlined />}
-                  style={{ backgroundColor: "#1677ff", paddingLeft: "0.5px" }}
+            <Space size="large">
+              <Badge count={notifications.filter((n) => !n.read).length} overflowCount={9}>
+                <BellOutlined
+                  style={{ fontSize: "20px", color: "white", cursor: "pointer" }}
+                  onClick={() => navigate("/notifications")}
                 />
-                {user.name}
-              </Space>
-            </Dropdown>
+              </Badge>
+
+              <Dropdown menu={{ items: profileMenu }} placement="bottomRight">
+                <Space style={{ cursor: "pointer", color: "white" }}>
+                  <Avatar
+                    icon={<UserOutlined />}
+                    style={{ backgroundColor: "#1677ff", paddingLeft: "0.5px" }}
+                  />
+                  {user.name}
+                </Space>
+              </Dropdown>
+            </Space>
           ) : (
             <Link to="/login">
               <Button type="primary" icon={<LoginOutlined />}>

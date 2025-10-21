@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import RecurringTransactions from './pages/RecurringTransaction';
+import Notifications from './pages/Notification';
 
 const { Header, Content, Footer: AntFooter } = Layout;
 
@@ -32,6 +33,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/recurring-transactions" element={<RecurringTransactions />} />
+            <Route path="/notifications" element={<Notifications />} />
           </Routes>
         </Content>
         <AntFooter style={{ textAlign: 'center' }}>

@@ -71,7 +71,7 @@ const deleteNotification = async (req, res) => {
             return res.status(404).json({ message: "Notification not found" });
         }
 
-        notification.remove();
+        user.notifications.pull({ _id: req.params.id });
         await user.save();
         res.json({ message: "Notification deleted" });
     } catch (err) {
