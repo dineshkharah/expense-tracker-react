@@ -3,7 +3,8 @@ const RecurringTransaction = require('../models/recurringTransactions');
 const User = require('../models/User');
 const { decrypt } = require('../utils/encryption');
 
-cron.schedule("*/10 * * * * *", async () => {
+// cron.schedule("*/10 * * * * *", async () => { for every 10 seconds testing
+cron.schedule("0 9 * * *", async () => {
     console.log(" Running CRON: Checking upcoming recurring payments...");
 
     try {
