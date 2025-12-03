@@ -177,7 +177,7 @@ const deleteRecurring = async (req, res) => {
 // Execute
 const executeRecurring = async (req, res) => {
     try {
-        const { action = "paid", snoozeDays = 7 } = req.body;
+        const { action = "paid", snoozeDays = 7, periodEnd } = req.body;
 
         const recurring = await RecurringTransaction.findOne({
             _id: req.params.id,
@@ -189,10 +189,26 @@ const executeRecurring = async (req, res) => {
             return res.status(404).json({ message: "Active recurring rule not found" });
         }
 
-        const today = new Date();
+        const targetedPeriodEnd = periodEnd ? new Date(periodEnd) : new Date(recurring.nextDate);
+
+        const getPeriodEnd = (date, frequency) => {
+            const start = new Date(date);
+
+            switch (frequency) {
+                case "daily": start.setDate(start.getDate() - 1); break;
+                case "weekly": start.setDate(start.getDate() - 7); break;
+                case "monthly": start.setMonth(start.getMonth() - 1); break;
+                case "yearly": start.setFullYear(start.getFullYear() - 1); break;
+            }
+            return start;
+        }
+
+        const periodStart = getPeriodEnd(targetedPeriodEnd, recurring.frequency);
+
+        // const today = new Date();
 
         const latest = recurring.amounts
-            .filter(a => new Date(a.effectiveFrom) <= today)
+            .filter(a => new Date(a.effectiveFrom) <= targetedPeriodEnd)
             .sort((a, b) => new Date(b.effectiveFrom) - new Date(a.effectiveFrom))[0];
 
         if (!latest) {
@@ -202,15 +218,22 @@ const executeRecurring = async (req, res) => {
         const decryptedAmount = decrypt(latest.amount);
         let transaction = null;
 
+        const alreadyProcessedForPeriod = recurring.history.some(h => {
+            const historyDate = new Date(h.date);
+            return h.status === "paid"
+                && historyDate > periodStart
+                && historyDate <= targetedPeriodEnd;
+        });
+
         if (action === "paid") {
 
-            const alreadyPaid = recurring.history.some(
-                h => h.status === "paid" &&
-                    h.date >= recurring.startDate &&
-                    h.date <= recurring.nextDate
-            );
+            // const alreadyPaid = recurring.history.some(
+            //     h => h.status === "paid" &&
+            //         h.date >= recurring.startDate &&
+            //         h.date <= recurring.nextDate
+            // );
 
-            if (alreadyPaid) {
+            if (alreadyProcessedForPeriod) {
                 return res.status(400).json({ message: "Transaction already paid for this period" });
             }
 
@@ -220,7 +243,7 @@ const executeRecurring = async (req, res) => {
                 category: recurring.category,
                 amount: latest.amount,
                 type: recurring.type,
-                date: today,
+                date: new Date(),
                 recurring: true,
                 frequency: recurring.frequency,
                 notes: recurring.notes,
@@ -238,38 +261,50 @@ const executeRecurring = async (req, res) => {
 
             await user.save();
 
+            // push history but set history date to targetedPeriodEnd to reflect the intended period
             recurring.history.push({
                 transactionId: transaction._id,
                 amount: latest.amount,
-                date: today,
+                date: targetedPeriodEnd,
                 status: "paid"
             });
+
+            // if paying for an older period, skip to the next applicable date
+            recurring.nextDate = getNextDate(targetedPeriodEnd, recurring.frequency);
+
 
         } else if (action === "skipped") {
             recurring.history.push({
                 transactionId: null,
                 amount: latest.amount,
-                date: today,
+                date: targetedPeriodEnd,
                 status: "skipped"
             });
 
+            recurring.nextDate = getNextDate(targetedPeriodEnd, recurring.frequency);
+
         } else if (action === "snoozed") {
-            const snoozedUntil = new Date(recurring.nextDate || today);
-            snoozedUntil.setDate(snoozedUntil.getDate() + parseInt(snoozeDays));
+            const snoozedUntil = new Date(recurring.nextDate || targetedPeriodEnd);
+            snoozedUntil.setDate(snoozedUntil.getDate() + parseInt(snoozeDays, 10));
 
             recurring.history.push({
                 transactionId: null,
                 amount: latest.amount,
-                date: today,
+                date: targetedPeriodEnd,
                 status: "snoozed",
                 snoozedUntil
             });
-            recurring.nextDate = snoozedUntil;
+
+            if (new Date(recurring.nextDate) <= targetedPeriodEnd) {
+                recurring.nextDate = snoozedUntil;
+            }
+        } else {
+            return res.status(400).json({ message: "Invalid action" });
         }
 
-        if (action !== "snoozed") {
-            recurring.nextDate = getNextDate(recurring.nextDate, recurring.frequency);
-        }
+        // if (action !== "snoozed") {
+        //     recurring.nextDate = getNextDate(recurring.nextDate, recurring.frequency);
+        // }
 
         await recurring.save();
 
