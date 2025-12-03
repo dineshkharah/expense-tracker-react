@@ -30,6 +30,7 @@ const RecurringTransactionDetail = ({ visible, onClose, recurring, refreshList }
             message.error(backendMessage)
         } finally {
             setLoading(false)
+            setConfirmAction(null)
         }
     }
 
@@ -37,11 +38,16 @@ const RecurringTransactionDetail = ({ visible, onClose, recurring, refreshList }
         (a, b) => new Date(b.date) - new Date(a.date)
     )
 
-    const alreadyPaid = historyData.some(
-        h => h.status === 'paid' &&
-            new Date(h.date) >= new Date(recurring.startDate) &&
-            new Date(h.date) <= new Date(recurring.nextDate)
+    const hasEntryForNextDate = historyData.some(
+        h => dayjs(h.date).isSame(dayjs(recurring.nextDate), 'day')
     )
+
+    const isFutureDate = dayjs(recurring.nextDate).isAfter(dayjs(), 'day')
+    // const alreadyPaid = historyData.some(
+    //     h => h.status === 'paid' &&
+    //         new Date(h.date) >= new Date(recurring.startDate) &&
+    //         new Date(h.date) <= new Date(recurring.nextDate)
+    // )
 
     const latestSnooze = historyData.find(h => h.status === 'snoozed')?.snoozedUntil
 
@@ -79,13 +85,13 @@ const RecurringTransactionDetail = ({ visible, onClose, recurring, refreshList }
                 open={visible}
                 onCancel={onClose}
                 footer={[
-                    <Button key="skip" onClick={() => setConfirmAction("skipped")} disabled={loading || alreadyPaid}>
+                    <Button key="skip" onClick={() => setConfirmAction("skipped")} disabled={loading || hasEntryForNextDate || isFutureDate}>
                         Skip
                     </Button>,
-                    <Button key="snooze" onClick={() => setConfirmAction("snoozed")} disabled={loading || alreadyPaid}>
+                    <Button key="snooze" onClick={() => setConfirmAction("snoozed")} disabled={loading || hasEntryForNextDate || isFutureDate}>
                         Snooze
                     </Button>,
-                    <Button key="paid" type="primary" onClick={() => setConfirmAction("paid")} loading={loading} disabled={alreadyPaid}>
+                    <Button key="paid" type="primary" onClick={() => setConfirmAction("paid")} loading={loading} disabled={hasEntryForNextDate || isFutureDate}>
                         Mark Paid
                     </Button>
                 ]}
@@ -98,9 +104,21 @@ const RecurringTransactionDetail = ({ visible, onClose, recurring, refreshList }
                 {latestSnooze && (
                     <p><b>Last Snoozed Until:</b> {dayjs(latestSnooze).format("DD MMM YYYY")}</p>
                 )}
-                {alreadyPaid && (
+
+                {isFutureDate && (
+                    <p style={{ color: "red", fontWeight: "bold" }}>
+                        This transaction is scheduled for a future date.
+                    </p>
+                )
+                }
+
+                {latestSnooze && (
+                    <p><b>Last Snoozed Until:</b> {dayjs(latestSnooze).format("DD MMM YYYY")}</p>
+                )}
+
+                {hasEntryForNextDate && (
                     <p style={{ color: "green", fontWeight: "bold" }}>
-                        This transaction has already been paid (until {dayjs(recurring.nextDate).format("DD MMM YYYY")}).
+                        An action has been taken for ({dayjs(recurring.nextDate).format("DD MMM YYYY")}).
                     </p>
                 )}
                 <p><b>Notes:</b> {recurring.notes || "-"}</p>
