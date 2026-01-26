@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
-import { Card, Row, Col, Table, Calendar, Badge } from "antd";
+import { Card, Row, Col, Table, Calendar } from "antd";
 
 import PageHeader from "../components/PageHeader";
 import SummaryCards from "../components/SummaryCards";
@@ -125,53 +125,113 @@ const Home = () => {
             )
         }
     ];
-
-    // const handleOpenRecurringModal = (recurring) => {
-    //     setSelectedRecurring(recurring);
-    //     setRecurringModalVisible(true);
-    // }
-
-    // const handleCloseRecurringModal = () => {
-    //     setSelectedRecurring(null);
-    //     setRecurringModalVisible(false);
-    // }
-
-    // Calendar related helpers
-
-    // get all transactions for a specific date
-    const getRecurringTransactionsForDate = (date) => {
-        return upcomingRecurrings.filter((transaction) =>
-            dayjs(transaction.nextDate).isSame(date, 'day')
-        );
-    }
-
-    const dateCellRender = (date) => {
-        const dateTransactions = getRecurringTransactionsForDate(date);
-        if (!dateTransactions.length) {
-            return null;
+    const dayColumns = [
+        {
+            title: "Title",
+            dataIndex: "source",
+            key: "source",
+            render: text => <b>{text}</b>
+        },
+        {
+            title: "Amount",
+            dataIndex: "amount",
+            key: "amount",
+            render: (text, record) => (
+                <span style={{ color: record.type === "income" ? "green" : "red", fontWeight: 600 }}>
+                    ₹{text}
+                </span>
+            )
+        },
+        {
+            title: "Type",
+            dataIndex: "type",
+            key: "type",
+            render: type => (
+                <span style={{ color: type === "income" ? "green" : "red" }}>
+                    {type.toUpperCase()}
+                </span>
+            )
         }
+    ];
 
-        const hasIncome = dateTransactions.some(txn => txn.type === 'income');
-        const hasExpense = dateTransactions.some(txn => txn.type === 'expense');
 
-        // Green dot for income, red dot for expense
+    const getTransactionsForDate = (date) => {
+        return transactions.filter((txn) =>
+            dayjs(txn.date).isSame(date, 'day')
+        );
+    };
+
+    const dateCellRender = (current) => {
+        const dayTransactions = getTransactionsForDate(current);
+        const hasIncome = dayTransactions.some(t => t.type === "income");
+        const hasExpense = dayTransactions.some(t => t.type === "expense");
+        const hasRecurring = upcomingRecurrings.some(r =>
+            dayjs(r.nextDate).isSame(current, "day")
+        );
+
+        const isSelected = current.isSame(selectedDate, 'day');
+        const isToday = current.isSame(dayjs(), 'day');
+
         return (
-            <div style={{ marginTop: 4, display: "flex", flexDirection: "column", gap: 2 }}>
-                {hasIncome && (
-                    <Badge status="success" text={`+${dateTransactions.filter(t => t.type === "income").length}`} />
-                )}
-                {hasExpense && (
-                    <Badge status="error" text={`-${dateTransactions.filter(t => t.type === "expense").length}`} />
-                )}
+            <div
+                className={isSelected ? "ant-picker-cell-selected" : ""}
+                style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 2px",
+                    padding: "4px 0",
+                    borderRadius: 6,
+                    border: isToday ? "1px solid #1677ff" : "1px solid transparent",
+                    backgroundColor: isSelected ? "#1677ff" : "transparent",
+                    color: isSelected ? "#fff" : "inherit",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                }}
+
+                onMouseEnter={(e) => {
+                    if (!isSelected) e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.04)";
+                }}
+                onMouseLeave={(e) => {
+                    if (!isSelected) e.currentTarget.style.backgroundColor = "transparent";
+                }}
+            >
+                <div style={{
+                    fontSize: "16px",
+                    fontWeight: isSelected ? "600" : "400",
+                    marginBottom: "4px"
+                }}>
+                    {current.date()}
+                </div>
+
+                <div style={{ display: "flex", gap: "6px" }}>
+                    {hasIncome && (
+                        <div style={{
+                            width: 6, height: 6, borderRadius: "50%",
+                            backgroundColor: isSelected ? "#52c41a" : "green",
+                            border: isSelected ? "1px solid #fff" : "none"
+                        }} />
+                    )}
+                    {hasExpense && (
+                        <div style={{
+                            width: 6, height: 6, borderRadius: "50%",
+                            backgroundColor: isSelected ? "#ff4d4f" : "red",
+                            border: isSelected ? "1px solid #fff" : "none"
+                        }} />
+                    )}
+                    {hasRecurring && (
+                        <div style={{
+                            width: 6, height: 6, borderRadius: "50%",
+                            backgroundColor: isSelected ? "#1890ff" : "blue",
+                            border: isSelected ? "1px solid #fff" : "none"
+                        }} />
+                    )}
+                </div>
             </div>
         );
     };
 
-    // const onCalendarSelect = (date) => {
-    //     setSelectedDate(date);
-    // };
-
-    // const selectedDateTransactions = getRecurringTransactionsForDate(selectedDate);
 
     return (
         <div className="p-6">
@@ -186,16 +246,44 @@ const Home = () => {
             <Card title="Spending Calendar" className="mt-6">
                 <Row gutter={16}>
                     <Col xs={24} lg={14}>
-                        <Calendar fullscreen={false} value={selectedDate} onSelect={setSelectedDate} dateCellRender={dateCellRender} />
+                        <Calendar
+                            fullscreen={false}
+                            value={selectedDate}
+                            onSelect={setSelectedDate}
+                            fullCellRender={dateCellRender}
+                        />
                     </Col>
                     <Col xs={24} lg={10}>
-                        <Table
-                            dataSource={getRecurringTransactionsForDate(selectedDate)}
-                            columns={columns}
-                            rowKey="_id"
-                            pagination={false}
-                            size="small"
-                        />
+                        {getTransactionsForDate(selectedDate).length === 0 ? (
+                            <div
+                                style={{
+                                    height: 180,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    color: "#6b7280",
+                                    textAlign: "center"
+                                }}
+                            >
+                                <div style={{ fontSize: 42 }}>📅</div>
+                                <p style={{ fontWeight: 600, marginBottom: 4 }}>
+                                    No transactions for {selectedDate.format("DD MMM YYYY")}
+                                </p>
+                                <p style={{ fontSize: 12 }}>
+                                    Add a transaction or wait for your recurring payments.
+                                </p>
+                            </div>
+                        ) : (
+                            <Table
+                                dataSource={getTransactionsForDate(selectedDate)}
+                                columns={dayColumns}
+                                rowKey="_id"
+                                pagination={false}
+                                size="small"
+                            />
+                        )}
+
                     </Col>
                 </Row>
             </Card>
