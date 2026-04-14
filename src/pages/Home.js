@@ -3,6 +3,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { Card, Row, Col, Table, Calendar } from "antd";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 
 import PageHeader from "../components/PageHeader";
 import SummaryCards from "../components/SummaryCards";
@@ -22,6 +23,8 @@ const Home = () => {
   const [selectedRecurring, setSelectedRecurring] = useState(null);
 
   const [selectedDate, setSelectedDate] = useState(dayjs());
+
+  const [calendarKey, setCalendarKey] = useState(0);
 
   const navigate = useNavigate();
 
@@ -262,6 +265,7 @@ const Home = () => {
         <Row gutter={16}>
           <Col xs={24} lg={14}>
             <Calendar
+              key={calendarKey}
               fullscreen={false}
               value={selectedDate}
               onSelect={setSelectedDate}
@@ -271,8 +275,8 @@ const Home = () => {
                 const currentYear = current.year();
                 const thisYear = dayjs().year();
 
-                const monthShort = current.format("MMM"); // Apr
-                const monthFull = current.format("MMMM"); // April
+                const monthShort = current.format("MMM");
+                const monthFull = current.format("MMMM");
 
                 const displayText =
                   currentYear === thisYear
@@ -282,13 +286,15 @@ const Home = () => {
                 const handlePrev = () => {
                   const newDate = current.subtract(1, "month").date(1);
                   onChange(newDate);
-                  setSelectedDate(newDate); // 🔥 sync your state
+                  setSelectedDate(newDate);
+                  setCalendarKey((prev) => prev + 1); // 🔥 triggers animation
                 };
 
                 const handleNext = () => {
                   const newDate = current.add(1, "month").date(1);
                   onChange(newDate);
-                  setSelectedDate(newDate); // 🔥 sync your state
+                  setSelectedDate(newDate);
+                  setCalendarKey((prev) => prev + 1); // 🔥 triggers animation
                 };
 
                 return (
@@ -298,26 +304,72 @@ const Home = () => {
                       justifyContent: "center",
                       alignItems: "center",
                       gap: "16px",
-                      marginBottom: "8px",
-                      fontSize: "16px",
-                      fontWeight: 600,
+                      marginBottom: "12px",
                     }}
                   >
-                    <span
-                      style={{ cursor: "pointer", userSelect: "none" }}
+                    {/* Left Arrow */}
+                    <div
                       onClick={handlePrev}
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "#f0f0f0";
+                        e.currentTarget.style.transform = "scale(1.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "transparent";
+                        e.currentTarget.style.transform = "scale(1)";
+                      }}
                     >
-                      ←
-                    </span>
+                      <LeftOutlined />
+                    </div>
 
-                    <span>{displayText}</span>
+                    {/* Title */}
+                    <div
+                      key={displayText} // 🔥 needed for animation
+                      style={{
+                        fontSize: "16px",
+                        fontWeight: 600,
+                        minWidth: 100,
+                        textAlign: "center",
+                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      {displayText}
+                    </div>
 
-                    <span
-                      style={{ cursor: "pointer", userSelect: "none" }}
+                    {/* Right Arrow */}
+                    <div
                       onClick={handleNext}
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "#f0f0f0";
+                        e.currentTarget.style.transform = "scale(1.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "transparent";
+                        e.currentTarget.style.transform = "scale(1)";
+                      }}
                     >
-                      →
-                    </span>
+                      <RightOutlined />
+                    </div>
                   </div>
                 );
               }}
