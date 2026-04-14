@@ -25,6 +25,7 @@ const Home = () => {
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
   const [calendarKey, setCalendarKey] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(null);
 
   const navigate = useNavigate();
 
@@ -251,6 +252,42 @@ const Home = () => {
     );
   };
 
+  const handleMonthChange = (direction) => {
+    let newDate;
+
+    if (direction === "prev") {
+      newDate = selectedDate.subtract(1, "month").date(1);
+    } else {
+      newDate = selectedDate.add(1, "month").date(1);
+    }
+
+    setSelectedDate(newDate);
+    setCalendarKey((prev) => prev + 1); // keep animation
+  };
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchStartX) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+
+    if (Math.abs(diff) > 50) {
+      // threshold
+      if (diff > 0) {
+        // swipe left → next month
+        handleMonthChange("next");
+      } else {
+        // swipe right → previous month
+        handleMonthChange("prev");
+      }
+    }
+
+    setTouchStartX(null);
+  };
+
   return (
     <div className="p-6">
       <PageHeader title="Home" onAdd={() => navigate("/add-transaction")} />
@@ -264,116 +301,107 @@ const Home = () => {
       <Card title="Spending Calendar" className="mt-6">
         <Row gutter={16}>
           <Col xs={24} lg={14}>
-            <Calendar
-              key={calendarKey}
-              fullscreen={false}
-              value={selectedDate}
-              onSelect={setSelectedDate}
-              fullCellRender={dateCellRender}
-              headerRender={({ value, onChange }) => {
-                const current = value.clone();
-                const currentYear = current.year();
-                const thisYear = dayjs().year();
+            <div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+              <Calendar
+                key={calendarKey}
+                fullscreen={false}
+                value={selectedDate}
+                onSelect={setSelectedDate}
+                fullCellRender={dateCellRender}
+                headerRender={({ value, onChange }) => {
+                  const current = value.clone();
+                  const currentYear = current.year();
+                  const thisYear = dayjs().year();
 
-                const monthShort = current.format("MMM");
-                const monthFull = current.format("MMMM");
+                  const monthShort = current.format("MMM");
+                  const monthFull = current.format("MMMM");
 
-                const displayText =
-                  currentYear === thisYear
-                    ? monthShort
-                    : `${monthFull} ${currentYear}`;
+                  const displayText =
+                    currentYear === thisYear
+                      ? monthShort
+                      : `${monthFull} ${currentYear}`;
 
-                const handlePrev = () => {
-                  const newDate = current.subtract(1, "month").date(1);
-                  onChange(newDate);
-                  setSelectedDate(newDate);
-                  setCalendarKey((prev) => prev + 1); // 🔥 triggers animation
-                };
+                  const handlePrev = () => handleMonthChange("prev");
+                  const handleNext = () => handleMonthChange("next");
 
-                const handleNext = () => {
-                  const newDate = current.add(1, "month").date(1);
-                  onChange(newDate);
-                  setSelectedDate(newDate);
-                  setCalendarKey((prev) => prev + 1); // 🔥 triggers animation
-                };
-
-                return (
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      gap: "16px",
-                      marginBottom: "12px",
-                    }}
-                  >
-                    {/* Left Arrow */}
+                  return (
                     <div
-                      onClick={handlePrev}
                       style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: "50%",
                         display: "flex",
-                        alignItems: "center",
                         justifyContent: "center",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "#f0f0f0";
-                        e.currentTarget.style.transform = "scale(1.1)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "transparent";
-                        e.currentTarget.style.transform = "scale(1)";
-                      }}
-                    >
-                      <LeftOutlined />
-                    </div>
-
-                    {/* Title */}
-                    <div
-                      key={displayText} // 🔥 needed for animation
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                        minWidth: 100,
-                        textAlign: "center",
-                        transition: "all 0.3s ease",
-                      }}
-                    >
-                      {displayText}
-                    </div>
-
-                    {/* Right Arrow */}
-                    <div
-                      onClick={handleNext}
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: "50%",
-                        display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "#f0f0f0";
-                        e.currentTarget.style.transform = "scale(1.1)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "transparent";
-                        e.currentTarget.style.transform = "scale(1)";
+                        gap: "16px",
+                        marginBottom: "12px",
                       }}
                     >
-                      <RightOutlined />
+                      {/* Left Arrow */}
+                      <div
+                        onClick={handlePrev}
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: "50%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "#f0f0f0";
+                          e.currentTarget.style.transform = "scale(1.1)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "transparent";
+                          e.currentTarget.style.transform = "scale(1)";
+                        }}
+                      >
+                        <LeftOutlined />
+                      </div>
+
+                      {/* Title */}
+                      <div
+                        key={displayText} // 🔥 needed for animation
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                          minWidth: 100,
+                          textAlign: "center",
+                          transition: "all 0.3s ease",
+                        }}
+                      >
+                        {displayText}
+                      </div>
+
+                      {/* Right Arrow */}
+                      <div
+                        onClick={handleNext}
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: "50%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "#f0f0f0";
+                          e.currentTarget.style.transform = "scale(1.1)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "transparent";
+                          e.currentTarget.style.transform = "scale(1)";
+                        }}
+                      >
+                        <RightOutlined />
+                      </div>
                     </div>
-                  </div>
-                );
-              }}
-            />
+                  );
+                }}
+              />
+            </div>
           </Col>
           <Col xs={24} lg={10}>
             {getTransactionsForDate(selectedDate).length === 0 ? (
