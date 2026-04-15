@@ -46,6 +46,7 @@ const Home = () => {
   const [touchStartX, setTouchStartX] = useState(null);
   const [dragX, setDragX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [swipeDirection, setSwipeDirection] = useState(null);
 
   const navigate = useNavigate();
 
@@ -276,8 +277,10 @@ const Home = () => {
     let newDate;
 
     if (direction === "prev") {
+      setSwipeDirection("right");
       newDate = selectedDate.subtract(1, "month").date(1);
     } else {
+      setSwipeDirection("left");
       newDate = selectedDate.add(1, "month").date(1);
     }
 
@@ -305,8 +308,10 @@ const Home = () => {
     const threshold = 80;
 
     if (dragX < -threshold) {
+      setSwipeDirection("left");
       handleMonthChange("next");
     } else if (dragX > threshold) {
+      setSwipeDirection("right");
       handleMonthChange("prev");
     }
 
@@ -357,7 +362,17 @@ const Home = () => {
 
                   <div
                     key={selectedDate.format("YYYY-MM")}
-                    className="font-semibold transition-all duration-300 ease-in-out transform"
+                    className={`
+                        font-semibold
+                      transition-all duration-300 ease-in-out
+                      ${
+                        swipeDirection === "left"
+                          ? "animate-slide-left"
+                          : swipeDirection === "right"
+                            ? "animate-slide-right"
+                            : ""
+                      }
+                    `}
                   >
                     {displayText}
                   </div>
