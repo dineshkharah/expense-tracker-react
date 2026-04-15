@@ -336,6 +336,38 @@ const Home = () => {
       <Card title="Spending Calendar" className="mt-6">
         <Row gutter={16}>
           <Col xs={24} lg={14}>
+            {/* FIXED HEADER (does NOT move on swipe) */}
+            {(() => {
+              const currentYear = selectedDate.year();
+              const thisYear = dayjs().year();
+
+              const monthShort = selectedDate.format("MMM");
+              const monthFull = selectedDate.format("MMMM");
+
+              const displayText =
+                currentYear === thisYear
+                  ? monthShort
+                  : `${monthFull} ${currentYear}`;
+
+              return (
+                <div className="flex items-center justify-center gap-4 mb-3">
+                  <NavButton onClick={() => handleMonthChange("prev")}>
+                    <LeftOutlined />
+                  </NavButton>
+
+                  <div
+                    key={selectedDate.format("YYYY-MM")}
+                    className="font-semibold transition-all duration-300 ease-in-out transform"
+                  >
+                    {displayText}
+                  </div>
+
+                  <NavButton onClick={() => handleMonthChange("next")}>
+                    <RightOutlined />
+                  </NavButton>
+                </div>
+              );
+            })()}
             <div
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -373,33 +405,34 @@ const Home = () => {
                     value={selectedDate}
                     onSelect={setSelectedDate}
                     fullCellRender={dateCellRender}
-                    headerRender={({ value }) => {
-                      const current = value.clone();
-                      const currentYear = current.year();
-                      const thisYear = dayjs().year();
+                    headerRender={() => null}
+                    // headerRender={({ value }) => {
+                    //   const current = value.clone();
+                    //   const currentYear = current.year();
+                    //   const thisYear = dayjs().year();
 
-                      const monthShort = current.format("MMM");
-                      const monthFull = current.format("MMMM");
+                    //   const monthShort = current.format("MMM");
+                    //   const monthFull = current.format("MMMM");
 
-                      const displayText =
-                        currentYear === thisYear
-                          ? monthShort
-                          : `${monthFull} ${currentYear}`;
+                    //   const displayText =
+                    //     currentYear === thisYear
+                    //       ? monthShort
+                    //       : `${monthFull} ${currentYear}`;
 
-                      return (
-                        <div className="flex items-center justify-center gap-4 mb-3">
-                          <NavButton onClick={() => handleMonthChange("prev")}>
-                            <LeftOutlined />
-                          </NavButton>
+                    //   return (
+                    //     <div className="flex items-center justify-center gap-4 mb-3">
+                    //       <NavButton onClick={() => handleMonthChange("prev")}>
+                    //         <LeftOutlined />
+                    //       </NavButton>
 
-                          <div style={{ fontWeight: 600 }}>{displayText}</div>
+                    //       <div style={{ fontWeight: 600 }}>{displayText}</div>
 
-                          <NavButton onClick={() => handleMonthChange("next")}>
-                            <RightOutlined />
-                          </NavButton>
-                        </div>
-                      );
-                    }}
+                    //       <NavButton onClick={() => handleMonthChange("next")}>
+                    //         <RightOutlined />
+                    //       </NavButton>
+                    //     </div>
+                    //   );
+                    // }}
                   />
                 </div>
 
