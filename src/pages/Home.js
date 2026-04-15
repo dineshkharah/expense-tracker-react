@@ -11,6 +11,24 @@ import RecentTransactions from "../components/RecentTransactions";
 import UpcomingRecurrings from "../components/UpcomingRecurrings";
 import RecurringTransactionDetail from "../components/RecurringTransactionDetail";
 
+const NavButton = ({ onClick, children }) => {
+  return (
+    <div
+      onClick={onClick}
+      className="
+        w-8 h-8
+        flex items-center justify-center
+        rounded-full
+        cursor-pointer
+        transition-all duration-200
+        hover:bg-gray-100 hover:scale-110
+      "
+    >
+      {children}
+    </div>
+  );
+};
+
 const Home = () => {
   const [summary, setSummary] = useState({
     totalIncome: 0,
@@ -369,24 +387,16 @@ const Home = () => {
                           : `${monthFull} ${currentYear}`;
 
                       return (
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            gap: "16px",
-                            marginBottom: "12px",
-                          }}
-                        >
-                          <div onClick={() => handleMonthChange("prev")}>
+                        <div className="flex items-center justify-center gap-4 mb-3">
+                          <NavButton onClick={() => handleMonthChange("prev")}>
                             <LeftOutlined />
-                          </div>
+                          </NavButton>
 
                           <div style={{ fontWeight: 600 }}>{displayText}</div>
 
-                          <div onClick={() => handleMonthChange("next")}>
+                          <NavButton onClick={() => handleMonthChange("next")}>
                             <RightOutlined />
-                          </div>
+                          </NavButton>
                         </div>
                       );
                     }}
