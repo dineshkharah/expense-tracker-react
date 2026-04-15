@@ -237,35 +237,32 @@ const Home = () => {
         <div style={{ display: "flex", gap: "6px" }}>
           {hasIncome && (
             <div
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                backgroundColor: isSelected ? "#52c41a" : "green",
-                border: isSelected ? "1px solid #fff" : "none",
-              }}
+              className={`
+                w-1.5 h-1.5 rounded-full
+                transition-all duration-300
+                ${isSelected ? "bg-green-400 scale-110" : "bg-green-600 scale-90"}
+                animate-pulse
+              `}
             />
           )}
           {hasExpense && (
             <div
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                backgroundColor: isSelected ? "#ff4d4f" : "red",
-                border: isSelected ? "1px solid #fff" : "none",
-              }}
+              className={`
+                w-1.5 h-1.5 rounded-full
+                transition-all duration-300
+                ${isSelected ? "bg-red-400 scale-110" : "bg-red-600 scale-90"}
+                animate-pulse
+              `}
             />
           )}
           {hasRecurring && (
             <div
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                backgroundColor: isSelected ? "#1890ff" : "blue",
-                border: isSelected ? "1px solid #fff" : "none",
-              }}
+              className={`
+              w-1.5 h-1.5 rounded-full
+              transition-all duration-300
+              ${isSelected ? "bg-blue-400 scale-110" : "bg-blue-600 scale-90"}
+              animate-pulse
+            `}
             />
           )}
         </div>
