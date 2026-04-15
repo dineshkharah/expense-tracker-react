@@ -26,6 +26,8 @@ const Home = () => {
 
   const [calendarKey, setCalendarKey] = useState(0);
   const [touchStartX, setTouchStartX] = useState(null);
+  const [dragX, setDragX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   const navigate = useNavigate();
 
@@ -264,29 +266,44 @@ const Home = () => {
     setSelectedDate(newDate);
     setCalendarKey((prev) => prev + 1); // keep animation
   };
+
   const handleTouchStart = (e) => {
     setTouchStartX(e.touches[0].clientX);
+    setIsDragging(true);
   };
 
-  const handleTouchEnd = (e) => {
-    if (!touchStartX) return;
+  const handleTouchMove = (e) => {
+    if (!isDragging || touchStartX === null) return;
 
-    const touchEndX = e.changedTouches[0].clientX;
-    const diff = touchStartX - touchEndX;
+    const currentX = e.touches[0].clientX;
+    const diff = currentX - touchStartX;
 
-    if (Math.abs(diff) > 50) {
-      // threshold
-      if (diff > 0) {
-        // swipe left → next month
-        handleMonthChange("next");
-      } else {
-        // swipe right → previous month
-        handleMonthChange("prev");
-      }
+    setDragX(diff); // 🔥 move with finger
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging) return;
+
+    const threshold = 80;
+
+    if (dragX < -threshold) {
+      handleMonthChange("next");
+    } else if (dragX > threshold) {
+      handleMonthChange("prev");
     }
 
+    // reset with animation
+    setDragX(0);
+    setIsDragging(false);
     setTouchStartX(null);
+
+    setTimeout(() => {
+      setCalendarKey((prev) => prev + 1);
+    }, 0);
   };
+
+  const prevMonth = selectedDate.subtract(1, "month");
+  const nextMonth = selectedDate.add(1, "month");
 
   return (
     <div className="p-6">
@@ -301,106 +318,91 @@ const Home = () => {
       <Card title="Spending Calendar" className="mt-6">
         <Row gutter={16}>
           <Col xs={24} lg={14}>
-            <div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-              <Calendar
-                key={calendarKey}
-                fullscreen={false}
-                value={selectedDate}
-                onSelect={setSelectedDate}
-                fullCellRender={dateCellRender}
-                headerRender={({ value, onChange }) => {
-                  const current = value.clone();
-                  const currentYear = current.year();
-                  const thisYear = dayjs().year();
-
-                  const monthShort = current.format("MMM");
-                  const monthFull = current.format("MMMM");
-
-                  const displayText =
-                    currentYear === thisYear
-                      ? monthShort
-                      : `${monthFull} ${currentYear}`;
-
-                  const handlePrev = () => handleMonthChange("prev");
-                  const handleNext = () => handleMonthChange("next");
-
-                  return (
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "16px",
-                        marginBottom: "12px",
-                      }}
-                    >
-                      {/* Left Arrow */}
-                      <div
-                        onClick={handlePrev}
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: "50%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = "#f0f0f0";
-                          e.currentTarget.style.transform = "scale(1.1)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = "transparent";
-                          e.currentTarget.style.transform = "scale(1)";
-                        }}
-                      >
-                        <LeftOutlined />
-                      </div>
-
-                      {/* Title */}
-                      <div
-                        key={displayText} // 🔥 needed for animation
-                        style={{
-                          fontSize: "16px",
-                          fontWeight: 600,
-                          minWidth: 100,
-                          textAlign: "center",
-                          transition: "all 0.3s ease",
-                        }}
-                      >
-                        {displayText}
-                      </div>
-
-                      {/* Right Arrow */}
-                      <div
-                        onClick={handleNext}
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: "50%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = "#f0f0f0";
-                          e.currentTarget.style.transform = "scale(1.1)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = "transparent";
-                          e.currentTarget.style.transform = "scale(1)";
-                        }}
-                      >
-                        <RightOutlined />
-                      </div>
-                    </div>
-                  );
+            <div
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              style={{
+                overflow: "hidden",
+                position: "relative",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  width: "300%", // prev | current | next
+                  transform: `translateX(calc(-33.3333% + ${dragX}px))`,
+                  transition: isDragging
+                    ? "none"
+                    : "transform 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
                 }}
-              />
+              >
+                {/* PREVIOUS MONTH */}
+                <div style={{ width: "100%" }}>
+                  <Calendar
+                    fullscreen={false}
+                    value={prevMonth}
+                    fullCellRender={dateCellRender}
+                    headerRender={() => null} // hide header
+                  />
+                </div>
+
+                {/* CURRENT MONTH */}
+                <div style={{ width: "100%" }}>
+                  <Calendar
+                    key={calendarKey}
+                    fullscreen={false}
+                    value={selectedDate}
+                    onSelect={setSelectedDate}
+                    fullCellRender={dateCellRender}
+                    headerRender={({ value }) => {
+                      const current = value.clone();
+                      const currentYear = current.year();
+                      const thisYear = dayjs().year();
+
+                      const monthShort = current.format("MMM");
+                      const monthFull = current.format("MMMM");
+
+                      const displayText =
+                        currentYear === thisYear
+                          ? monthShort
+                          : `${monthFull} ${currentYear}`;
+
+                      return (
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: "16px",
+                            marginBottom: "12px",
+                          }}
+                        >
+                          <div onClick={() => handleMonthChange("prev")}>
+                            <LeftOutlined />
+                          </div>
+
+                          <div style={{ fontWeight: 600 }}>{displayText}</div>
+
+                          <div onClick={() => handleMonthChange("next")}>
+                            <RightOutlined />
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                </div>
+
+                {/* NEXT MONTH */}
+                <div style={{ width: "100%" }}>
+                  <Calendar
+                    fullscreen={false}
+                    value={nextMonth}
+                    fullCellRender={dateCellRender}
+                    headerRender={() => null}
+                  />
+                </div>
+              </div>
             </div>
           </Col>
           <Col xs={24} lg={10}>
