@@ -17,10 +17,9 @@ import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { exportCSV, exportPDF } from "../utils/exportUtils";
 
-import TransactionSearch from "../components/TransactionSearch";
+import TransactionFilters from "../components/TransactionFilters";
 
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 
 const token = localStorage.getItem("token");
 const headers = { Authorization: `Bearer ${token}` };
@@ -266,58 +265,14 @@ const Transactions = () => {
       <h2 className="text-xl font-semibold mb-4">All Transactions</h2>
 
       {/* Filters */}
-      <div className="mb-4">
-        <div className="flex flex-wrap gap-3 w-full">
-          {/* Search */}
-          <TransactionSearch
-            value={filters.search}
-            onChange={(value) => setFilters({ ...filters, search: value })}
-          />
-
-          {/* Type */}
-          <Select
-            placeholder="Type"
-            allowClear
-            value={filters.type || undefined}
-            onChange={(value) => setFilters({ ...filters, type: value })}
-            className="w-full sm:w-[160px]"
-          >
-            <Option value="income">Income</Option>
-            <Option value="expense">Expense</Option>
-          </Select>
-
-          {/* Category */}
-          <Input
-            placeholder="Category"
-            value={filters.category}
-            onChange={(e) =>
-              setFilters({ ...filters, category: e.target.value })
-            }
-            className="w-full sm:w-[180px]"
-          />
-
-          {/* Date range */}
-          <RangePicker
-            value={filters.dateRange}
-            onChange={(dates) =>
-              setFilters({ ...filters, dateRange: dates || [] })
-            }
-            className="flex-1 min-w-[260px]"
-            format="DD-MM-YYYY"
-          />
-        </div>
-
-        {/* Export buttons */}
-        <div className="flex gap-2 mt-3">
-          <Button onClick={() => exportCSV(transactions)} type="primary">
-            Export CSV
-          </Button>
-          <Button onClick={() => exportPDF(transactions)} type="default">
-            Export PDF
-          </Button>
-          <Button onClick={clearFilters}>Clear Filters</Button>
-        </div>
-      </div>
+      <TransactionFilters
+        filters={filters}
+        setFilters={setFilters}
+        transactions={transactions}
+        onExportCSV={exportCSV}
+        onExportPDF={exportPDF}
+        onClearFilters={clearFilters}
+      />
 
       {/* Table */}
       <div className="w-full overflow-x-auto">
