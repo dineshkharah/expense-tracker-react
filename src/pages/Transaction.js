@@ -139,6 +139,16 @@ const Transactions = () => {
     }
   };
 
+  // clear all filters
+  const clearFilters = () => {
+    setFilters({
+      type: "",
+      category: "",
+      dateRange: [],
+      search: "",
+    });
+  };
+
   const highlightText = (text, search) => {
     if (!search) return text;
 
@@ -305,6 +315,7 @@ const Transactions = () => {
           <Button onClick={() => exportPDF(transactions)} type="default">
             Export PDF
           </Button>
+          <Button onClick={clearFilters}>Clear Filters</Button>
         </div>
       </div>
 
