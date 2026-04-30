@@ -79,9 +79,16 @@ const Transactions = () => {
       );
     }
     if (filters.search) {
-      data = data.filter((t) =>
-        t.source.toLowerCase().includes(filters.search.toLowerCase()),
-      );
+      const searchText = filters.search.toLowerCase().trim();
+
+      data = data.filter((t) => {
+        return (
+          t.source?.toLowerCase().includes(searchText) ||
+          t.category?.toLowerCase().includes(searchText) ||
+          t.type?.toLowerCase().includes(searchText) ||
+          String(t.amount).includes(searchText)
+        );
+      });
     }
 
     setFilteredTransactions(data);
