@@ -1,9 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Select, DatePicker, Popconfirm, message, Tag } from "antd";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Popconfirm,
+  message,
+  Tag,
+} from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { exportCSV, exportPDF } from "../utils/exportUtils";
+
+import TransactionSearch from "../components/TransactionSearch";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -56,18 +69,18 @@ const Transactions = () => {
     }
     if (filters.category) {
       data = data.filter((t) =>
-        t.category.toLowerCase().includes(filters.category.toLowerCase())
+        t.category.toLowerCase().includes(filters.category.toLowerCase()),
       );
     }
     if (filters.dateRange.length === 2) {
       const [start, end] = filters.dateRange;
       data = data.filter((t) =>
-        dayjs(t.date).isBetween(start, end, "day", "[]")
+        dayjs(t.date).isBetween(start, end, "day", "[]"),
       );
     }
     if (filters.search) {
       data = data.filter((t) =>
-        t.source.toLowerCase().includes(filters.search.toLowerCase())
+        t.source.toLowerCase().includes(filters.search.toLowerCase()),
       );
     }
 
@@ -107,7 +120,7 @@ const Transactions = () => {
       await axios.put(
         `http://localhost:5000/api/v1/transactions/${editingTransaction._id}`,
         payload,
-        { headers }
+        { headers },
       );
       message.success("Transaction updated successfully!");
       setEditingTransaction(null);
@@ -143,7 +156,12 @@ const Transactions = () => {
         </Tag>
       ),
     },
-    { title: "Category", dataIndex: "category", key: "category", align: "center" },
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      align: "center",
+    },
     {
       title: "Amount",
       dataIndex: "amount",
@@ -151,7 +169,12 @@ const Transactions = () => {
       align: "center",
       sorter: (a, b) => a.amount - b.amount,
       render: (amt, record) => (
-        <span style={{ color: record.type === "income" ? "green" : "red", fontWeight: "bold" }}>
+        <span
+          style={{
+            color: record.type === "income" ? "green" : "red",
+            fontWeight: "bold",
+          }}
+        >
           ₹{amt}
         </span>
       ),
@@ -191,9 +214,6 @@ const Transactions = () => {
         </div>
       ),
     },
-
-
-
   ];
 
   return (
@@ -204,11 +224,9 @@ const Transactions = () => {
       <div className="mb-4">
         <div className="flex flex-wrap gap-3 w-full">
           {/* Search */}
-          <Input
-            placeholder="Search by source"
+          <TransactionSearch
             value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            className="w-full sm:w-[220px]"
+            onChange={(value) => setFilters({ ...filters, search: value })}
           />
 
           {/* Type */}
@@ -227,14 +245,18 @@ const Transactions = () => {
           <Input
             placeholder="Category"
             value={filters.category}
-            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+            onChange={(e) =>
+              setFilters({ ...filters, category: e.target.value })
+            }
             className="w-full sm:w-[180px]"
           />
 
           {/* Date range */}
           <RangePicker
             value={filters.dateRange}
-            onChange={(dates) => setFilters({ ...filters, dateRange: dates || [] })}
+            onChange={(dates) =>
+              setFilters({ ...filters, dateRange: dates || [] })
+            }
             className="flex-1 min-w-[260px]"
             format="DD-MM-YYYY"
           />
@@ -242,15 +264,21 @@ const Transactions = () => {
 
         {/* Export buttons */}
         <div className="flex gap-2 mt-3">
-          <Button onClick={() => exportCSV(transactions)} type="primary">Export CSV</Button>
-          <Button onClick={() => exportPDF(transactions)} type="default">Export PDF</Button>
+          <Button onClick={() => exportCSV(transactions)} type="primary">
+            Export CSV
+          </Button>
+          <Button onClick={() => exportPDF(transactions)} type="default">
+            Export PDF
+          </Button>
         </div>
       </div>
 
       {/* Table */}
       <div className="w-full overflow-x-auto">
         <Table
-          dataSource={[...filteredTransactions].sort((a, b) => new Date(b.date) - new Date(a.date))}
+          dataSource={[...filteredTransactions].sort(
+            (a, b) => new Date(b.date) - new Date(a.date),
+          )}
           columns={columns}
           rowKey="_id"
           loading={loading}
@@ -289,7 +317,11 @@ const Transactions = () => {
             <DatePicker className="w-full" format="DD-MM-YYYY" />
           </Form.Item>
 
-          <Form.Item name="category" label="Category" rules={[{ required: true }]}>
+          <Form.Item
+            name="category"
+            label="Category"
+            rules={[{ required: true }]}
+          >
             <Input />
           </Form.Item>
 
