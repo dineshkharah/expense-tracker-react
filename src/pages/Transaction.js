@@ -10,6 +10,7 @@ import {
   Popconfirm,
   message,
   Tag,
+  Empty,
 } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -282,6 +283,14 @@ const Transactions = () => {
 
       {/* Table */}
       <div className="w-full overflow-x-auto">
+        {/* Display transaction count */}
+        {filteredTransactions.length > 0 && (
+          <div className="text-sm text-gray-500 mb-2">
+            Showing {filteredTransactions.length} transaction
+            {filteredTransactions.length > 1 ? "s" : ""}
+          </div>
+        )}
+
         <Table
           dataSource={[...filteredTransactions].sort(
             (a, b) => new Date(b.date) - new Date(a.date),
@@ -292,6 +301,24 @@ const Transactions = () => {
           pagination={{ pageSize: 10 }}
           scroll={{ x: "max-content" }}
           className="min-w-full"
+          locale={{
+            emptyText: (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  <span>
+                    No transactions found
+                    {filters.search && (
+                      <>
+                        {" "}
+                        for "<b>{filters.search}</b>"
+                      </>
+                    )}
+                  </span>
+                }
+              />
+            ),
+          }}
         />
       </div>
 
