@@ -139,6 +139,26 @@ const Transactions = () => {
     }
   };
 
+  const highlightText = (text, search) => {
+    if (!search) return text;
+
+    const regex = new RegExp(`(${search})`, "gi");
+    const parts = String(text).split(regex);
+
+    return parts.map((part, index) =>
+      part.toLowerCase() === search.toLowerCase() ? (
+        <span
+          key={index}
+          style={{ backgroundColor: "#ffe58f", padding: "0 2px" }}
+        >
+          {part}
+        </span>
+      ) : (
+        part
+      ),
+    );
+  };
+
   const columns = [
     {
       title: "Date",
@@ -148,7 +168,13 @@ const Transactions = () => {
       sorter: (a, b) => dayjs(a.date).unix() - dayjs(b.date).unix(),
       render: (d) => dayjs(d).format("DD MMM YYYY"),
     },
-    { title: "Source", dataIndex: "source", key: "source", align: "center" },
+    {
+      title: "Source",
+      dataIndex: "source",
+      key: "source",
+      align: "center",
+      render: (text) => highlightText(text, filters.search),
+    },
     {
       title: "Type",
       dataIndex: "type",
@@ -169,6 +195,7 @@ const Transactions = () => {
       dataIndex: "category",
       key: "category",
       align: "center",
+      render: (text) => highlightText(text, filters.search),
     },
     {
       title: "Amount",
