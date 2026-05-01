@@ -1,30 +1,32 @@
 // src/App.js
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { Layout } from 'antd';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import AddTransaction from './pages/AddTransaction';
-import Transaction from './pages/Transaction';
-import Report from './pages/Report';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Profile from './pages/Profile';
-import RecurringTransactions from './pages/RecurringTransaction';
-import Notifications from './pages/Notification';
-import Dashboard from './pages/Dashboard';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Layout } from "antd";
+import Navbar from "./components/Navbar";
+import MobileBottomNav from "./components/MobileBottomNav";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import AddTransaction from "./pages/AddTransaction";
+import Transaction from "./pages/Transaction";
+import Report from "./pages/Report";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Profile from "./pages/Profile";
+import RecurringTransactions from "./pages/RecurringTransaction";
+import Notifications from "./pages/Notification";
+import Dashboard from "./pages/Dashboard";
 
-const { Header, Content, Footer: AntFooter } = Layout;
+const { Content, Footer: AntFooter } = Layout;
 
 function App() {
   return (
     <Router>
-      <Layout style={{ minHeight: '100vh' }}>
-        <Header>
+      <Layout style={{ minHeight: "100vh" }}>
+        <div className="hidden md:block">
           <Navbar />
-        </Header>
-        <Content style={{ padding: '20px' }}>
+        </div>
+
+        <Content style={{ padding: "20px", paddingBottom: "90px" }}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/add-transaction" element={<AddTransaction />} />
@@ -33,12 +35,16 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/recurring-transactions" element={<RecurringTransactions />} />
+            <Route
+              path="/recurring-transactions"
+              element={<RecurringTransactions />}
+            />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </Content>
-        <AntFooter style={{ textAlign: 'center' }}>
+        <MobileBottomNav />
+        <AntFooter style={{ textAlign: "center" }}>
           <Footer />
         </AntFooter>
       </Layout>

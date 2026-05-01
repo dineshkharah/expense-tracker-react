@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Layout, Menu, Button, Dropdown, Avatar, Space, Drawer, Badge } from "antd";
+import { Layout, Menu, Button, Dropdown, Avatar, Space, Badge } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LogoutOutlined,
@@ -9,7 +9,6 @@ import {
   PlusOutlined,
   TableOutlined,
   BarChartOutlined,
-  MenuOutlined,
   BellOutlined,
 } from "@ant-design/icons";
 
@@ -17,18 +16,20 @@ const { Header } = Layout;
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
-  const [drawerVisible, setDrawerVisible] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/v1/notifications", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      const response = await fetch(
+        "http://localhost:5000/api/v1/notifications",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         console.error("Failed to fetch notifications");
@@ -111,7 +112,6 @@ const Navbar = () => {
     },
   ];
 
-
   return (
     <>
       <Header
@@ -129,9 +129,16 @@ const Navbar = () => {
           {/* Profile on desktop */}
           {user ? (
             <Space size="large">
-              <Badge count={notifications.filter((n) => !n.read).length} overflowCount={9}>
+              <Badge
+                count={notifications.filter((n) => !n.read).length}
+                overflowCount={9}
+              >
                 <BellOutlined
-                  style={{ fontSize: "20px", color: "white", cursor: "pointer" }}
+                  style={{
+                    fontSize: "20px",
+                    color: "white",
+                    cursor: "pointer",
+                  }}
                   onClick={() => navigate("/notifications")}
                 />
               </Badge>
@@ -154,48 +161,7 @@ const Navbar = () => {
             </Link>
           )}
         </div>
-
-        {/* Mobile */}
-        <div className="flex w-full items-center justify-between md:hidden">
-          {/* Hamburger left */}
-          <Button
-            type="text"
-            icon={<MenuOutlined style={{ fontSize: "20px", color: "white" }} />}
-            onClick={() => setDrawerVisible(true)}
-          />
-
-          {/* Profile/Login right */}
-          {user ? (
-            <Dropdown menu={{ items: profileMenu }} placement="bottomRight">
-              <Avatar
-                icon={<UserOutlined />}
-                style={{ backgroundColor: "#1677ff", cursor: "pointer" }}
-              />
-            </Dropdown>
-          ) : (
-            <Link to="/login">
-              <Button type="primary" size="small" icon={<LoginOutlined />}>
-                Login
-              </Button>
-            </Link>
-          )}
-        </div>
       </Header>
-
-      {/* Drawer for Mobile Menu */}
-      <Drawer
-        title="Menu"
-        placement="left"
-        onClose={() => setDrawerVisible(false)}
-        open={drawerVisible}
-      >
-        <Menu
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          items={navItems}
-          onClick={() => setDrawerVisible(false)}
-        />
-      </Drawer>
     </>
   );
 };
