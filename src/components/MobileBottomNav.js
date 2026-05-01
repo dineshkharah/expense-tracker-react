@@ -49,12 +49,18 @@ const MobileBottomNav = () => {
             <div
               key={item.key}
               onClick={() => navigate(item.key)}
-              className={`flex flex-col items-center justify-center text-xs cursor-pointer transition ${
-                isActive ? "text-blue-500" : "text-gray-500"
-              }`}
+              className={`flex flex-col items-center justify-center text-xs cursor-pointer 
+                transition-all duration-300 ease-in-out transform
+                ${
+                  isActive
+                    ? "text-blue-600 scale-110"
+                    : "text-gray-500 scale-100 hover:scale-105"
+                }`}
             >
-              <div className="text-lg">{item.icon}</div>
-              <span>{item.label}</span>
+              <div className="text-xl transition-all duration-300">
+                {item.icon}
+              </div>
+              <span className="transition-all duration-300">{item.label}</span>
             </div>
           );
         })}
