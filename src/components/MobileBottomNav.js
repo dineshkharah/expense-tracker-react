@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   HomeOutlined,
   TableOutlined,
-  PlusOutlined,
   BellOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -12,58 +11,69 @@ const MobileBottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const navItems = [
-    { key: "/", icon: <HomeOutlined />, label: "Home" },
-    { key: "/transactions", icon: <TableOutlined />, label: "Transactions" },
-    {
-      key: "/add-transaction",
-      icon: <PlusOutlined />,
-      label: "Add",
-      isCenter: true,
-    },
-    { key: "/notifications", icon: <BellOutlined />, label: "Alerts" },
-    { key: "/profile", icon: <UserOutlined />, label: "Profile" },
-  ];
+  const isActive = (path) => location.pathname === path;
 
   return (
     <div className="md:hidden fixed bottom-4 left-0 right-0 flex justify-center z-50">
-      <div className="bg-white/80 backdrop-blur-md shadow-xl rounded-full px-4 py-2 flex items-center justify-between w-[90%] max-w-md">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.key;
+      {/* FLOATING DOCK */}
+      <div className="relative bg-white/70 backdrop-blur-xl shadow-2xl rounded-full px-6 py-3 w-[92%] max-w-md flex items-center justify-between border border-white/40">
+        {/* Home */}
+        <div
+          onClick={() => navigate("/")}
+          className={`flex flex-col items-center cursor-pointer transition ${
+            isActive("/") ? "text-blue-600 scale-110" : "text-gray-500"
+          }`}
+        >
+          <HomeOutlined className="text-xl" />
+          <span className="text-xs">Home</span>
+        </div>
 
-          if (item.isCenter) {
-            return (
-              <div
-                key={item.key}
-                onClick={() => navigate(item.key)}
-                className="relative -top-6"
-              >
-                <div className="w-14 h-14 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 transition">
-                  {item.icon}
-                </div>
-              </div>
-            );
-          }
+        {/* Transactions */}
+        <div
+          onClick={() => navigate("/transactions")}
+          className={`flex flex-col items-center cursor-pointer transition ${
+            isActive("/transactions")
+              ? "text-blue-600 scale-110"
+              : "text-gray-500"
+          }`}
+        >
+          <TableOutlined className="text-xl" />
+          <span className="text-xs">History</span>
+        </div>
 
-          return (
-            <div
-              key={item.key}
-              onClick={() => navigate(item.key)}
-              className={`flex flex-col items-center justify-center text-xs cursor-pointer 
-                transition-all duration-300 ease-in-out transform
-                ${
-                  isActive
-                    ? "text-blue-600 scale-110"
-                    : "text-gray-500 scale-100 hover:scale-105"
-                }`}
-            >
-              <div className="text-xl transition-all duration-300">
-                {item.icon}
-              </div>
-              <span className="transition-all duration-300">{item.label}</span>
-            </div>
-          );
-        })}
+        {/* CENTER FLOATING ACTION BUTTON */}
+        <div
+          onClick={() => navigate("/add-transaction")}
+          className="absolute left-1/2 -translate-x-1/2 -top-6 cursor-pointer"
+        >
+          <div className="w-14 h-14 bg-white shadow-xl rounded-full flex items-center justify-center border-4 border-gray-100 hover:scale-110 transition">
+            <span className="text-3xl text-blue-600 leading-none">+</span>
+          </div>
+        </div>
+
+        {/* Alerts */}
+        <div
+          onClick={() => navigate("/notifications")}
+          className={`flex flex-col items-center cursor-pointer transition ${
+            isActive("/notifications")
+              ? "text-blue-600 scale-110"
+              : "text-gray-500"
+          }`}
+        >
+          <BellOutlined className="text-xl" />
+          <span className="text-xs">Alerts</span>
+        </div>
+
+        {/* Profile */}
+        <div
+          onClick={() => navigate("/profile")}
+          className={`flex flex-col items-center cursor-pointer transition ${
+            isActive("/profile") ? "text-blue-600 scale-110" : "text-gray-500"
+          }`}
+        >
+          <UserOutlined className="text-xl" />
+          <span className="text-xs">Profile</span>
+        </div>
       </div>
     </div>
   );
