@@ -1,6 +1,10 @@
-// src/App.js
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import { Layout } from "antd";
 import Navbar from "./components/Navbar";
 import MobileBottomNav from "./components/MobileBottomNav";
@@ -15,8 +19,10 @@ import Profile from "./pages/Profile";
 import RecurringTransactions from "./pages/RecurringTransaction";
 import Notifications from "./pages/Notification";
 import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoutes";
 
 const { Content, Footer: AntFooter } = Layout;
+const token = localStorage.getItem("token");
 
 function App() {
   return (
@@ -28,19 +34,79 @@ function App() {
 
         <Content style={{ padding: "20px", paddingBottom: "90px" }}>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/add-transaction" element={<AddTransaction />} />
-            <Route path="/transactions" element={<Transaction />} />
-            <Route path="/report" element={<Report />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route
+              path="/login"
+              element={token ? <Navigate to="/" replace /> : <Login />}
+            />
+            <Route
+              path="/register"
+              element={token ? <Navigate to="/" replace /> : <Register />}
+            />
+
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/add-transaction"
+              element={
+                <ProtectedRoute>
+                  <AddTransaction />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/transactions"
+              element={
+                <ProtectedRoute>
+                  <Transaction />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/report"
+              element={
+                <ProtectedRoute>
+                  <Report />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/recurring-transactions"
-              element={<RecurringTransactions />}
+              element={
+                <ProtectedRoute>
+                  <RecurringTransactions />
+                </ProtectedRoute>
+              }
             />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <Notifications />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </Content>
         <MobileBottomNav />
