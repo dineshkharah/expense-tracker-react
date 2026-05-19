@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, DatePicker, message } from "antd";
-import axios from "axios";
+import api from "../utils/api";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { exportCSV, exportPDF } from "../utils/exportUtils";
@@ -32,7 +32,7 @@ const Transactions = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/v1/transactions", {
+      const res = await api.get("/api/v1/transactions", {
         headers,
       });
       setTransactions(res.data);
@@ -86,7 +86,7 @@ const Transactions = () => {
   // Handle Delete
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/v1/transactions/${id}`, {
+      await api.delete(`/api/v1/transactions/${id}`, {
         headers,
       });
       message.success("Transaction deleted successfully!");
@@ -113,11 +113,9 @@ const Transactions = () => {
         ...values,
         date: values.date ? values.date.toISOString() : null,
       };
-      await axios.put(
-        `http://localhost:5000/api/v1/transactions/${editingTransaction._id}`,
-        payload,
-        { headers },
-      );
+      await api.put(`/api/v1/transactions/${editingTransaction._id}`, payload, {
+        headers,
+      });
       message.success("Transaction updated successfully!");
       setEditingTransaction(null);
       fetchTransactions();

@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Button, Form, Select, Switch, DatePicker, Input, message, Modal } from "antd";
-import axios from "axios";
+import {
+  Button,
+  Form,
+  Select,
+  Switch,
+  DatePicker,
+  Input,
+  message,
+  Modal,
+} from "antd";
+import api from "../utils/api";
 
 const { TextArea } = Input;
 
 const token = localStorage.getItem("token");
 const headers = {
-  Authorization: `Bearer ${token}`
+  Authorization: `Bearer ${token}`,
 };
 
 const FinanceTracker = () => {
@@ -19,10 +28,12 @@ const FinanceTracker = () => {
   // Fetch categories from backend
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/v1/categories", { headers });
+      const res = await api.get("/api/v1/categories", {
+        headers,
+      });
       const categoryOptions = res.data.map((c) => ({
         value: c.name.toLowerCase(),
-        label: c.name
+        label: c.name,
       }));
       setCategories(categoryOptions);
     } catch (error) {
@@ -46,7 +57,10 @@ const FinanceTracker = () => {
   const handleCategoryBlur = () => {
     if (!newCategory) return;
     const lowerNewCategory = newCategory.toLowerCase();
-    if (!categories.some((cat) => cat.value === lowerNewCategory) && !isModalVisible) {
+    if (
+      !categories.some((cat) => cat.value === lowerNewCategory) &&
+      !isModalVisible
+    ) {
       setIsModalVisible(true);
     }
   };
@@ -66,11 +80,7 @@ const FinanceTracker = () => {
         message.info("Category already exists.");
         return;
       }
-      await axios.post(
-        "http://localhost:5000/api/v1/categories",
-        { name: newCategory },
-        { headers }
-      );
+      await api.post("/api/v1/categories", { name: newCategory }, { headers });
       message.success("Category saved successfully!");
       fetchCategories();
     } catch (error) {
@@ -93,15 +103,15 @@ const FinanceTracker = () => {
         recurring: isRecurring,
         frequency: isRecurring ? values.frequency : null,
         nextDate:
-          isRecurring && values.nextDate
-            ? values.nextDate.toISOString()
-            : null,
-        notes: values.notes || ""
+          isRecurring && values.nextDate ? values.nextDate.toISOString() : null,
+        notes: values.notes || "",
       };
 
       console.log("Formatted Payload:", payload);
 
-      await axios.post("http://localhost:5000/api/v1/transactions", payload, { headers });
+      await api.post("/api/v1/transactions", payload, {
+        headers,
+      });
 
       message.success(`${values.type} saved successfully!`);
       form.resetFields();
@@ -114,18 +124,21 @@ const FinanceTracker = () => {
 
   return (
     <div style={{ maxWidth: "700px", margin: "0 auto", padding: "20px" }}>
-
       <Form form={form} layout="vertical" onFinish={handleSave}>
         <Form.Item name="type" label="Type" rules={[{ required: true }]}>
           <Select
             options={[
               { value: "income", label: "Income" },
-              { value: "expense", label: "Expense" }
+              { value: "expense", label: "Expense" },
             ]}
           />
         </Form.Item>
 
-        <Form.Item name="source" label="Person / Source Name" rules={[{ required: true }]}>
+        <Form.Item
+          name="source"
+          label="Person / Source Name"
+          rules={[{ required: true }]}
+        >
           <Input placeholder="e.g. Salary, Grocery Store" />
         </Form.Item>
 
@@ -137,7 +150,11 @@ const FinanceTracker = () => {
           <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
         </Form.Item>
 
-        <Form.Item name="category" label="Category" rules={[{ required: true }]}>
+        <Form.Item
+          name="category"
+          label="Category"
+          rules={[{ required: true }]}
+        >
           <Select
             showSearch
             allowClear
@@ -164,13 +181,17 @@ const FinanceTracker = () => {
 
         {isRecurring && (
           <>
-            <Form.Item name="frequency" label="Frequency" rules={[{ required: true }]}>
+            <Form.Item
+              name="frequency"
+              label="Frequency"
+              rules={[{ required: true }]}
+            >
               <Select
                 options={[
                   { value: "daily", label: "Daily" },
                   { value: "weekly", label: "Weekly" },
                   { value: "monthly", label: "Monthly" },
-                  { value: "yearly", label: "Yearly" }
+                  { value: "yearly", label: "Yearly" },
                 ]}
               />
             </Form.Item>

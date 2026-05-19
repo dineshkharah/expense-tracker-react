@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { Card, Row, Col } from "antd";
@@ -34,10 +34,7 @@ const Home = () => {
         Authorization: `Bearer ${token}`,
       };
 
-      const userRes = await axios.get(
-        "http://localhost:5000/api/v1/auth/get-profile",
-        { headers },
-      );
+      const userRes = await api.get("/api/v1/auth/get-profile", { headers });
 
       setSummary({
         balance: userRes.data.balance,
@@ -45,20 +42,18 @@ const Home = () => {
         totalExpenses: userRes.data.totalExpenses,
       });
 
-      const transactionsRes = await axios.get(
-        "http://localhost:5000/api/v1/transactions",
-        { headers },
-      );
+      const transactionsRes = await api.get("/api/v1/transactions", {
+        headers,
+      });
 
       const sortedTransactions = transactionsRes.data.sort(
         (a, b) => new Date(b.date) - new Date(a.date),
       );
       setTransactions(sortedTransactions);
 
-      const recurringRes = await axios.get(
-        "http://localhost:5000/api/v1/recurring-transactions",
-        { headers },
-      );
+      const recurringRes = await api.get("/api/v1/recurring-transactions", {
+        headers,
+      });
 
       const today = new Date();
       const upcoming = recurringRes.data

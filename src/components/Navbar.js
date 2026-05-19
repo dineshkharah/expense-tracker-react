@@ -22,14 +22,11 @@ const Navbar = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/v1/notifications",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+      const response = await fetch("/api/v1/notifications", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      );
+      });
 
       if (!response.ok) {
         console.error("Failed to fetch notifications");
