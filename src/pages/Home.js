@@ -16,7 +16,8 @@ const Home = () => {
   const [summary, setSummary] = useState({
     totalIncome: 0,
     totalExpenses: 0,
-    balance: 0,
+    net: 0,
+    month: "",
   });
   const [transactions, setTransactions] = useState([]);
   const [upcomingRecurrings, setUpcomingRecurrings] = useState([]);
@@ -34,12 +35,15 @@ const Home = () => {
         Authorization: `Bearer ${token}`,
       };
 
-      const userRes = await api.get("/api/v1/auth/get-profile", { headers });
+      const userRes = await api.get("/api/v1/transactions/monthly-summary", {
+        headers,
+      });
 
       setSummary({
-        balance: userRes.data.balance,
         totalIncome: userRes.data.totalIncome,
         totalExpenses: userRes.data.totalExpenses,
+        net: userRes.data.net,
+        month: userRes.data.month,
       });
 
       const transactionsRes = await api.get("/api/v1/transactions", {
@@ -127,9 +131,10 @@ const Home = () => {
       <PageHeader title="Home" onAdd={() => navigate("/add-transaction")} />
 
       <SummaryCards
-        balance={summary.balance}
         totalIncome={summary.totalIncome}
         totalExpenses={summary.totalExpenses}
+        net={summary.net}
+        month={summary.month}
       />
 
       <Card title="Spending Calendar" className="mt-6">
