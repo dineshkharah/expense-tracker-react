@@ -11,6 +11,7 @@ import {
   BarChartOutlined,
   BellOutlined,
 } from "@ant-design/icons";
+import api from "../utils/api";
 
 const { Header } = Layout;
 
@@ -22,19 +23,13 @@ const Navbar = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch("/api/v1/notifications", {
+      const response = await api.get("/api/v1/notifications", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
-      if (!response.ok) {
-        console.error("Failed to fetch notifications");
-        setNotifications([]);
-        return;
-      }
-
-      const data = await response.json();
+      const data = response.data;
 
       if (Array.isArray(data)) {
         setNotifications(data);
