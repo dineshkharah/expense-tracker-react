@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Form, Input, Button, message } from "antd";
 import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
+
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (localStorage.getItem("token")) {
-      navigate("/"); // Redirect to home if user is already logged in
-    }
-  }, [navigate]);
+  const { login } = useAuth();
 
   const handleLogin = async (values) => {
     setLoading(true);
@@ -19,8 +17,7 @@ const Login = () => {
       const response = await api.post("/api/v1/auth/login", values);
       const { token, name, email } = response.data;
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify({ name, email }));
+      login(token, { name, email });
 
       message.success("Login successful");
       navigate("/");
