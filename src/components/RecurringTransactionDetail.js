@@ -3,8 +3,7 @@ import { Modal, Tag, Button, Table, message } from "antd";
 import api from "../utils/api";
 import dayjs from "dayjs";
 
-const token = localStorage.getItem("token");
-const headers = { Authorization: `Bearer ${token}` };
+import { useAuth } from "../context/AuthContext";
 
 const RecurringTransactionDetail = ({
   visible,
@@ -14,6 +13,9 @@ const RecurringTransactionDetail = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
+
+  const { token } = useAuth();
+  const headers = { Authorization: `Bearer ${token}` };
 
   if (!recurring) return null;
 

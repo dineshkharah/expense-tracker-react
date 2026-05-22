@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Layout, Menu, Button, Dropdown, Avatar, Space, Badge } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -11,21 +11,23 @@ import {
   BarChartOutlined,
   BellOutlined,
 } from "@ant-design/icons";
+
 import api from "../utils/api";
+import { useAuth } from "../context/AuthContext";
 
 const { Header } = Layout;
 
 const Navbar = () => {
-  const [user, setUser] = useState(null);
+  const { user, logout, token } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const response = await api.get("/api/v1/notifications", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -40,31 +42,16 @@ const Navbar = () => {
         setNotifications([]);
       }
     } catch (error) {
-      console.log("Error fetching notifications:", error);
       console.error("Error fetching notifications:", error);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
-    const updateUser = () => {
-      const storedUser = localStorage.getItem("user");
-      setUser(storedUser ? JSON.parse(storedUser) : null);
-    };
-
-    updateUser();
     fetchNotifications();
-
-    window.addEventListener("storage", updateUser);
-
-    return () => {
-      window.removeEventListener("storage", updateUser);
-    };
-  }, []);
+  }, [fetchNotifications]);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    setUser(null);
+    logout();
     navigate("/login");
   };
 
