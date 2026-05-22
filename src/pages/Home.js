@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import api from "../utils/api";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,8 @@ import UpcomingRecurrings from "../components/UpcomingRecurrings";
 import RecurringTransactionDetail from "../components/RecurringTransactionDetail";
 import SpendingCalendar from "../components/SpendingCalendar";
 import DayTransactionsPanel from "../components/DayTransactionsPanel";
+
+import { useAuth } from "../context/AuthContext";
 
 const Home = () => {
   const [summary, setSummary] = useState({
@@ -28,9 +30,10 @@ const Home = () => {
 
   const navigate = useNavigate();
 
-  const fetchData = async () => {
+  const { token } = useAuth();
+
+  const fetchData = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
       const headers = {
         Authorization: `Bearer ${token}`,
       };
@@ -71,11 +74,11 @@ const Home = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const columns = [
     {

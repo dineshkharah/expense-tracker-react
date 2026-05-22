@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Modal, Form, Input, Select, DatePicker, message } from "antd";
 import api from "../utils/api";
 import dayjs from "dayjs";
@@ -8,10 +8,9 @@ import { exportCSV, exportPDF } from "../utils/exportUtils";
 import TransactionFilters from "../components/TransactionFilters";
 import TransactionTable from "../components/TransactionTable";
 
-const { Option } = Select;
+import { useAuth } from "../context/AuthContext";
 
-const token = localStorage.getItem("token");
-const headers = { Authorization: `Bearer ${token}` };
+const { Option } = Select;
 
 dayjs.extend(isBetween);
 
@@ -28,8 +27,11 @@ const Transactions = () => {
   });
   const [form] = Form.useForm();
 
+  const { token } = useAuth();
+  const headers = { Authorization: `Bearer ${token}` };
+
   // Fetch all transactions
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
       const res = await api.get("/api/v1/transactions", {
@@ -43,11 +45,12 @@ const Transactions = () => {
     } finally {
       setLoading(false);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [fetchTransactions]);
 
   // Apply filters locally
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 
@@ -8,9 +8,10 @@ import RecentTransactions from "../components/RecentTransactions";
 import UpcomingRecurrings from "../components/UpcomingRecurrings";
 import RecurringTransactionDetail from "../components/RecurringTransactionDetail";
 
-// const { Title } = Typography;
+import { useAuth } from "../context/AuthContext";
 
 const DashBoard = () => {
+  const { token } = useAuth();
   const [summary, setSummary] = useState({
     balance: 0,
     totalIncome: 0,
@@ -22,9 +23,8 @@ const DashBoard = () => {
   const [selectedRecurring, setSelectedRecurring] = useState(null);
   const navigate = useNavigate();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
       const headers = {
         Authorization: `Bearer ${token}`,
       };
@@ -57,11 +57,11 @@ const DashBoard = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   // Table Columns
   const columns = [

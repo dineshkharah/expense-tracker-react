@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Table,
   Button,
@@ -16,10 +16,9 @@ import dayjs from "dayjs";
 
 import RecurringTransactionsDetail from "./../components/RecurringTransactionDetail";
 
-const { Option } = Select;
+import { useAuth } from "../context/AuthContext";
 
-const token = localStorage.getItem("token");
-const headers = { Authorization: `Bearer ${token}` };
+const { Option } = Select;
 
 const RecurringTransactions = () => {
   const [recurrings, setRecurrings] = useState([]);
@@ -28,7 +27,10 @@ const RecurringTransactions = () => {
   const [detail, setDetail] = useState(null);
   const [form] = Form.useForm();
 
-  const fetchRecurrings = async () => {
+  const { token } = useAuth();
+  const headers = { Authorization: `Bearer ${token}` };
+
+  const fetchRecurrings = useCallback(async () => {
     try {
       setLoading(true);
       const res = await api.get("/api/v1/recurring-transactions", { headers });
@@ -39,11 +41,12 @@ const RecurringTransactions = () => {
     } finally {
       setLoading(false);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   useEffect(() => {
     fetchRecurrings();
-  }, []);
+  }, [fetchRecurrings]);
 
   const handleDelete = async (id) => {
     try {

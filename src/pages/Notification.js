@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Card,
   Button,
@@ -21,6 +21,8 @@ import api from "../utils/api";
 import dayjs from "dayjs";
 import RecurringTransactionDetail from "../components/RecurringTransactionDetail";
 
+import { useAuth } from "../context/AuthContext";
+
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -29,6 +31,8 @@ const Notifications = () => {
 
   const [confirmMarkAllOpen, setConfirmMarkAllOpen] = useState(false);
   const [confirmClearAll, setConfirmClearAll] = useState(false);
+
+  const { token } = useAuth();
 
   const baseBtnStyle = {
     height: "30px",
@@ -50,11 +54,11 @@ const Notifications = () => {
     },
   });
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
       const res = await api.get("/api/v1/notifications", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(res.data || []);
     } catch (err) {
@@ -63,7 +67,7 @@ const Notifications = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   const markAsRead = async (id) => {
     try {
@@ -71,7 +75,7 @@ const Notifications = () => {
         `/api/v1/notifications/${id}/mark-read`,
         {},
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
       setNotifications((prevNotifications) =>
@@ -90,7 +94,7 @@ const Notifications = () => {
         "/api/v1/notifications/mark-read",
         {},
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
       message.success("All notifications marked as read");
@@ -104,7 +108,7 @@ const Notifications = () => {
   const deleteNotification = async (id) => {
     try {
       await api.delete(`/api/v1/notifications/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       message.success("Notification deleted");
       fetchNotifications();
@@ -119,7 +123,7 @@ const Notifications = () => {
         notifications.map((n) =>
           api.delete(`/api/v1/notifications/${n._id}`, {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${token}`,
             },
           }),
         ),
@@ -137,7 +141,7 @@ const Notifications = () => {
       const res = await api.get(
         `/api/v1/recurring-transactions/${recurringId}`,
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
 
@@ -150,7 +154,7 @@ const Notifications = () => {
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
 
   if (loading) return <Spin style={{ marginTop: "20px" }} />;
 

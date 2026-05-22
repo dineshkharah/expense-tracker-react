@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Button,
   Form,
@@ -11,12 +11,9 @@ import {
 } from "antd";
 import api from "../utils/api";
 
-const { TextArea } = Input;
+import { useAuth } from "../context/AuthContext";
 
-const token = localStorage.getItem("token");
-const headers = {
-  Authorization: `Bearer ${token}`,
-};
+const { TextArea } = Input;
 
 const FinanceTracker = () => {
   const [form] = Form.useForm();
@@ -25,8 +22,13 @@ const FinanceTracker = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
 
+  const { token } = useAuth();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
   // Fetch categories from backend
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const res = await api.get("/api/v1/categories", {
         headers,
@@ -39,11 +41,12 @@ const FinanceTracker = () => {
     } catch (error) {
       console.error("Error fetching categories", error);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   // Handle category input
   const handleCategoryChange = (value) => {
