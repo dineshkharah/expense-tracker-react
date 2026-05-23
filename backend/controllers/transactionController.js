@@ -26,14 +26,11 @@ const createTransaction = async (req, res) => {
   const { source, category, amount, type, date, notes, recurring, frequency } =
     req.body;
   try {
-    console.log(req.body);
-
     if (!amount || !source || !category || !type) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
     const encryptedAmount = encrypt(amount.toString());
-    // console.log("Encrypted amount: ", encryptedAmount);
 
     let nextDate = null;
 
@@ -85,7 +82,8 @@ const createTransaction = async (req, res) => {
 
     res.status(201).json(transaction);
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -93,7 +91,6 @@ const getTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.find({ userId: req.user.userId });
     const decryptedTransactions = transactions.map((transaction) => {
-      console.log(transaction._doc);
       return {
         ...transaction._doc,
         amount: decrypt(transaction.amount),
@@ -101,7 +98,8 @@ const getTransactions = async (req, res) => {
     });
     res.json(decryptedTransactions);
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -124,8 +122,8 @@ const getTransactionById = async (req, res) => {
 
     res.status(200).json(decryptedTransaction);
   } catch (error) {
-    console.error("Error fetching transaction by ID:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -183,7 +181,8 @@ const updateTransaction = async (req, res) => {
 
     res.status(200).json(transaction);
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -252,7 +251,8 @@ const deleteTransaction = async (req, res) => {
 
     res.json({ message: "Transaction Deleted" });
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -294,7 +294,8 @@ const getMonthlySummary = async (req, res) => {
       net: totalIncome - totalExpenses,
     });
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
