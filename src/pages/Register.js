@@ -13,7 +13,6 @@ const Register = () => {
       navigate("/login");
     } catch (error) {
       message.error(error.response?.data?.message || "Something went wrong"); //the reason for ? is to prevent error if response is undefined
-      console.log("Error: ", error);
     } finally {
       setLoading(false);
     }

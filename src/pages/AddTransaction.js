@@ -112,8 +112,6 @@ const FinanceTracker = () => {
         notes: values.notes || "",
       };
 
-      console.log("Formatted Payload:", payload);
-
       await api.post("/api/v1/transactions", payload, {
         headers,
       });
