@@ -40,6 +40,7 @@ const FinanceTracker = () => {
       setCategories(categoryOptions);
     } catch (error) {
       console.error("Error fetching categories", error);
+      message.error("Failed to load categories.");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
@@ -87,6 +88,7 @@ const FinanceTracker = () => {
       message.success("Category saved successfully!");
       fetchCategories();
     } catch (error) {
+      console.error("Error saving category:", error);
       message.error("Failed to save category.");
     } finally {
       setIsModalVisible(false);
@@ -120,8 +122,10 @@ const FinanceTracker = () => {
       form.resetFields();
       setIsRecurring(false);
     } catch (error) {
-      console.error("Error Response:", error.response?.data || error.message);
-      message.error("Error saving data.");
+      console.error("Error saving transaction", error);
+      message.error(
+        error.response?.data?.message || "Failed to save transaction",
+      );
     }
   };
 

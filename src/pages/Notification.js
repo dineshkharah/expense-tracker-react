@@ -61,8 +61,8 @@ const Notifications = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(res.data || []);
-    } catch (err) {
-      console.error("Failed to fetch notifications", err);
+    } catch (error) {
+      console.error("Failed to fetch notifications", error);
       message.error("Failed to load notifications");
     } finally {
       setLoading(false);
@@ -83,7 +83,8 @@ const Notifications = () => {
       );
       message.success("Marked as read");
       fetchNotifications();
-    } catch (err) {
+    } catch (error) {
+      console.error("Error marking notification", error);
       message.error("Failed to mark notification");
     }
   };
@@ -99,7 +100,8 @@ const Notifications = () => {
       );
       message.success("All notifications marked as read");
       fetchNotifications();
-    } catch {
+    } catch (error) {
+      console.error("Error marking notifications as read", error);
       message.error("Failed to update notifications");
     }
     setConfirmMarkAllOpen(false);
@@ -112,7 +114,7 @@ const Notifications = () => {
       });
       message.success("Notification deleted");
       fetchNotifications();
-    } catch (err) {
+    } catch (error) {
       message.error("Failed to delete notification");
     }
   };
@@ -130,7 +132,8 @@ const Notifications = () => {
       );
       message.success("Notifications cleared");
       fetchNotifications();
-    } catch {
+    } catch (error) {
+      console.error("Error clearing notifications", error);
       message.error("Failed to clear notifications");
     }
     setConfirmClearAll(false);
@@ -148,6 +151,7 @@ const Notifications = () => {
       setSelectedRecurring(res.data);
       setModalVisible(true);
     } catch (error) {
+      console.error("Error fetching recurring details", error);
       message.error("Failed to load details");
     }
   };
