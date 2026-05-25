@@ -147,7 +147,7 @@ const RecurringTransactionDetail = ({
         )}
 
         {isFutureDate && (
-          <p style={{ color: "red", fontWeight: "bold" }}>
+          <p className="text-red-500 font-bold">
             This transaction is scheduled for a future date.
           </p>
         )}
@@ -160,7 +160,7 @@ const RecurringTransactionDetail = ({
         )}
 
         {hasEntryForNextDate && (
-          <p style={{ color: "green", fontWeight: "bold" }}>
+          <p className="text-green-600 dark:text-green-400 font-bold">
             An action has been taken for (
             {dayjs(recurring.nextDate).format("DD MMM YYYY")}).
           </p>
@@ -169,7 +169,7 @@ const RecurringTransactionDetail = ({
           <b>Notes:</b> {recurring.notes || "-"}
         </p>
 
-        <h3 style={{ marginTop: "20px" }}>History</h3>
+        <h3 className="mt-5">History</h3>
         <Table
           columns={historyColumns}
           dataSource={historyData}

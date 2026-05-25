@@ -11,10 +11,7 @@ const TransactionTable = ({ data, loading, filters, onEdit, onDelete }) => {
 
     return parts.map((part, index) =>
       part.toLowerCase() === search.toLowerCase() ? (
-        <span
-          key={index}
-          style={{ backgroundColor: "#ffe58f", padding: "0 2px" }}
-        >
+        <span key={index} className="bg-yellow-200 dark:bg-yellow-700 px-0.5">
           {part}
         </span>
       ) : (
@@ -65,10 +62,12 @@ const TransactionTable = ({ data, loading, filters, onEdit, onDelete }) => {
       sorter: (a, b) => a.amount - b.amount,
       render: (amt, record) => (
         <span
-          style={{
-            color: record.type === "income" ? "green" : "red",
-            fontWeight: "bold",
-          }}
+          className={`font-bold 
+            ${
+              record.type === "income"
+                ? "text-green-600 dark:text-green-400"
+                : "text-red-600 dark:text-red-400"
+            }`}
         >
           ₹{amt}
         </span>

@@ -8,75 +8,51 @@ const SummaryCards = ({ totalIncome, totalExpenses, net, month }) => {
     <>
       {/* Desktop: 3 cards */}
       <Row gutter={16} className="hidden md:flex">
-        <Col md={8} style={{ padding: "1rem" }}>
-          <Card
-            style={{
-              background: "#dcfce7",
-              borderRadius: "16px",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-            }}
-          >
-            <h2 style={{ fontSize: "1rem", fontWeight: 600, color: "#166534" }}>
+        <Col md={8} className="p-4">
+          <Card className="!bg-green-50 dark:!bg-green-950 !rounded-2xl shadow-md border-0">
+            <h2 className="text-sm font-semibold text-green-800 dark:text-green-300">
               {month} Income
             </h2>
-            <p
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: "bold",
-                color: "#14532d",
-              }}
-            >
+            <p className="text-2xl font-bold text-green-900 dark:text-green-200 mt-1">
               ₹{totalIncome.toLocaleString()}
             </p>
           </Card>
         </Col>
 
-        <Col md={8} style={{ padding: "1rem" }}>
-          <Card
-            style={{
-              background: "#fee2e2",
-              borderRadius: "16px",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-            }}
-          >
-            <h2 style={{ fontSize: "1rem", fontWeight: 600, color: "#991b1b" }}>
+        <Col md={8} className="p-4">
+          <Card className="!bg-red-50 dark:!bg-red-950 !rounded-2xl shadow-md border-0">
+            <h2 className="text-sm font-semibold text-red-800 dark:text-red-300">
               {month} Expenses
             </h2>
-            <p
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: "bold",
-                color: "#7f1d1d",
-              }}
-            >
+            <p className="text-2xl font-bold text-red-900 dark:text-red-200 mt-1">
               ₹{totalExpenses.toLocaleString()}
             </p>
           </Card>
         </Col>
 
-        <Col md={8} style={{ padding: "1rem" }}>
+        <Col md={8} className="p-4">
           <Card
-            style={{
-              background: netPositive ? "#e0f2fe" : "#fef9c3",
-              borderRadius: "16px",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-            }}
+            className={`!rounded-2xl shadow-md border-0 ${
+              netPositive
+                ? "!bg-blue-50 dark:!bg-blue-950"
+                : "!bg-yellow-50 dark:!bg-yellow-950"
+            }`}
           >
             <h2
-              style={{
-                fontSize: "1rem",
-                fontWeight: 600,
-                color: netPositive ? "#1d4ed8" : "#854d0e",
-              }}
+              className={`text-sm font-semibold ${
+                netPositive
+                  ? "text-blue-700 dark:text-blue-300"
+                  : "text-yellow-700 dark:text-yellow-300"
+              }`}
             >
               {month} Net
             </h2>
             <p
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: "bold",
-                color: netPositive ? "#1e3a8a" : "#713f12",
-              }}
+              className={`text-2xl font-bold mt-1 ${
+                netPositive
+                  ? "text-blue-900 dark:text-blue-200"
+                  : "text-yellow-900 dark:text-yellow-200"
+              }`}
             >
               {netPositive ? "+" : ""}₹{net.toLocaleString()}
             </p>
@@ -85,32 +61,12 @@ const SummaryCards = ({ totalIncome, totalExpenses, net, month }) => {
       </Row>
 
       {/* Mobile: 1 card */}
-      <div className="block md:hidden" style={{ padding: "1rem" }}>
-        <Card
-          style={{
-            background: "#fee2e2",
-            borderRadius: "16px",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <p
-            style={{
-              fontSize: "0.85rem",
-              fontWeight: 600,
-              color: "#991b1b",
-              margin: 0,
-            }}
-          >
+      <div className="block md:hidden p-4">
+        <Card className="!bg-red-50 dark:!bg-red-950 !rounded-2xl shadow-md border-0">
+          <p className="text-sm font-semibold text-red-800 dark:text-red-300 m-0">
             Total Spending · {month}
           </p>
-          <p
-            style={{
-              fontSize: "2rem",
-              fontWeight: "bold",
-              color: "#7f1d1d",
-              margin: "4px 0 0 0",
-            }}
-          >
+          <p className="text-4xl font-bold text-red-900 dark:text-red-200 mt-1 mb-0">
             ₹{totalExpenses.toLocaleString()}
           </p>
         </Card>

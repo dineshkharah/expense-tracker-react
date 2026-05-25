@@ -15,10 +15,11 @@ const DayTransactionsPanel = ({ selectedDate, transactions }) => {
       key: "amount",
       render: (text, record) => (
         <span
-          style={{
-            color: record.type === "income" ? "green" : "red",
-            fontWeight: 600,
-          }}
+          className={`font-semibold ${
+            record.type === "income"
+              ? "text-green-600 dark:text-green-400"
+              : "text-red-600 dark:text-red-400"
+          }`}
         >
           ₹{text}
         </span>
@@ -29,7 +30,13 @@ const DayTransactionsPanel = ({ selectedDate, transactions }) => {
       dataIndex: "type",
       key: "type",
       render: (type) => (
-        <span style={{ color: type === "income" ? "green" : "red" }}>
+        <span
+          className={
+            type === "income"
+              ? "text-green-600 dark:text-green-400"
+              : "text-red-600 dark:text-red-400"
+          }
+        >
           {type.toUpperCase()}
         </span>
       ),
@@ -48,22 +55,12 @@ const DayTransactionsPanel = ({ selectedDate, transactions }) => {
 
   if (dayTransactions.length === 0) {
     return (
-      <div
-        style={{
-          height: 180,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          color: "#6b7280",
-          textAlign: "center",
-        }}
-      >
-        <div style={{ fontSize: 42 }}>📅</div>
-        <p style={{ fontWeight: 600, marginBottom: 4 }}>
+      <div className="h-44 flex flex-col justify-center items-center text-gray-500 dark:text-slate-400 text-center">
+        <div className="text-5xl">📅</div>
+        <p className="font-semibold mb-1 mt-2">
           No transactions for {selectedDate.format("DD MMM YYYY")}
         </p>
-        <p style={{ fontSize: 12 }}>
+        <p className="text-xs">
           Add a transaction or wait for your recurring payments.
         </p>
       </div>

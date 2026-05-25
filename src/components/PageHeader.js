@@ -4,29 +4,16 @@ import { Typography, Button } from "antd";
 const { Title } = Typography;
 
 const PageHeader = ({ title, onAdd }) => {
-    return (
-        <div
-            style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                flexWrap: "wrap",
-            }}
-        >
-            <Title level={2} style={{ margin: 0 }}>
-                {title}
-            </Title>
-
-            <Button
-                type="primary"
-                size="medium"
-                onClick={onAdd}
-                style={{ marginLeft: "auto" }}
-            >
-                + Add Transaction
-            </Button>
-        </div>
-    );
+  return (
+    <div className="flex justify-between items-center flex-wrap mb-4">
+      <Title level={2} className="!m-0">
+        {title}
+      </Title>
+      <Button type="primary" onClick={onAdd} className="ml-auto">
+        + Add Transaction
+      </Button>
+    </div>
+  );
 };
 
 export default PageHeader;

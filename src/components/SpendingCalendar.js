@@ -14,6 +14,8 @@ const NavButton = ({ onClick, children }) => {
         cursor-pointer
         transition-all duration-200
         hover:bg-gray-100 hover:scale-110
+        dark:hover:bg-slate-700/50  text-gray-600
+        dark:text-slate-300
       "
     >
       {children}
@@ -50,69 +52,34 @@ const SpendingCalendar = ({
 
     return (
       <div
-        className={isSelected ? "ant-picker-cell-selected" : ""}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          margin: "0 2px",
-          padding: "4px 0",
-          borderRadius: 6,
-          border: isToday ? "1px solid #1677ff" : "1px solid transparent",
-          backgroundColor: isSelected ? "#1677ff" : "transparent",
-          color: isSelected ? "#fff" : "inherit",
-          cursor: "pointer",
-          transition: "all 0.2s",
-        }}
-        onMouseEnter={(e) => {
-          if (!isSelected)
-            e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.04)";
-        }}
-        onMouseLeave={(e) => {
-          if (!isSelected)
-            e.currentTarget.style.backgroundColor = "transparent";
-        }}
+        className={`flex flex-col items-center justify-center mx-0.5 py-1 rounded-md cursor-pointer transition-all duration-200 ${
+          isSelected
+            ? "bg-blue-500 text-white"
+            : isToday
+              ? "border border-blue-500 hover:bg-black/5 dark:hover:bg-white/10"
+              : "border border-transparent hover:bg-black/5 dark:hover:bg-white/10"
+        }`}
       >
         <div
-          style={{
-            fontSize: "16px",
-            fontWeight: isSelected ? "600" : "400",
-            marginBottom: "4px",
-          }}
+          className={`text-base mb-1 ${isSelected ? "font-semibold" : "font-normal"}`}
         >
           {current.date()}
         </div>
 
-        <div style={{ display: "flex", gap: "6px" }}>
+        <div className="flex gap-1.5">
           {hasIncome && (
             <div
-              className={`
-                w-1.5 h-1.5 rounded-full
-                transition-all duration-300
-                ${isSelected ? "bg-green-400 scale-110" : "bg-green-600 scale-90"}
-                animate-pulse
-              `}
+              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 animate-pulse ${isSelected ? "bg-green-300" : "bg-green-600"}`}
             />
           )}
           {hasExpense && (
             <div
-              className={`
-                w-1.5 h-1.5 rounded-full
-                transition-all duration-300
-                ${isSelected ? "bg-red-400 scale-110" : "bg-red-600 scale-90"}
-                animate-pulse
-              `}
+              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 animate-pulse ${isSelected ? "bg-red-300" : "bg-red-600"}`}
             />
           )}
           {hasRecurring && (
             <div
-              className={`
-                w-1.5 h-1.5 rounded-full
-                transition-all duration-300
-                ${isSelected ? "bg-blue-400 scale-110" : "bg-blue-600 scale-90"}
-                animate-pulse
-              `}
+              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 animate-pulse ${isSelected ? "bg-blue-200" : "bg-blue-600"}`}
             />
           )}
         </div>
@@ -216,10 +183,7 @@ const SpendingCalendar = ({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{
-          overflow: "hidden",
-          position: "relative",
-        }}
+        className="overflow-hidden relative"
       >
         <div
           style={{
@@ -232,7 +196,7 @@ const SpendingCalendar = ({
           }}
         >
           {/* PREV */}
-          <div style={{ width: "100%" }}>
+          <div className="w-full">
             <Calendar
               fullscreen={false}
               value={prevMonth}
@@ -242,7 +206,7 @@ const SpendingCalendar = ({
           </div>
 
           {/* CURRENT */}
-          <div style={{ width: "100%" }}>
+          <div className="w-full">
             <Calendar
               key={calendarKey}
               fullscreen={false}
@@ -254,7 +218,7 @@ const SpendingCalendar = ({
           </div>
 
           {/* NEXT */}
-          <div style={{ width: "100%" }}>
+          <div className="w-full">
             <Calendar
               fullscreen={false}
               value={nextMonth}
