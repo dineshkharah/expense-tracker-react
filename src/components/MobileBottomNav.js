@@ -16,12 +16,14 @@ const MobileBottomNav = () => {
   return (
     <div className="md:hidden fixed bottom-4 left-0 right-0 flex justify-center z-50">
       {/* FLOATING DOCK */}
-      <div className="relative bg-white/70 backdrop-blur-xl shadow-2xl rounded-full px-6 py-3 w-[92%] max-w-md flex items-center justify-between border border-white/40">
+      <div className="relative bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl shadow-2xl rounded-full px-6 py-3 w-[92%] max-w-md flex items-center justify-between border border-white/40 dark:border-slate-700/60">
         {/* Home */}
         <div
           onClick={() => navigate("/")}
           className={`flex flex-col items-center cursor-pointer transition ${
-            isActive("/") ? "text-blue-600 scale-110" : "text-gray-500"
+            isActive("/")
+              ? "text-blue-600 scale-110"
+              : "text-gray-500 dark:text-slate-400"
           }`}
         >
           <HomeOutlined className="text-xl" />
@@ -34,7 +36,7 @@ const MobileBottomNav = () => {
           className={`flex flex-col items-center cursor-pointer transition ${
             isActive("/transactions")
               ? "text-blue-600 scale-110"
-              : "text-gray-500"
+              : "text-gray-500 dark:text-slate-400"
           }`}
         >
           <TableOutlined className="text-xl" />
@@ -46,7 +48,7 @@ const MobileBottomNav = () => {
           onClick={() => navigate("/add-transaction")}
           className="absolute left-1/2 -translate-x-1/2 -top-6 cursor-pointer"
         >
-          <div className="w-14 h-14 bg-white shadow-xl rounded-full flex items-center justify-center border-4 border-gray-100 hover:scale-110 transition">
+          <div className="w-14 h-14 bg-white dark:bg-slate-700 shadow-xl rounded-full flex items-center justify-center border-4 border-gray-100 dark:border-slate-600 hover:scale-110 transition">
             <span className="text-3xl text-blue-600 leading-none">+</span>
           </div>
         </div>
@@ -57,7 +59,7 @@ const MobileBottomNav = () => {
           className={`flex flex-col items-center cursor-pointer transition ${
             isActive("/notifications")
               ? "text-blue-600 scale-110"
-              : "text-gray-500"
+              : "text-gray-500 dark:text-slate-400"
           }`}
         >
           <BellOutlined className="text-xl" />
@@ -68,7 +70,9 @@ const MobileBottomNav = () => {
         <div
           onClick={() => navigate("/profile")}
           className={`flex flex-col items-center cursor-pointer transition ${
-            isActive("/profile") ? "text-blue-600 scale-110" : "text-gray-500"
+            isActive("/profile")
+              ? "text-blue-600 scale-110"
+              : "text-gray-500 dark:text-slate-400"
           }`}
         >
           <UserOutlined className="text-xl" />

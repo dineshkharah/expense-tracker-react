@@ -127,9 +127,11 @@ const ThemedApp = () => {
 
           <MobileBottomNav />
 
-          <footer className="text-center py-4 text-sm text-gray-500 dark:text-slate-400 border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-            <Footer />
-          </footer>
+          <div className="hidden md:block">
+            <footer className="text-center py-4 text-sm text-gray-500 dark:text-slate-400 border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+              <Footer />
+            </footer>
+          </div>
         </div>
       </Router>
     </ConfigProvider>
