@@ -5,7 +5,7 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
-import { Layout } from "antd";
+import { ConfigProvider } from "antd";
 import Navbar from "./components/Navbar";
 import MobileBottomNav from "./components/MobileBottomNav";
 import Footer from "./components/Footer";
@@ -20,26 +20,27 @@ import RecurringTransactions from "./pages/RecurringTransaction";
 import Notifications from "./pages/Notification";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoutes";
-
 import { AuthProvider, useAuth } from "./context/AuthContext";
-
-const { Content, Footer: AntFooter } = Layout;
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
+import { getAntdTheme } from "./config/antdTheme";
 
 const PublicRoute = ({ children }) => {
   const { token } = useAuth();
   return token ? <Navigate to="/" replace /> : children;
 };
 
-function App() {
+const ThemedApp = () => {
+  const { isDark } = useTheme();
+
   return (
-    <AuthProvider>
+    <ConfigProvider theme={getAntdTheme(isDark)}>
       <Router>
-        <Layout style={{ minHeight: "100vh" }}>
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
           <div className="hidden md:block">
             <Navbar />
           </div>
 
-          <Content style={{ padding: "20px", paddingBottom: "90px" }}>
+          <div className="px-5 pb-24 pt-5">
             <Routes>
               <Route
                 path="/login"
@@ -57,7 +58,6 @@ function App() {
                   </PublicRoute>
                 }
               />
-
               <Route
                 path="/"
                 element={
@@ -123,13 +123,25 @@ function App() {
                 }
               />
             </Routes>
-          </Content>
+          </div>
+
           <MobileBottomNav />
-          <AntFooter style={{ textAlign: "center" }}>
+
+          <footer className="text-center py-4 text-sm text-gray-500 dark:text-slate-400 border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <Footer />
-          </AntFooter>
-        </Layout>
+          </footer>
+        </div>
       </Router>
+    </ConfigProvider>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <ThemeProvider>
+        <ThemedApp />
+      </ThemeProvider>
     </AuthProvider>
   );
 }
