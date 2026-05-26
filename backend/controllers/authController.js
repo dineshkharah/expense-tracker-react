@@ -96,9 +96,56 @@ const getUser = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  const { name, email } = req.body;
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+
+    await user.save();
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+const changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await user.matchPassword(oldPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    user.password = newPassword;
+    await user.save();
+    res.json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   deleteUser,
   getUser,
+  updateProfile,
+  changePassword,
 };

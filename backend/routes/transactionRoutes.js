@@ -6,6 +6,7 @@ const {
   updateTransaction,
   deleteTransaction,
   getMonthlySummary,
+  deleteAllTransactions,
 } = require("../controllers/transactionController");
 const authenticateUser = require("../middleware/authenticateUser");
 
@@ -28,5 +29,7 @@ router.put("/:id", authenticateUser, updateTransaction);
 
 // DELETE /api/v1/transactions/:id - Delete an transaction
 router.delete("/:id", authenticateUser, deleteTransaction);
+
+router.delete("/", authenticateUser, deleteAllTransactions);
 
 module.exports = router;

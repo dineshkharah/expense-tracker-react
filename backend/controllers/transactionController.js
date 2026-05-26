@@ -299,6 +299,29 @@ const getMonthlySummary = async (req, res) => {
   }
 };
 
+const deleteAllTransactions = async (req, res) => {
+  try {
+    const transactions = await Transaction.find({ userId: req.user.userId });
+
+    if (transactions.length === 0) {
+      return res.status(404).json({ message: "No transactions found" });
+    }
+
+    await Transaction.deleteMany({ userId: req.user.userId });
+
+    const user = await User.findById(req.user.userId);
+    user.balance = 0;
+    user.totalIncome = 0;
+    user.totalExpenses = 0;
+    await user.save();
+
+    res.json({ message: "All transactions deleted" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 module.exports = {
   createTransaction,
   getTransactions,
@@ -306,4 +329,5 @@ module.exports = {
   updateTransaction,
   deleteTransaction,
   getMonthlySummary,
+  deleteAllTransactions,
 };

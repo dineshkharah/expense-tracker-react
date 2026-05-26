@@ -84,10 +84,48 @@ const deleteNotification = async (req, res) => {
   }
 };
 
+const getNotificationPreferences = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select(
+      "notificationPreferences",
+    );
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.notificationPreferences);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch preferences" });
+  }
+};
+
+const updateNotificationPreferences = async (req, res) => {
+  try {
+    const { recurringReminders, paymentDueAlerts } = req.body;
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (recurringReminders !== undefined)
+      user.notificationPreferences.recurringReminders = recurringReminders;
+    if (paymentDueAlerts !== undefined)
+      user.notificationPreferences.paymentDueAlerts = paymentDueAlerts;
+
+    await user.save();
+    res.json(user.notificationPreferences);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update preferences" });
+  }
+};
+
 module.exports = {
   createNotification,
   getNotifications,
   markAllRead,
   markOneRead,
   deleteNotification,
+  getNotificationPreferences,
+  updateNotificationPreferences,
 };
