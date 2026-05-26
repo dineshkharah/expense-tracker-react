@@ -35,12 +35,12 @@ const ThemedApp = () => {
   return (
     <ConfigProvider theme={getAntdTheme(isDark)}>
       <Router>
-        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 flex flex-col">
           <div className="hidden md:block">
             <Navbar />
           </div>
 
-          <div className="px-5 pb-24 pt-5">
+          <div className="px-5 pb-24 pt-5 flex-1">
             <Routes>
               <Route
                 path="/login"
