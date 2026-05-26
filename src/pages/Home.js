@@ -97,10 +97,7 @@ const Home = () => {
       key: "amount",
       render: (text, record) => (
         <span
-          style={{
-            color: record.type === "income" ? "green" : "red",
-            fontWeight: "bold",
-          }}
+          className={`font-bold ${record.type === "income" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
         >
           ₹{text}
         </span>
@@ -112,10 +109,7 @@ const Home = () => {
       key: "type",
       render: (type) => (
         <span
-          style={{
-            color: type === "income" ? "green" : "red",
-            fontWeight: "bold",
-          }}
+          className={`font-bold ${type === "income" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
         >
           {type}
         </span>

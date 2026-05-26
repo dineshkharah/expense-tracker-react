@@ -128,7 +128,7 @@ const FinanceTracker = () => {
   };
 
   return (
-    <div style={{ maxWidth: "700px", margin: "0 auto", padding: "20px" }}>
+    <div className="max-w-2xl mx-auto px-5 py-5">
       <Form form={form} layout="vertical" onFinish={handleSave}>
         <Form.Item name="type" label="Type" rules={[{ required: true }]}>
           <Select
@@ -152,7 +152,7 @@ const FinanceTracker = () => {
         </Form.Item>
 
         <Form.Item name="date" label="Date" rules={[{ required: true }]}>
-          <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
+          <DatePicker className="w-full" format="YYYY-MM-DD" />
         </Form.Item>
 
         <Form.Item
@@ -201,7 +201,7 @@ const FinanceTracker = () => {
               />
             </Form.Item>
             <Form.Item name="nextDate" label="Next Payment Date">
-              <DatePicker style={{ width: "100%" }} />
+              <DatePicker className="w-full" />
             </Form.Item>
           </>
         )}
@@ -218,7 +218,7 @@ const FinanceTracker = () => {
       {/* Modal for confirming new category */}
       <Modal
         title="Save New Category"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={saveNewCategory}
         onCancel={() => setIsModalVisible(false)}
         okText="Save"

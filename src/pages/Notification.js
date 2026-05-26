@@ -20,7 +20,6 @@ import {
 import api from "../utils/api";
 import dayjs from "dayjs";
 import RecurringTransactionDetail from "../components/RecurringTransactionDetail";
-
 import { useAuth } from "../context/AuthContext";
 
 const Notifications = () => {
@@ -28,31 +27,10 @@ const Notifications = () => {
   const [loading, setLoading] = useState(false);
   const [selectedRecurring, setSelectedRecurring] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-
   const [confirmMarkAllOpen, setConfirmMarkAllOpen] = useState(false);
   const [confirmClearAll, setConfirmClearAll] = useState(false);
 
   const { token } = useAuth();
-
-  const baseBtnStyle = {
-    height: "30px",
-    fontWeight: 500,
-    transition: "all 0.2s ease",
-    transform: "scale(1)",
-    boxShadow: "none",
-  };
-
-  const hoverEffect = (color) => ({
-    onMouseEnter: (e) => {
-      if (window.innerWidth < 768) return;
-      e.currentTarget.style.transform = "scale(1.05)";
-      e.currentTarget.style.boxShadow = `0 0 8px rgba(${color}, 0.35)`;
-    },
-    onMouseLeave: (e) => {
-      e.currentTarget.style.transform = "scale(1)";
-      e.currentTarget.style.boxShadow = "none";
-    },
-  });
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -78,13 +56,12 @@ const Notifications = () => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      setNotifications((prevNotifications) =>
-        prevNotifications.map((n) => (n._id === id ? { ...n, read: true } : n)),
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, read: true } : n)),
       );
       message.success("Marked as read");
       fetchNotifications();
     } catch (error) {
-      console.error("Error marking notification", error);
       message.error("Failed to mark notification");
     }
   };
@@ -101,7 +78,6 @@ const Notifications = () => {
       message.success("All notifications marked as read");
       fetchNotifications();
     } catch (error) {
-      console.error("Error marking notifications as read", error);
       message.error("Failed to update notifications");
     }
     setConfirmMarkAllOpen(false);
@@ -124,16 +100,13 @@ const Notifications = () => {
       await Promise.all(
         notifications.map((n) =>
           api.delete(`/api/v1/notifications/${n._id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }),
         ),
       );
       message.success("Notifications cleared");
       fetchNotifications();
     } catch (error) {
-      console.error("Error clearing notifications", error);
       message.error("Failed to clear notifications");
     }
     setConfirmClearAll(false);
@@ -147,11 +120,9 @@ const Notifications = () => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-
       setSelectedRecurring(res.data);
       setModalVisible(true);
     } catch (error) {
-      console.error("Error fetching recurring details", error);
       message.error("Failed to load details");
     }
   };
@@ -160,36 +131,32 @@ const Notifications = () => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  if (loading) return <Spin style={{ marginTop: "20px" }} />;
+  if (loading) return <Spin className="mt-5 block" />;
 
   return (
     <div className="p-6">
       {/* Header Controls */}
       <div className="flex justify-between items-center mb-4">
-        {/* <h2 className="text-xl font-semibold">Notifications</h2> */}
         <Space>
           <Tooltip title="Refresh">
             <Button
               icon={<ReloadOutlined />}
               onClick={fetchNotifications}
-              style={{ borderColor: "#1677ff", color: "#1677ff" }}
-              {...hoverEffect("rgba(22, 119, 255, 0.4)")}
+              className="!border-blue-500 !text-blue-500 hover:!bg-blue-50 dark:hover:!bg-blue-900/30 transition-all"
             />
           </Tooltip>
           <Tooltip title="Mark All as Read">
             <Button
               icon={<CheckOutlined />}
               onClick={() => setConfirmMarkAllOpen(true)}
-              style={{ borderColor: "#52c41a", color: "#52c41a" }}
-              {...hoverEffect("rgba(82, 196, 26, 0.4)")}
+              className="!border-green-500 !text-green-500 hover:!bg-green-50 dark:hover:!bg-green-900/30 transition-all"
             />
           </Tooltip>
           <Tooltip title="Clear All">
             <Button
               icon={<DeleteOutlined />}
               onClick={() => setConfirmClearAll(true)}
-              style={{ borderColor: "#ff4d4f", color: "#ff4d4f" }}
-              {...hoverEffect("rgba(255, 77, 79, 0.4)")}
+              className="!border-red-500 !text-red-500 hover:!bg-red-50 dark:hover:!bg-red-900/30 transition-all"
             />
           </Tooltip>
         </Space>
@@ -199,9 +166,11 @@ const Notifications = () => {
       {notifications.length === 0 ? (
         <div className="flex flex-col items-center text-center mt-16">
           <Empty description={false} />
-          <p className="text-gray-500 text-lg mt-3">No notifications yet</p>
-          <p className="text-gray-400 text-sm">
-            You’ll see reminders here when recurring payments are due.
+          <p className="text-gray-500 dark:text-slate-400 text-lg mt-3">
+            No notifications yet
+          </p>
+          <p className="text-gray-400 dark:text-slate-500 text-sm">
+            You'll see reminders here when recurring payments are due.
           </p>
         </div>
       ) : (
@@ -219,54 +188,40 @@ const Notifications = () => {
                     <Tag color="green">Read</Tag>
                   )
                 }
-                style={{
-                  borderRadius: "12px",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                }}
+                className="!rounded-xl shadow-md dark:shadow-blue-900/30 border border-gray-100 dark:border-slate-700"
               >
-                <p className="font-medium">{n.message}</p>
-                <p className="text-xs text-gray-500 mt-1 mb-4">
+                <p className="font-medium text-gray-800 dark:text-slate-100">
+                  {n.message}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 mb-4">
                   {dayjs(n.date).format("DD MMM YYYY, hh:mm A")}
                 </p>
 
-                <div className="flex flex-wrap gap-3 mt-3">
+                <div className="flex flex-wrap gap-2 mt-3">
                   {!n.read && (
                     <Button
                       size="small"
                       type="primary"
                       onClick={() => markAsRead(n._id)}
-                      style={baseBtnStyle}
-                      {...hoverEffect("22,119,255")}
+                      className="hover:scale-105 transition-transform"
                     >
                       Mark Read
                     </Button>
                   )}
-
                   {n.recurringId && (
                     <Button
                       size="small"
                       onClick={() => handleActionClick(n.recurringId)}
-                      style={{
-                        ...baseBtnStyle,
-                        borderColor: "#1677ff",
-                        color: "#1677ff",
-                      }}
-                      {...hoverEffect("22,119,255")}
+                      className="!border-blue-500 !text-blue-500 hover:!bg-blue-50 dark:hover:!bg-blue-900/30 hover:scale-105 transition-all"
                     >
                       Take Action
                     </Button>
                   )}
-
                   <Button
                     size="small"
                     danger
                     onClick={() => deleteNotification(n._id)}
-                    style={{
-                      ...baseBtnStyle,
-                      borderColor: "#ff4d4f",
-                      color: "#ff4d4f",
-                    }}
-                    {...hoverEffect("255,77,79")}
+                    className="hover:scale-105 transition-transform !shadow-none"
                   >
                     Delete
                   </Button>
@@ -277,7 +232,6 @@ const Notifications = () => {
         </Row>
       )}
 
-      {/* Mark all as read modal */}
       <Modal
         title="Mark all notifications as read?"
         open={confirmMarkAllOpen}
@@ -285,8 +239,6 @@ const Notifications = () => {
         onOk={markAllAsRead}
         okText="Mark All Read"
       />
-
-      {/* Clear all notifications modal */}
       <Modal
         title="Clear all notifications?"
         open={confirmClearAll}
@@ -298,7 +250,6 @@ const Notifications = () => {
         <p>This action cannot be undone.</p>
       </Modal>
 
-      {/* Recurring Action modal */}
       {selectedRecurring && modalVisible && (
         <RecurringTransactionDetail
           visible={modalVisible}

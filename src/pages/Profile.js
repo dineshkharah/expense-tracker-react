@@ -1,11 +1,8 @@
 import React from "react";
-import { Card, Avatar, Button, Typography } from "antd";
+import { Card, Avatar, Button } from "antd";
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-
 import { useAuth } from "../context/AuthContext";
-
-const { Title, Text } = Typography;
 
 const Profile = () => {
   const { user, logout } = useAuth();
@@ -18,8 +15,10 @@ const Profile = () => {
 
   if (!user) {
     return (
-      <div style={{ textAlign: "center", marginTop: "100px" }}>
-        <Title level={3}>No user logged in</Title>
+      <div className="text-center mt-24">
+        <h3 className="text-xl font-semibold text-gray-700 dark:text-slate-300 mb-4">
+          No user logged in
+        </h3>
         <Button type="primary" onClick={() => navigate("/login")}>
           Go to Login
         </Button>
@@ -28,49 +27,28 @@ const Profile = () => {
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        padding: "30px 15px",
-      }}
-    >
-      <Card
-        style={{
-          maxWidth: 400,
-          width: "100%",
-          textAlign: "center",
-          borderRadius: "16px",
-          boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
-        }}
-      >
+    <div className="flex justify-center px-4 py-8">
+      <Card className="w-full max-w-sm text-center !rounded-2xl shadow-lg dark:shadow-blue-900/30 border border-gray-100 dark:border-slate-700 dark:!bg-slate-800">
         <Avatar
           size={100}
           icon={<UserOutlined />}
-          style={{
-            backgroundColor: "#1677ff",
-            marginBottom: "20px",
-          }}
+          className="!bg-blue-500 mb-5"
         />
-        <Title level={3} style={{ marginBottom: "5px" }}>
+        <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100 mb-1">
           {user.name}
-        </Title>
+        </h2>
         {user.email && (
-          <Text
-            type="secondary"
-            style={{ display: "block", marginBottom: "20px" }}
-          >
+          <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">
             {user.email}
-          </Text>
+          </p>
         )}
-
         <Button
           type="primary"
           danger
           icon={<LogoutOutlined />}
           onClick={handleLogout}
           block
-          style={{ borderRadius: "8px", height: "40px" }}
+          className="!rounded-lg !h-10"
         >
           Logout
         </Button>

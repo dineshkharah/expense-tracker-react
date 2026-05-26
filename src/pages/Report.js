@@ -200,10 +200,7 @@ const Report = () => {
       key: "type",
       render: (type) => (
         <span
-          style={{
-            color: type === "income" ? "green" : "red",
-            fontWeight: "bold",
-          }}
+          className={`font-bold ${type === "income" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
         >
           {type}
         </span>
@@ -217,10 +214,7 @@ const Report = () => {
       key: "amount",
       render: (amt, record) => (
         <span
-          style={{
-            color: record.type === "income" ? "green" : "red",
-            fontWeight: "bold",
-          }}
+          className={`font-bold ${record.type === "income" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
         >
           ₹{parseFloat(amt).toLocaleString()}
         </span>
@@ -278,44 +272,36 @@ const Report = () => {
       {/* Summary Cards */}
       <Row gutter={[16, 16]} className="mb-6">
         <Col xs={24} md={8}>
-          <Card
-            className="text-center"
-            style={{ background: "#dcfce7", borderRadius: "16px" }}
-          >
-            <p className="text-sm font-semibold text-green-800">Total Income</p>
-            <p className="text-2xl font-bold text-green-900">
+          <Card className="text-center !bg-green-50 dark:!bg-green-950 !rounded-2xl border-0 shadow-md">
+            <p className="text-sm font-semibold text-green-800 dark:text-green-300">
+              Total Income
+            </p>
+            <p className="text-2xl font-bold text-green-900 dark:text-green-200">
               ₹{summary.totalIncome.toLocaleString()}
             </p>
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card
-            className="text-center"
-            style={{ background: "#fee2e2", borderRadius: "16px" }}
-          >
-            <p className="text-sm font-semibold text-red-800">Total Expenses</p>
-            <p className="text-2xl font-bold text-red-900">
+          <Card className="text-center !bg-red-50 dark:!bg-red-950 !rounded-2xl border-0 shadow-md">
+            <p className="text-sm font-semibold text-red-800 dark:text-red-300">
+              Total Expenses
+            </p>
+            <p className="text-2xl font-bold text-red-900 dark:text-red-200">
               ₹{summary.totalExpenses.toLocaleString()}
             </p>
           </Card>
         </Col>
         <Col xs={24} md={8}>
           <Card
-            className="text-center"
-            style={{
-              background: netPositive ? "#e0f2fe" : "#fef9c3",
-              borderRadius: "16px",
-            }}
+            className={`text-center !rounded-2xl border-0 shadow-md ${netPositive ? "!bg-blue-50 dark:!bg-blue-950" : "!bg-yellow-50 dark:!bg-yellow-950"}`}
           >
             <p
-              className="text-sm font-semibold"
-              style={{ color: netPositive ? "#1d4ed8" : "#854d0e" }}
+              className={`text-sm font-semibold ${netPositive ? "text-blue-700 dark:text-blue-300" : "text-yellow-700 dark:text-yellow-300"}`}
             >
               Net
             </p>
             <p
-              className="text-2xl font-bold"
-              style={{ color: netPositive ? "#1e3a8a" : "#713f12" }}
+              className={`text-2xl font-bold ${netPositive ? "text-blue-900 dark:text-blue-200" : "text-yellow-900 dark:text-yellow-200"}`}
             >
               {netPositive ? "+" : ""}₹{summary.net.toLocaleString()}
             </p>
