@@ -20,9 +20,12 @@ import {
   DeleteOutlined,
   WarningOutlined,
   DownOutlined,
+  SunOutlined,
+  MoonOutlined,
 } from "@ant-design/icons";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import api from "../utils/api";
 
 const Profile = () => {
@@ -47,6 +50,8 @@ const Profile = () => {
 
   const [recurringExpanded, setRecurringExpanded] = useState(false);
   const [activeRecurrings, setActiveRecurrings] = useState([]);
+
+  const { isDark, toggleTheme } = useTheme();
 
   const headers = { Authorization: `Bearer ${token}` };
 
@@ -372,6 +377,27 @@ const Profile = () => {
             </p>
           </div>
           <Switch disabled />
+        </div>
+      </Card>
+
+      {/* Theme Toggle - Mobile Only */}
+      <Card className="!rounded-2xl shadow-sm dark:shadow-blue-900/20 border border-gray-100 dark:border-slate-700 md:hidden">
+        <div className="flex justify-between items-center py-2">
+          <div>
+            <p className="text-sm font-medium text-gray-700 dark:text-slate-200 flex items-center gap-2">
+              {isDark ? <MoonOutlined /> : <SunOutlined />}
+              {isDark ? "Dark Mode" : "Light Mode"}
+            </p>
+            <p className="text-xs text-gray-400 dark:text-slate-500">
+              Switch between light and dark theme
+            </p>
+          </div>
+          <Switch
+            checked={isDark}
+            onChange={toggleTheme}
+            checkedChildren={<MoonOutlined />}
+            unCheckedChildren={<SunOutlined />}
+          />
         </div>
       </Card>
 
