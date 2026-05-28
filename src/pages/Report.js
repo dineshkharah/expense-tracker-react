@@ -9,6 +9,7 @@ import {
   Modal,
   Checkbox,
   message,
+  Typography,
 } from "antd";
 import { Bar, Line } from "react-chartjs-2";
 import {
@@ -37,6 +38,8 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
+
+const { Title: PageTitle } = Typography;
 
 const Report = () => {
   const { token } = useAuth();
@@ -251,10 +254,12 @@ const Report = () => {
   const netPositive = summary.net >= 0;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">Report</h2>
+        <PageTitle level={2} className="!m-0 !mb-4">
+          Report
+        </PageTitle>
         <DatePicker
           picker="month"
           value={selectedMonth}

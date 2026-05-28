@@ -1,5 +1,13 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Modal, Form, Input, Select, DatePicker, message } from "antd";
+import {
+  Modal,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  message,
+  Typography,
+} from "antd";
 import api from "../utils/api";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
@@ -9,6 +17,8 @@ import TransactionFilters from "../components/TransactionFilters";
 import TransactionTable from "../components/TransactionTable";
 
 import { useAuth } from "../context/AuthContext";
+
+const { Title } = Typography;
 
 const { Option } = Select;
 
@@ -140,7 +150,9 @@ const Transactions = () => {
 
   return (
     <div className="flex flex-col w-full px-4 py-6">
-      <h2 className="text-xl font-semibold mb-4">All Transactions</h2>
+      <Title level={2} className="!m-0 !mb-4">
+        All Transactions
+      </Title>
 
       {/* Filters */}
       <TransactionFilters
@@ -156,7 +168,7 @@ const Transactions = () => {
       <div className="w-full overflow-x-auto">
         {/* Display transaction count */}
         {filteredTransactions.length > 0 && (
-          <div className="text-sm text-gray-500 mb-2">
+          <div className="text-sm text-gray-500 mb-2 dark:text-slate-400">
             Showing {filteredTransactions.length} transaction
             {filteredTransactions.length > 1 ? "s" : ""}
           </div>
