@@ -30,6 +30,11 @@ const createTransaction = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
+    const numericAmount = parseFloat(amount);
+    if (!Number.isFinite(numericAmount) || numericAmount < 0) {
+      return res.status(400).json({ message: "Invalid amount" });
+    }
+
     const encryptedAmount = encrypt(amount.toString());
 
     let nextDate = null;
@@ -68,7 +73,7 @@ const createTransaction = async (req, res) => {
     });
 
     const user = await User.findById(req.user.userId);
-    const numericValue = parseFloat(amount);
+    const numericValue = numericAmount;
 
     if (type === "income") {
       user.balance += numericValue;
@@ -139,10 +144,23 @@ const updateTransaction = async (req, res) => {
       return res.status(404).json({ message: "Transaction not found" });
     }
 
+    // Validate the new amount up front so a bad value can't corrupt the balance
+    if (req.body.amount !== undefined) {
+      const parsed = parseFloat(req.body.amount);
+      if (!Number.isFinite(parsed) || parsed < 0) {
+        return res.status(400).json({ message: "Invalid amount" });
+      }
+    }
+
     // Update user balance and totals
     const user = await User.findById(req.user.userId);
 
     const oldAmount = parseFloat(decrypt(transaction.amount));
+    if (!Number.isFinite(oldAmount)) {
+      return res
+        .status(500)
+        .json({ message: "Stored amount could not be read" });
+    }
     const oldType = transaction.type;
 
     if (oldType === "income") {
@@ -154,8 +172,9 @@ const updateTransaction = async (req, res) => {
     }
 
     // Calculate new amounts and update user totals
-    const newAmount = req.body.amount ? parseFloat(req.body.amount) : oldAmount;
-    const newType = req.body.type ? req.body.type : oldType;
+    const newAmount =
+      req.body.amount !== undefined ? parseFloat(req.body.amount) : oldAmount;
+    const newType = req.body.type || oldType;
 
     if (newType === "income") {
       user.balance += newAmount;
@@ -168,12 +187,13 @@ const updateTransaction = async (req, res) => {
     // Update the transaction with new values
     transaction.source = req.body.source || transaction.source;
     transaction.category = req.body.category || transaction.category;
-    if (req.body.amount) {
+    if (req.body.amount !== undefined) {
       transaction.amount = encrypt(newAmount.toString());
     }
     transaction.type = req.body.type || transaction.type;
     transaction.date = req.body.date || transaction.date;
-    transaction.notes = req.body.notes || transaction.notes;
+    transaction.notes =
+      req.body.notes !== undefined ? req.body.notes : transaction.notes;
 
     // Save the updated transaction and user
     await transaction.save();

@@ -16,16 +16,21 @@ const encrypt = (text) => {
 };
 
 const decrypt = (encryptedText) => {
-  const [iv, encrypted] = encryptedText.split(":");
+  try {
+    const [iv, encrypted] = encryptedText.split(":");
 
-  const decipher = crypto.createDecipheriv(
-    "aes-256-cbc",
-    Buffer.from(ENCRYPTION_KEY),
-    Buffer.from(iv, "hex"),
-  );
-  let decrypted = decipher.update(encrypted, "base64", "utf8");
-  decrypted += decipher.final("utf8");
-  return decrypted;
+    const decipher = crypto.createDecipheriv(
+      "aes-256-cbc",
+      Buffer.from(ENCRYPTION_KEY),
+      Buffer.from(iv, "hex"),
+    );
+    let decrypted = decipher.update(encrypted, "base64", "utf8");
+    decrypted += decipher.final("utf8");
+    return decrypted;
+  } catch (error) {
+    console.error("Failed to decrypt value:", error.message);
+    return null;
+  }
 };
 
 module.exports = {
