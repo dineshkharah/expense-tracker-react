@@ -20,7 +20,6 @@ import {
 import api from "../utils/api";
 import dayjs from "dayjs";
 import RecurringTransactionDetail from "../components/RecurringTransactionDetail";
-import { useAuth } from "../context/AuthContext";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -30,14 +29,10 @@ const Notifications = () => {
   const [confirmMarkAllOpen, setConfirmMarkAllOpen] = useState(false);
   const [confirmClearAll, setConfirmClearAll] = useState(false);
 
-  const { token } = useAuth();
-
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/v1/notifications", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/api/v1/notifications");
       setNotifications(res.data || []);
     } catch (error) {
       console.error("Failed to fetch notifications", error);
@@ -45,17 +40,11 @@ const Notifications = () => {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, []);
 
   const markAsRead = async (id) => {
     try {
-      await api.put(
-        `/api/v1/notifications/${id}/mark-read`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      await api.put(`/api/v1/notifications/${id}/mark-read`, {});
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, read: true } : n)),
       );
@@ -68,13 +57,7 @@ const Notifications = () => {
 
   const markAllAsRead = async () => {
     try {
-      await api.put(
-        "/api/v1/notifications/mark-read",
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      await api.put("/api/v1/notifications/mark-read", {});
       message.success("All notifications marked as read");
       fetchNotifications();
     } catch (error) {
@@ -85,9 +68,7 @@ const Notifications = () => {
 
   const deleteNotification = async (id) => {
     try {
-      await api.delete(`/api/v1/notifications/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/v1/notifications/${id}`);
       message.success("Notification deleted");
       fetchNotifications();
     } catch (error) {
@@ -98,11 +79,7 @@ const Notifications = () => {
   const clearAllNotifications = async () => {
     try {
       await Promise.all(
-        notifications.map((n) =>
-          api.delete(`/api/v1/notifications/${n._id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ),
+        notifications.map((n) => api.delete(`/api/v1/notifications/${n._id}`)),
       );
       message.success("Notifications cleared");
       fetchNotifications();
@@ -116,9 +93,6 @@ const Notifications = () => {
     try {
       const res = await api.get(
         `/api/v1/recurring-transactions/${recurringId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
       );
       setSelectedRecurring(res.data);
       setModalVisible(true);

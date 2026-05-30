@@ -16,8 +16,6 @@ import { exportCSV, exportPDF } from "../utils/exportUtils";
 import TransactionFilters from "../components/TransactionFilters";
 import TransactionTable from "../components/TransactionTable";
 
-import { useAuth } from "../context/AuthContext";
-
 const { Title } = Typography;
 
 const { Option } = Select;
@@ -37,16 +35,11 @@ const Transactions = () => {
   });
   const [form] = Form.useForm();
 
-  const { token } = useAuth();
-  const headers = { Authorization: `Bearer ${token}` };
-
   // Fetch all transactions
   const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/v1/transactions", {
-        headers,
-      });
+      const res = await api.get("/api/v1/transactions");
       setTransactions(res.data);
       setFilteredTransactions(res.data);
     } catch (error) {
@@ -55,8 +48,7 @@ const Transactions = () => {
     } finally {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchTransactions();
@@ -99,9 +91,7 @@ const Transactions = () => {
   // Handle Delete
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/api/v1/transactions/${id}`, {
-        headers,
-      });
+      await api.delete(`/api/v1/transactions/${id}`);
       message.success("Transaction deleted successfully!");
       fetchTransactions();
     } catch (error) {
@@ -126,9 +116,7 @@ const Transactions = () => {
         ...values,
         date: values.date ? values.date.toISOString() : null,
       };
-      await api.put(`/api/v1/transactions/${editingTransaction._id}`, payload, {
-        headers,
-      });
+      await api.put(`/api/v1/transactions/${editingTransaction._id}`, payload);
       message.success("Transaction updated successfully!");
       setEditingTransaction(null);
       fetchTransactions();

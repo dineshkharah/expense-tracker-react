@@ -17,8 +17,6 @@ import dayjs from "dayjs";
 
 import RecurringTransactionsDetail from "./../components/RecurringTransactionDetail";
 
-import { useAuth } from "../context/AuthContext";
-
 const { Title } = Typography;
 
 const { Option } = Select;
@@ -30,13 +28,10 @@ const RecurringTransactions = () => {
   const [detail, setDetail] = useState(null);
   const [form] = Form.useForm();
 
-  const { token } = useAuth();
-  const headers = { Authorization: `Bearer ${token}` };
-
   const fetchRecurrings = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/v1/recurring-transactions", { headers });
+      const res = await api.get("/api/v1/recurring-transactions");
       setRecurrings(res.data);
     } catch (error) {
       console.error("Error fetching recurring transactions:", error);
@@ -44,8 +39,7 @@ const RecurringTransactions = () => {
     } finally {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchRecurrings();
@@ -53,7 +47,7 @@ const RecurringTransactions = () => {
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/api/v1/recurring-transactions/${id}`, { headers });
+      await api.delete(`/api/v1/recurring-transactions/${id}`);
       message.success("Recurring transaction deleted!");
       fetchRecurrings();
     } catch (error) {
@@ -82,9 +76,7 @@ const RecurringTransactions = () => {
           ? values.effectiveFrom.toISOString()
           : new Date(),
       };
-      await api.put(`/api/v1/recurring-transactions/${editing._id}`, payload, {
-        headers,
-      });
+      await api.put(`/api/v1/recurring-transactions/${editing._id}`, payload);
       message.success("Recurring transaction updated!");
       setEditing(null);
       fetchRecurrings();
@@ -101,7 +93,6 @@ const RecurringTransactions = () => {
       await api.put(
         `/api/v1/recurring-transactions/${record._id}`,
         { isActive: newStatus }, // ✅ backend accepts partial update
-        { headers },
       );
 
       message.success(

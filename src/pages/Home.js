@@ -12,8 +12,6 @@ import RecurringTransactionDetail from "../components/RecurringTransactionDetail
 import SpendingCalendar from "../components/SpendingCalendar";
 import DayTransactionsPanel from "../components/DayTransactionsPanel";
 
-import { useAuth } from "../context/AuthContext";
-
 const Home = () => {
   const [summary, setSummary] = useState({
     totalIncome: 0,
@@ -30,17 +28,9 @@ const Home = () => {
 
   const navigate = useNavigate();
 
-  const { token } = useAuth();
-
   const fetchData = useCallback(async () => {
     try {
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-
-      const userRes = await api.get("/api/v1/transactions/monthly-summary", {
-        headers,
-      });
+      const userRes = await api.get("/api/v1/transactions/monthly-summary");
 
       setSummary({
         totalIncome: userRes.data.totalIncome,
@@ -49,18 +39,14 @@ const Home = () => {
         month: userRes.data.month,
       });
 
-      const transactionsRes = await api.get("/api/v1/transactions", {
-        headers,
-      });
+      const transactionsRes = await api.get("/api/v1/transactions");
 
       const sortedTransactions = transactionsRes.data.sort(
         (a, b) => new Date(b.date) - new Date(a.date),
       );
       setTransactions(sortedTransactions);
 
-      const recurringRes = await api.get("/api/v1/recurring-transactions", {
-        headers,
-      });
+      const recurringRes = await api.get("/api/v1/recurring-transactions");
 
       const today = new Date();
       const upcoming = recurringRes.data
@@ -74,7 +60,7 @@ const Home = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchData();

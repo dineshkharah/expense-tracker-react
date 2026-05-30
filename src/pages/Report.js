@@ -25,7 +25,6 @@ import {
 } from "chart.js";
 import dayjs from "dayjs";
 import api from "../utils/api";
-import { useAuth } from "../context/AuthContext";
 import { exportCSV, exportPDF } from "../utils/exportUtils";
 
 ChartJS.register(
@@ -42,8 +41,6 @@ ChartJS.register(
 const { Title: PageTitle } = Typography;
 
 const Report = () => {
-  const { token } = useAuth();
-  const headers = { Authorization: `Bearer ${token}` };
   const barChartRef = useRef(null);
 
   const [selectedMonth, setSelectedMonth] = useState(dayjs());
@@ -65,7 +62,7 @@ const Report = () => {
   const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/v1/transactions", { headers });
+      const res = await api.get("/api/v1/transactions");
       setTransactions(res.data);
     } catch (error) {
       console.error("Error fetching transactions", error);
@@ -73,8 +70,7 @@ const Report = () => {
     } finally {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchTransactions();

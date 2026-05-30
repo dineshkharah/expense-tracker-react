@@ -53,14 +53,12 @@ const Profile = () => {
 
   const { isDark, toggleTheme } = useTheme();
 
-  const headers = { Authorization: `Bearer ${token}` };
-
   const fetchProfileData = useCallback(async () => {
     try {
       const [profileRes, recurringRes, prefsRes] = await Promise.all([
-        api.get("/api/v1/auth/get-profile", { headers }),
-        api.get("/api/v1/recurring-transactions", { headers }),
-        api.get("/api/v1/notifications/preferences", { headers }),
+        api.get("/api/v1/auth/get-profile"),
+        api.get("/api/v1/recurring-transactions"),
+        api.get("/api/v1/notifications/preferences"),
       ]);
       setProfileData(profileRes.data);
       setActiveRecurringCount(
@@ -90,9 +88,7 @@ const Profile = () => {
     try {
       setLoading(true);
       const values = await editForm.validateFields();
-      const res = await api.put("/api/v1/auth/update-profile", values, {
-        headers,
-      });
+      const res = await api.put("/api/v1/auth/update-profile", values);
       login(token, { name: res.data.name, email: res.data.email });
       message.success("Profile updated successfully!");
       setEditModalOpen(false);
@@ -114,14 +110,10 @@ const Profile = () => {
         message.error("New passwords do not match");
         return;
       }
-      await api.put(
-        "/api/v1/auth/change-password",
-        {
-          oldPassword: values.oldPassword,
-          newPassword: values.newPassword,
-        },
-        { headers },
-      );
+      await api.put("/api/v1/auth/change-password", {
+        oldPassword: values.oldPassword,
+        newPassword: values.newPassword,
+      });
       message.success("Password changed successfully!");
       setPasswordModalOpen(false);
       passwordForm.resetFields();
@@ -138,7 +130,7 @@ const Profile = () => {
     try {
       const updated = { ...notifPrefs, [key]: value };
       setNotifPrefs(updated);
-      await api.put("/api/v1/notifications/preferences", updated, { headers });
+      await api.put("/api/v1/notifications/preferences", updated);
       message.success("Preferences updated");
     } catch (error) {
       message.error("Failed to update preferences");
@@ -148,7 +140,7 @@ const Profile = () => {
   const handleClearTransactions = async () => {
     try {
       setLoading(true);
-      await api.delete("/api/v1/transactions", { headers });
+      await api.delete("/api/v1/transactions");
       message.success("All transactions cleared");
       setClearTransactionsModalOpen(false);
     } catch (error) {
@@ -163,7 +155,7 @@ const Profile = () => {
   const handleDeleteAccount = async () => {
     try {
       setLoading(true);
-      await api.delete("/api/v1/auth/delete", { headers });
+      await api.delete("/api/v1/auth/delete");
       message.success("Account deleted");
       logout();
       navigate("/login");

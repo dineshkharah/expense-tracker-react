@@ -11,8 +11,6 @@ import {
 } from "antd";
 import api from "../utils/api";
 
-import { useAuth } from "../context/AuthContext";
-
 const { TextArea } = Input;
 
 const FinanceTracker = () => {
@@ -22,17 +20,10 @@ const FinanceTracker = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
 
-  const { token } = useAuth();
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
-
   // Fetch categories from backend
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await api.get("/api/v1/categories", {
-        headers,
-      });
+      const res = await api.get("/api/v1/categories");
       const categoryOptions = res.data.map((c) => ({
         value: c.name.toLowerCase(),
         label: c.name,
@@ -42,8 +33,7 @@ const FinanceTracker = () => {
       console.error("Error fetching categories", error);
       message.error("Failed to load categories.");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchCategories();
@@ -84,7 +74,7 @@ const FinanceTracker = () => {
         message.info("Category already exists.");
         return;
       }
-      await api.post("/api/v1/categories", { name: newCategory }, { headers });
+      await api.post("/api/v1/categories", { name: newCategory });
       message.success("Category saved successfully!");
       fetchCategories();
     } catch (error) {
@@ -112,9 +102,7 @@ const FinanceTracker = () => {
         notes: values.notes || "",
       };
 
-      await api.post("/api/v1/transactions", payload, {
-        headers,
-      });
+      await api.post("/api/v1/transactions", payload);
 
       message.success(`${values.type} saved successfully!`);
       form.resetFields();

@@ -19,7 +19,7 @@ import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 
 const Navbar = () => {
-  const { user, logout, token } = useAuth();
+  const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
@@ -27,11 +27,7 @@ const Navbar = () => {
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const response = await api.get("/api/v1/notifications", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.get("/api/v1/notifications");
 
       const data = response.data;
 
@@ -46,7 +42,7 @@ const Navbar = () => {
     } catch (error) {
       console.error("Error fetching notifications:", error);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchNotifications();

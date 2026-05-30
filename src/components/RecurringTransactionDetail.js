@@ -3,8 +3,6 @@ import { Modal, Tag, Button, Table, message } from "antd";
 import api from "../utils/api";
 import dayjs from "dayjs";
 
-import { useAuth } from "../context/AuthContext";
-
 const RecurringTransactionDetail = ({
   visible,
   onClose,
@@ -14,9 +12,6 @@ const RecurringTransactionDetail = ({
   const [loading, setLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
 
-  const { token } = useAuth();
-  const headers = { Authorization: `Bearer ${token}` };
-
   if (!recurring) return null;
 
   const handleAction = async (action) => {
@@ -25,7 +20,6 @@ const RecurringTransactionDetail = ({
       await api.post(
         `/api/v1/recurring-transactions/${recurring._id}/execute`,
         { action: confirmAction },
-        { headers },
       );
       message.success("Action executed successfully.");
       refreshList();

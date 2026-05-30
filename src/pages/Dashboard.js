@@ -16,7 +16,6 @@ import {
 } from "chart.js";
 import PageHeader from "../components/PageHeader";
 import SummaryCards from "../components/SummaryCards";
-import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 ChartJS.register(
@@ -32,9 +31,7 @@ ChartJS.register(
 );
 
 const Dashboard = () => {
-  const { token } = useAuth();
   const navigate = useNavigate();
-  const headers = { Authorization: `Bearer ${token}` };
 
   const [summary, setSummary] = useState({
     totalIncome: 0,
@@ -47,8 +44,8 @@ const Dashboard = () => {
   const fetchData = useCallback(async () => {
     try {
       const [summaryRes, transactionsRes] = await Promise.all([
-        api.get("/api/v1/transactions/monthly-summary", { headers }),
-        api.get("/api/v1/transactions", { headers }),
+        api.get("/api/v1/transactions/monthly-summary"),
+        api.get("/api/v1/transactions"),
       ]);
 
       setSummary({
@@ -62,8 +59,7 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchData();
