@@ -2,11 +2,18 @@ import React, { useState, useContext, createContext } from "react";
 
 const AuthContext = createContext();
 
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem("user")) || null;
+  } catch {
+    localStorage.removeItem("user"); // clear the corrupted value
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token"));
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user")) || null,
-  );
+  const [user, setUser] = useState(getStoredUser());
 
   const login = (token, user) => {
     localStorage.setItem("token", token);

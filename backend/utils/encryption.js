@@ -3,6 +3,12 @@ const crypto = require("crypto");
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
 const IV_LENGTH = 16;
 
+if (!ENCRYPTION_KEY || Buffer.byteLength(ENCRYPTION_KEY) !== 32) {
+  throw new Error(
+    "ENCRYPTION_KEY must be set and exactly 32 bytes long for aes-256-cbc",
+  );
+}
+
 const encrypt = (text) => {
   let iv = crypto.randomBytes(IV_LENGTH);
   let cipher = crypto.createCipheriv(
