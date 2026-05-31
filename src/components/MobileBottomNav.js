@@ -1,17 +1,48 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Popover, message } from "antd";
 import {
   HomeOutlined,
   TableOutlined,
   BellOutlined,
   UserOutlined,
+  EditOutlined,
+  CameraOutlined,
 } from "@ant-design/icons";
 
 const MobileBottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [addOpen, setAddOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
+
+  const goTo = (path) => {
+    setAddOpen(false);
+    navigate(path);
+  };
+
+  const addMenu = (
+    <div className="flex flex-col w-44">
+      <button
+        onClick={() => {
+          setAddOpen(false);
+          message.info("Bill scanning coming soon");
+        }}
+        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-700/60 transition"
+      >
+        <CameraOutlined className="text-lg text-blue-600" />
+        <span className="text-sm font-medium">Scan Bill</span>
+      </button>
+      <button
+        onClick={() => goTo("/add-transaction")}
+        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-700/60 transition"
+      >
+        <EditOutlined className="text-lg text-blue-600" />
+        <span className="text-sm font-medium">Add Manually</span>
+      </button>
+    </div>
+  );
 
   return (
     <div className="md:hidden fixed bottom-4 left-0 right-0 flex justify-center z-50">
@@ -44,14 +75,30 @@ const MobileBottomNav = () => {
         </div>
 
         {/* CENTER FLOATING ACTION BUTTON */}
-        <div
-          onClick={() => navigate("/add-transaction")}
-          className="absolute left-1/2 -translate-x-1/2 -top-6 cursor-pointer"
+        <Popover
+          content={addMenu}
+          trigger="click"
+          open={addOpen}
+          onOpenChange={setAddOpen}
+          placement="top"
+          arrow
         >
-          <div className="w-14 h-14 bg-white dark:bg-slate-700 shadow-xl rounded-full flex items-center justify-center border-4 border-gray-100 dark:border-slate-600 hover:scale-110 transition">
-            <span className="text-3xl text-blue-600 leading-none">+</span>
+          <div className="absolute left-1/2 -translate-x-1/2 -top-6 cursor-pointer">
+            <div
+              className={`w-14 h-14 bg-white dark:bg-slate-700 shadow-xl rounded-full flex items-center justify-center border-4 border-gray-100 dark:border-slate-600 hover:scale-110 transition ${
+                addOpen ? "scale-110" : ""
+              }`}
+            >
+              <span
+                className={`text-3xl text-blue-600 leading-none transition-transform ${
+                  addOpen ? "rotate-45" : ""
+                }`}
+              >
+                +
+              </span>
+            </div>
           </div>
-        </div>
+        </Popover>
 
         {/* Alerts */}
         <div
