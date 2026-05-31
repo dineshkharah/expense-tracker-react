@@ -21,9 +21,14 @@ const errorHandler = require("./middleware/errorHandler");
 const app = express();
 
 app.use(helmet());
+
+// In development allow any origin (so the app can be opened from a phone on the
+// LAN); in production restrict to the configured client URL(s).
+const allowedOrigins = (process.env.CLIENT_URL || "").split(",").filter(Boolean);
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.NODE_ENV === "production" ? allowedOrigins : true,
     credentials: true,
   }),
 );
