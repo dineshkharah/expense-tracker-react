@@ -1,6 +1,5 @@
 const Transaction = require("../models/Transaction");
 const RecurringTransaction = require("../models/recurringTransactions");
-const User = require("../models/User");
 const { encrypt, decrypt } = require("../utils/encryption");
 const asyncHandler = require("../middleware/asyncHandler");
 
@@ -61,19 +60,6 @@ const createTransaction = asyncHandler(async (req, res) => {
     notes,
   });
 
-  const user = await User.findById(req.user.userId);
-  const numericValue = numericAmount;
-
-  if (type === "income") {
-    user.balance += numericValue;
-    user.totalIncome += numericValue;
-  } else {
-    user.balance -= numericValue;
-    user.totalExpenses += numericValue;
-  }
-
-  await user.save();
-
   res.status(201).json(transaction);
 });
 
@@ -118,60 +104,24 @@ const updateTransaction = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "Transaction not found" });
   }
 
-  // Validate the new amount up front so a bad value can't corrupt the balance
+  // Validate and apply the new amount if provided
   if (req.body.amount !== undefined) {
     const parsed = parseFloat(req.body.amount);
     if (!Number.isFinite(parsed) || parsed < 0) {
       return res.status(400).json({ message: "Invalid amount" });
     }
+    transaction.amount = encrypt(parsed.toString());
   }
 
-  // Update user balance and totals
-  const user = await User.findById(req.user.userId);
-
-  const oldAmount = parseFloat(decrypt(transaction.amount));
-  if (!Number.isFinite(oldAmount)) {
-    return res
-      .status(500)
-      .json({ message: "Stored amount could not be read" });
-  }
-  const oldType = transaction.type;
-
-  if (oldType === "income") {
-    user.balance -= oldAmount;
-    user.totalIncome -= oldAmount;
-  } else {
-    user.balance += oldAmount;
-    user.totalExpenses -= oldAmount;
-  }
-
-  // Calculate new amounts and update user totals
-  const newAmount =
-    req.body.amount !== undefined ? parseFloat(req.body.amount) : oldAmount;
-  const newType = req.body.type || oldType;
-
-  if (newType === "income") {
-    user.balance += newAmount;
-    user.totalIncome += newAmount;
-  } else {
-    user.balance -= newAmount;
-    user.totalExpenses += newAmount;
-  }
-
-  // Update the transaction with new values
+  // Update the remaining fields
   transaction.source = req.body.source || transaction.source;
   transaction.category = req.body.category || transaction.category;
-  if (req.body.amount !== undefined) {
-    transaction.amount = encrypt(newAmount.toString());
-  }
   transaction.type = req.body.type || transaction.type;
   transaction.date = req.body.date || transaction.date;
   transaction.notes =
     req.body.notes !== undefined ? req.body.notes : transaction.notes;
 
-  // Save the updated transaction and user
   await transaction.save();
-  await user.save();
 
   res.status(200).json(transaction);
 });
@@ -185,19 +135,6 @@ const deleteTransaction = asyncHandler(async (req, res) => {
   if (!transaction) {
     return res.status(404).json({ message: "Transaction not found" });
   }
-
-  const user = await User.findById(req.user.userId);
-  const amount = parseFloat(decrypt(transaction.amount));
-
-  if (transaction.type === "income") {
-    user.balance -= amount;
-    user.totalIncome -= amount;
-  } else {
-    user.balance += amount;
-    user.totalExpenses -= amount;
-  }
-
-  await user.save();
 
   const recurrings = await RecurringTransaction.find({
     "history.transactionId": transaction._id,
@@ -287,12 +224,6 @@ const deleteAllTransactions = asyncHandler(async (req, res) => {
   }
 
   await Transaction.deleteMany({ userId: req.user.userId });
-
-  const user = await User.findById(req.user.userId);
-  user.balance = 0;
-  user.totalIncome = 0;
-  user.totalExpenses = 0;
-  await user.save();
 
   res.json({ message: "All transactions deleted" });
 });

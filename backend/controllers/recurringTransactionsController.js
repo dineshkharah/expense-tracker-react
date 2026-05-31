@@ -1,6 +1,5 @@
 const RecurringTransaction = require("../models/recurringTransactions");
 const Transaction = require("../models/Transaction");
-const User = require("../models/User");
 const { encrypt, decrypt } = require("../utils/encryption");
 const asyncHandler = require("../middleware/asyncHandler");
 
@@ -259,18 +258,6 @@ const executeRecurring = asyncHandler(async (req, res) => {
       frequency: recurring.frequency,
       notes: recurring.notes,
     });
-
-    const user = await User.findById(req.user.userId);
-    const numericValue = parseFloat(decryptedAmount);
-    if (recurring.type === "income") {
-      user.balance += numericValue;
-      user.totalIncome += numericValue;
-    } else {
-      user.balance -= numericValue;
-      user.totalExpenses += numericValue;
-    }
-
-    await user.save();
 
     // push history but set history date to targetedPeriodEnd to reflect the intended period
     recurring.history.push({

@@ -17,18 +17,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    balance: {
-      type: Number,
-      default: 0,
-    },
-    totalIncome: {
-      type: Number,
-      default: 0,
-    },
-    totalExpenses: {
-      type: Number,
-      default: 0,
-    },
     notifications: [
       {
         message: { type: String, required: true },
