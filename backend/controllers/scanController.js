@@ -20,7 +20,8 @@ Rules:
 - If a value is not clearly visible, use null for that field (do not guess wildly).
 - "amount" must be the final/grand total, as a plain number (e.g. 249.50).
 - "category" should be a single lowercase word or short phrase.
-- Default "type" to "expense" unless the document clearly indicates income.`;
+- Default "type" to "expense" unless the document clearly indicates income.
+- Dates on the bill are in day-first format (DD/MM/YYYY or DD-MM-YYYY), as is standard in India. For example 09/05/2026 means 9 May 2026, NOT 5 September. Convert the date to "YYYY-MM-DD" output format accordingly.`;
 
 const scanBill = asyncHandler(async (req, res) => {
   if (!process.env.GEMINI_API_KEY) {

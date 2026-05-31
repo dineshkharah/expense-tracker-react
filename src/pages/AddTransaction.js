@@ -10,7 +10,10 @@ import {
   Modal,
   Card,
   Segmented,
+  Alert,
 } from "antd";
+import { CameraOutlined } from "@ant-design/icons";
+import { useNavigate, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import api from "../utils/api";
 
@@ -18,12 +21,15 @@ const { TextArea } = Input;
 
 const FinanceTracker = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
   const [type, setType] = useState("expense");
   const [saving, setSaving] = useState(false);
+  const [fromScan, setFromScan] = useState(false);
 
   // Fetch categories from backend
   const fetchCategories = useCallback(async () => {
@@ -43,6 +49,24 @@ const FinanceTracker = () => {
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
+
+  // Prefill the form when arriving from the bill scanner
+  useEffect(() => {
+    const scanned = location.state?.scanned;
+    if (!scanned) return;
+
+    setFromScan(true);
+    if (scanned.type) setType(scanned.type);
+    form.setFieldsValue({
+      amount: scanned.amount ?? undefined,
+      source: scanned.source ?? undefined,
+      category: scanned.category ?? undefined,
+      date: scanned.date && dayjs(scanned.date).isValid() ? dayjs(scanned.date) : dayjs(),
+    });
+
+    // Clear router state so a refresh doesn't re-trigger the prefill
+    navigate(location.pathname, { replace: true, state: {} });
+  }, [location.state, location.pathname, form, navigate]);
 
   // Handle category input
   const handleCategoryChange = (value) => {
@@ -115,6 +139,7 @@ const FinanceTracker = () => {
       form.setFieldsValue({ date: dayjs() });
       setType("expense");
       setIsRecurring(false);
+      setFromScan(false);
     } catch (error) {
       console.error("Error saving transaction", error);
       message.error(
@@ -128,11 +153,29 @@ const FinanceTracker = () => {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-5">
+      <div className="flex items-center justify-between mb-5">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-slate-100 m-0">
           Add Transaction
         </h1>
+        <Button
+          icon={<CameraOutlined />}
+          onClick={() => navigate("/scan-bill")}
+        >
+          Scan Bill
+        </Button>
       </div>
+
+      {fromScan && (
+        <Alert
+          type="info"
+          showIcon
+          className="!rounded-xl mb-4"
+          message="Review the scanned details"
+          description="We pre-filled this form from your bill. Check the values and edit anything before saving."
+          closable
+          onClose={() => setFromScan(false)}
+        />
+      )}
 
       <Card className="!rounded-2xl shadow-md dark:shadow-blue-900/20 border border-gray-100 dark:border-slate-700">
         <Form

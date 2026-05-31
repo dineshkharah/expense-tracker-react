@@ -1,6 +1,7 @@
+const path = require("path");
 const express = require("express");
 const dotenv = require("dotenv");
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -24,7 +25,9 @@ app.use(helmet());
 
 // In development allow any origin (so the app can be opened from a phone on the
 // LAN); in production restrict to the configured client URL(s).
-const allowedOrigins = (process.env.CLIENT_URL || "").split(",").filter(Boolean);
+const allowedOrigins = (process.env.CLIENT_URL || "")
+  .split(",")
+  .filter(Boolean);
 
 app.use(
   cors({

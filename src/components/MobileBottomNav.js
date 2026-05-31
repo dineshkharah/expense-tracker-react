@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Popover, message } from "antd";
+import { Popover } from "antd";
 import {
   HomeOutlined,
   TableOutlined,
@@ -25,10 +25,7 @@ const MobileBottomNav = () => {
   const addMenu = (
     <div className="flex flex-col w-44">
       <button
-        onClick={() => {
-          setAddOpen(false);
-          message.info("Bill scanning coming soon");
-        }}
+        onClick={() => goTo("/scan-bill")}
         className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-700/60 transition"
       >
         <CameraOutlined className="text-lg text-blue-600" />

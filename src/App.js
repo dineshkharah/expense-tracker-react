@@ -11,6 +11,7 @@ import MobileBottomNav from "./components/MobileBottomNav";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import AddTransaction from "./pages/AddTransaction";
+import ScanBill from "./pages/ScanBill";
 import Transaction from "./pages/Transaction";
 import Report from "./pages/Report";
 import Login from "./pages/Login";
@@ -71,6 +72,14 @@ const ThemedApp = () => {
                 element={
                   <ProtectedRoute>
                     <AddTransaction />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/scan-bill"
+                element={
+                  <ProtectedRoute>
+                    <ScanBill />
                   </ProtectedRoute>
                 }
               />
