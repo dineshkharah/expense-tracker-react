@@ -4,6 +4,8 @@ dotenv.config();
 
 const mongoose = require("mongoose");
 const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
 const authRoutes = require("./routes/authRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
@@ -17,6 +19,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 
+app.use(helmet());
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -24,6 +27,15 @@ app.use(
   }),
 );
 app.use(express.json());
+
+// Global rate limiter: a backstop so one IP can't hammer the whole API
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/api", apiLimiter);
 
 mongoose
   .connect(process.env.MONGO_URI)

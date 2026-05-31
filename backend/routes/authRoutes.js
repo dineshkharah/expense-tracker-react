@@ -9,12 +9,22 @@ const {
 } = require("../controllers/authController");
 const authenticateUser = require("../middleware/authenticateUser");
 const { validateRegister, validateLogin } = require("../middleware/validator");
+const rateLimit = require("express-rate-limit");
 
 const router = express.Router();
 
-router.post("/register", validateRegister, registerUser);
+// Stricter limiter on auth endpoints to deter brute-force / credential stuffing
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  message: { message: "Too many attempts, please try again later" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-router.post("/login", validateLogin, loginUser);
+router.post("/register", authLimiter, validateRegister, registerUser);
+
+router.post("/login", authLimiter, validateLogin, loginUser);
 
 router.delete("/delete", authenticateUser, deleteUser);
 
