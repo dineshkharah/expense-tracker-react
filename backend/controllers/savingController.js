@@ -1,140 +1,115 @@
 const Savings = require("../models/Savings");
-
 const { encrypt, decrypt } = require("../utils/encryption");
+const asyncHandler = require("../middleware/asyncHandler");
 
-const createSavingsGoal = async (req, res) => {
-  try {
-    const { goalName, targetAmount, savedAmount, deadline, progress, notes } =
-      req.body;
+const createSavingsGoal = asyncHandler(async (req, res) => {
+  const { goalName, targetAmount, savedAmount, deadline, progress, notes } =
+    req.body;
 
-    const userId = req.user.userId;
+  const userId = req.user.userId;
 
-    if (!userId) {
-      return res.status(400).json({ message: "User ID not found" });
-    }
-
-    if (!goalName || !targetAmount || !deadline || !progress) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    const encryptedTargetAmount = encrypt(targetAmount);
-    const encryptedSavedAmount = encrypt(savedAmount ? savedAmount : "0");
-    const encryptedProgress = encrypt(progress);
-
-    const newSaving = new Savings({
-      userId,
-      goalName,
-      targetAmount: encryptedTargetAmount,
-      savedAmount: encryptedSavedAmount,
-      deadline,
-      progress: encryptedProgress,
-      notes,
-    });
-
-    await newSaving.save();
-    res.status(201).json({ message: "Saving goal added successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+  if (!userId) {
+    return res.status(400).json({ message: "User ID not found" });
   }
-};
 
-const getAllSavingsGoals = async (req, res) => {
-  try {
-    const savingsGoals = await Savings.find({ userId: req.user.userId });
-    const decryptedSavings = savingsGoals.map((goal) => {
-      return {
-        ...goal._doc,
-        targetAmount: decrypt(goal.targetAmount),
-        savedAmount: decrypt(goal.savedAmount),
-        progress: decrypt(goal.progress),
-      };
-    });
-
-    res.status(200).json(decryptedSavings);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+  if (!goalName || !targetAmount || !deadline || !progress) {
+    return res.status(400).json({ message: "Missing required fields" });
   }
-};
 
-const getSavingGoalById = async (req, res) => {
-  try {
-    const savingsGoal = await Savings.findOne({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
+  const encryptedTargetAmount = encrypt(targetAmount);
+  const encryptedSavedAmount = encrypt(savedAmount ? savedAmount : "0");
+  const encryptedProgress = encrypt(progress);
 
-    if (!savingsGoal) {
-      return res.status(404).json({ message: "Saving goal not found" });
-    }
+  const newSaving = new Savings({
+    userId,
+    goalName,
+    targetAmount: encryptedTargetAmount,
+    savedAmount: encryptedSavedAmount,
+    deadline,
+    progress: encryptedProgress,
+    notes,
+  });
 
-    savingsGoal.targetAmount = decrypt(savingsGoal.targetAmount);
-    savingsGoal.savedAmount = decrypt(savingsGoal.savedAmount);
-    savingsGoal.progress = decrypt(savingsGoal.progress);
+  await newSaving.save();
+  res.status(201).json({ message: "Saving goal added successfully" });
+});
 
-    res.status(200).json(savingsGoal);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+const getAllSavingsGoals = asyncHandler(async (req, res) => {
+  const savingsGoals = await Savings.find({ userId: req.user.userId });
+  const decryptedSavings = savingsGoals.map((goal) => {
+    return {
+      ...goal._doc,
+      targetAmount: decrypt(goal.targetAmount),
+      savedAmount: decrypt(goal.savedAmount),
+      progress: decrypt(goal.progress),
+    };
+  });
+
+  res.status(200).json(decryptedSavings);
+});
+
+const getSavingGoalById = asyncHandler(async (req, res) => {
+  const savingsGoal = await Savings.findOne({
+    _id: req.params.id,
+    userId: req.user.userId,
+  });
+
+  if (!savingsGoal) {
+    return res.status(404).json({ message: "Saving goal not found" });
   }
-};
 
-const updateSavingGoal = async (req, res) => {
-  try {
-    const { goalName, targetAmount, savedAmount, deadline, progress, notes } =
-      req.body;
+  savingsGoal.targetAmount = decrypt(savingsGoal.targetAmount);
+  savingsGoal.savedAmount = decrypt(savingsGoal.savedAmount);
+  savingsGoal.progress = decrypt(savingsGoal.progress);
 
-    const savingsGoal = await Savings.findOne({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
+  res.status(200).json(savingsGoal);
+});
 
-    if (!savingsGoal) {
-      return res.status(404).json({ message: "Saving goal not found" });
-    }
+const updateSavingGoal = asyncHandler(async (req, res) => {
+  const { goalName, targetAmount, savedAmount, deadline, progress, notes } =
+    req.body;
 
-    if (targetAmount) {
-      savingsGoal.targetAmount = encrypt(targetAmount);
-    }
+  const savingsGoal = await Savings.findOne({
+    _id: req.params.id,
+    userId: req.user.userId,
+  });
 
-    if (savedAmount) {
-      savingsGoal.savedAmount = encrypt(savedAmount);
-    }
-
-    if (progress) {
-      savingsGoal.progress = encrypt(progress.toString());
-    }
-
-    savingsGoal.goalName = goalName || savingsGoal.goalName;
-    savingsGoal.deadline = deadline || savingsGoal.deadline;
-    savingsGoal.notes = notes || savingsGoal.notes;
-
-    await savingsGoal.save();
-    res.status(200).json({ message: "Saving goal updated successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+  if (!savingsGoal) {
+    return res.status(404).json({ message: "Saving goal not found" });
   }
-};
 
-const deleteSavingGoal = async (req, res) => {
-  try {
-    const savingsGoal = await Savings.findOneAndDelete({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
-
-    if (!savingsGoal) {
-      return res.status(404).json({ message: "Saving goal not found" });
-    }
-
-    res.status(200).json({ message: "Saving goal deleted successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+  if (targetAmount) {
+    savingsGoal.targetAmount = encrypt(targetAmount);
   }
-};
+
+  if (savedAmount) {
+    savingsGoal.savedAmount = encrypt(savedAmount);
+  }
+
+  if (progress) {
+    savingsGoal.progress = encrypt(progress.toString());
+  }
+
+  savingsGoal.goalName = goalName || savingsGoal.goalName;
+  savingsGoal.deadline = deadline || savingsGoal.deadline;
+  savingsGoal.notes = notes || savingsGoal.notes;
+
+  await savingsGoal.save();
+  res.status(200).json({ message: "Saving goal updated successfully" });
+});
+
+const deleteSavingGoal = asyncHandler(async (req, res) => {
+  const savingsGoal = await Savings.findOneAndDelete({
+    _id: req.params.id,
+    userId: req.user.userId,
+  });
+
+  if (!savingsGoal) {
+    return res.status(404).json({ message: "Saving goal not found" });
+  }
+
+  res.status(200).json({ message: "Saving goal deleted successfully" });
+});
 
 module.exports = {
   createSavingsGoal,

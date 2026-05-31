@@ -16,6 +16,7 @@ const investmentRoutes = require("./routes/investmentRoutes");
 const savingRoutes = require("./routes/savingRoutes");
 const recurringTransactionsRoutes = require("./routes/recurringTransactionsRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
@@ -54,6 +55,8 @@ app.use("/api/v1/recurring-transactions", recurringTransactionsRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 
 require("./cron/recurringJob");
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

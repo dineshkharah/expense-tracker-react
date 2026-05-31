@@ -1,181 +1,156 @@
 const Debt = require("../models/Debt");
-
 const { encrypt, decrypt } = require("../utils/encryption");
+const asyncHandler = require("../middleware/asyncHandler");
 
-const createDebt = async (req, res) => {
-  try {
-    const { lender, totalAmount, paidAmount, dueDate, notes } = req.body;
+const createDebt = asyncHandler(async (req, res) => {
+  const { lender, totalAmount, paidAmount, dueDate, notes } = req.body;
 
-    const userId = req.user.userId;
+  const userId = req.user.userId;
 
-    if (!userId) {
-      return res.status(400).json({ message: "User ID not found" });
-    }
-
-    if (!lender || !totalAmount || !paidAmount || !dueDate) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    const encryptedAmount = encrypt(totalAmount.toString());
-    const encryptedPaidAmount = encrypt(paidAmount.toString()); //the reason for toString is that the value of paidAmount can be 0, which is falsy
-
-    const remainingBalance = (
-      parseFloat(totalAmount) - parseFloat(paidAmount)
-    ).toString();
-    const encryptedRemainingBalance = encrypt(remainingBalance);
-
-    const newDebt = new Debt({
-      userId,
-      lender,
-      totalAmount: encryptedAmount,
-      paidAmount: encryptedPaidAmount,
-      remainingBalance: encryptedRemainingBalance,
-      dueDate,
-      notes,
-    });
-
-    await newDebt.save();
-    res.status(201).json({ message: "Debt added successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+  if (!userId) {
+    return res.status(400).json({ message: "User ID not found" });
   }
-};
 
-const getAllDebts = async (req, res) => {
-  try {
-    const debts = await Debt.find({ userId: req.user.userId });
-    const decryptDebts = debts.map((debt) => {
-      return {
-        ...debt._doc,
-        totalAmount: decrypt(debt.totalAmount),
-        paidAmount: decrypt(debt.paidAmount),
-        remainingBalance: decrypt(debt.remainingBalance),
-      };
-    });
-    res.json(decryptDebts);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+  if (!lender || !totalAmount || !paidAmount || !dueDate) {
+    return res.status(400).json({ message: "Missing required fields" });
   }
-};
 
-const getDebtById = async (req, res) => {
-  try {
-    const debt = await Debt.findOne({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
+  const encryptedAmount = encrypt(totalAmount.toString());
+  const encryptedPaidAmount = encrypt(paidAmount.toString()); //the reason for toString is that the value of paidAmount can be 0, which is falsy
 
-    if (!debt) {
-      return res.status(404).json({ message: "Debt not found" });
-    }
+  const remainingBalance = (
+    parseFloat(totalAmount) - parseFloat(paidAmount)
+  ).toString();
+  const encryptedRemainingBalance = encrypt(remainingBalance);
 
-    debt.totalAmount = decrypt(debt.totalAmount);
-    debt.paidAmount = decrypt(debt.paidAmount);
-    debt.remainingBalance = decrypt(debt.remainingBalance);
+  const newDebt = new Debt({
+    userId,
+    lender,
+    totalAmount: encryptedAmount,
+    paidAmount: encryptedPaidAmount,
+    remainingBalance: encryptedRemainingBalance,
+    dueDate,
+    notes,
+  });
 
-    res.json(debt);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+  await newDebt.save();
+  res.status(201).json({ message: "Debt added successfully" });
+});
+
+const getAllDebts = asyncHandler(async (req, res) => {
+  const debts = await Debt.find({ userId: req.user.userId });
+  const decryptDebts = debts.map((debt) => {
+    return {
+      ...debt._doc,
+      totalAmount: decrypt(debt.totalAmount),
+      paidAmount: decrypt(debt.paidAmount),
+      remainingBalance: decrypt(debt.remainingBalance),
+    };
+  });
+  res.json(decryptDebts);
+});
+
+const getDebtById = asyncHandler(async (req, res) => {
+  const debt = await Debt.findOne({
+    _id: req.params.id,
+    userId: req.user.userId,
+  });
+
+  if (!debt) {
+    return res.status(404).json({ message: "Debt not found" });
   }
-};
 
-const updateDebt = async (req, res) => {
-  try {
-    const { lender, totalAmount, paidAmount, dueDate, notes } = req.body;
+  debt.totalAmount = decrypt(debt.totalAmount);
+  debt.paidAmount = decrypt(debt.paidAmount);
+  debt.remainingBalance = decrypt(debt.remainingBalance);
 
-    const debt = await Debt.findOne({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
+  res.json(debt);
+});
 
-    if (!debt) {
-      return res.status(404).json({ message: "Debt not found" });
+const updateDebt = asyncHandler(async (req, res) => {
+  const { lender, totalAmount, paidAmount, dueDate, notes } = req.body;
+
+  const debt = await Debt.findOne({
+    _id: req.params.id,
+    userId: req.user.userId,
+  });
+
+  if (!debt) {
+    return res.status(404).json({ message: "Debt not found" });
+  }
+
+  const decryptedTotalAmount = parseFloat(decrypt(debt.totalAmount));
+  const decryptedPaidAmount = parseFloat(decrypt(debt.paidAmount));
+
+  let newTotalAmount = decryptedTotalAmount;
+  let newPaidAmount = decryptedPaidAmount;
+
+  // Input Validation to prevent NaN and Non-numerical values
+  if (totalAmount !== undefined) {
+    if (isNaN(totalAmount) || totalAmount < 0) {
+      return res.status(400).json({ message: "Invalid total amount" });
     }
+    newTotalAmount = parseFloat(totalAmount);
+    debt.totalAmount = encrypt(newTotalAmount.toString());
+  }
 
-    const decryptedTotalAmount = parseFloat(decrypt(debt.totalAmount));
-    const decryptedPaidAmount = parseFloat(decrypt(debt.paidAmount));
-
-    let newTotalAmount = decryptedTotalAmount;
-    let newPaidAmount = decryptedPaidAmount;
-
-    // Input Validation to prevent NaN and Non-numerical values
-    if (totalAmount !== undefined) {
-      if (isNaN(totalAmount) || totalAmount < 0) {
-        return res.status(400).json({ message: "Invalid total amount" });
-      }
-      newTotalAmount = parseFloat(totalAmount);
-      debt.totalAmount = encrypt(newTotalAmount.toString());
+  if (paidAmount !== undefined) {
+    if (isNaN(paidAmount) || paidAmount < 0) {
+      return res.status(400).json({ message: "Invalid paid amount" });
     }
-
-    if (paidAmount !== undefined) {
-      if (isNaN(paidAmount) || paidAmount < 0) {
-        return res.status(400).json({ message: "Invalid paid amount" });
-      }
-      newPaidAmount = parseFloat(paidAmount);
-      debt.paidAmount = encrypt(newPaidAmount.toString());
-    }
-
-    // Prevents Overpayment
-    if (newPaidAmount > newTotalAmount) {
-      return res
-        .status(400)
-        .json({ message: "Paid amount cannot be greater than total amount" });
-    }
-
+    newPaidAmount = parseFloat(paidAmount);
     debt.paidAmount = encrypt(newPaidAmount.toString());
-
-    const remainingBalance = (newTotalAmount - newPaidAmount).toString();
-    debt.remainingBalance = encrypt(remainingBalance);
-
-    // If the debt is fully paid, set the paid date (to be implemented maybe)
-
-    // The commented code to be explored later
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // Prevents Injection  (Review)
-    // if (lender) {
-    //     const sanitizedLender = lender.replace();
-    //     debt.lender = sanitizedLender;
-    // }
-
-    // debt.dueDate = dueDate || debt.dueDate;
-
-    // if (notes) {
-    //     const sanitizedNotes = notes.replace(/['";--]/g, '');
-    //     debt.notes = sanitizedNotes;
-    // }
-
-    debt.lender = lender || debt.lender;
-    debt.dueDate = dueDate || debt.dueDate;
-    debt.notes = notes || debt.notes;
-
-    await debt.save();
-    res.json({ message: "Debt updated successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
   }
-};
 
-const deleteDebt = async (req, res) => {
-  try {
-    const debt = await Debt.findOneAndDelete({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
-
-    if (!debt) {
-      return res.status(404).json({ message: "Debt not found" });
-    }
-
-    res.json({ message: "Debt deleted successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+  // Prevents Overpayment
+  if (newPaidAmount > newTotalAmount) {
+    return res
+      .status(400)
+      .json({ message: "Paid amount cannot be greater than total amount" });
   }
-};
+
+  debt.paidAmount = encrypt(newPaidAmount.toString());
+
+  const remainingBalance = (newTotalAmount - newPaidAmount).toString();
+  debt.remainingBalance = encrypt(remainingBalance);
+
+  // If the debt is fully paid, set the paid date (to be implemented maybe)
+
+  // The commented code to be explored later
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // Prevents Injection  (Review)
+  // if (lender) {
+  //     const sanitizedLender = lender.replace();
+  //     debt.lender = sanitizedLender;
+  // }
+
+  // debt.dueDate = dueDate || debt.dueDate;
+
+  // if (notes) {
+  //     const sanitizedNotes = notes.replace(/['";--]/g, '');
+  //     debt.notes = sanitizedNotes;
+  // }
+
+  debt.lender = lender || debt.lender;
+  debt.dueDate = dueDate || debt.dueDate;
+  debt.notes = notes || debt.notes;
+
+  await debt.save();
+  res.json({ message: "Debt updated successfully" });
+});
+
+const deleteDebt = asyncHandler(async (req, res) => {
+  const debt = await Debt.findOneAndDelete({
+    _id: req.params.id,
+    userId: req.user.userId,
+  });
+
+  if (!debt) {
+    return res.status(404).json({ message: "Debt not found" });
+  }
+
+  res.json({ message: "Debt deleted successfully" });
+});
 
 module.exports = {
   createDebt,
