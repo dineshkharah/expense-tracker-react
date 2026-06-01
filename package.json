@@ -6,28 +6,16 @@
     "@ant-design/charts": "^2.2.3",
     "@ant-design/charts-util": "^0.0.1-alpha.7",
     "@ant-design/icons": "^5.5.1",
-    "@google/generative-ai": "^0.24.1",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "antd": "^5.21.6",
     "axios": "^1.7.7",
-    "bcryptjs": "^2.4.3",
     "chart.js": "^4.5.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.1",
-    "express-rate-limit": "^8.5.2",
-    "express-validator": "^7.2.0",
     "file-saver": "^2.0.5",
-    "helmet": "^8.2.0",
-    "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "lodash": "^4.17.21",
-    "mongoose": "^8.8.1",
-    "multer": "^2.1.1",
-    "node-cron": "^4.2.1",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^18.3.1",
@@ -40,8 +28,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "dev": "nodemon backend/server.js"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -63,7 +50,6 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
-    "nodemon": "^3.1.7",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17"
   }
