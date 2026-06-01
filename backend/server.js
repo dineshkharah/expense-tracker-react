@@ -51,6 +51,9 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error(err));
 
+// Health check — used by uptime monitors to keep the service awake
+app.get("/health", (req, res) => res.json({ status: "ok" }));
+
 // Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/transactions", transactionRoutes);
