@@ -1,70 +1,147 @@
-# Getting Started with Create React App
+# Trackr — Expense Tracker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Trackr is a full-stack personal finance app to track income, expenses, recurring payments, debts, investments and savings — with **AI-powered bill scanning** and an installable **PWA** experience.
 
-## Available Scripts
+**Live demo:** https://trackr-finance.vercel.app
 
-In the project directory, you can run:
+> First load may take ~30–50 seconds — the backend runs on a free tier that sleeps when idle and needs a moment to wake up.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Table of contents
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- [Features](#features)
+- [Tech stack](#tech-stack)
+- [Architecture](#architecture)
+- [Local setup](#local-setup)
+- [Environment variables](#environment-variables)
+- [Deployment](#deployment)
+- [License](#license)
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Features
 
-### `npm run build`
+- **Transactions** — add income/expenses with categories, notes and dates; amounts are encrypted at rest.
+- **AI bill scanning** — snap or upload a photo of a bill and Gemini Vision extracts the amount, merchant, category and date. You review and confirm before it's saved.
+- **Recurring transactions** — schedule daily/weekly/monthly/yearly payments, with skip/snooze/mark-paid and history.
+- **Dashboard & reports** — monthly summaries, category breakdowns and 6-month trends (charts), plus CSV/PDF export.
+- **Spending calendar** — see transactions and upcoming recurring payments by day.
+- **Notifications** — reminders for upcoming recurring payments.
+- **Dark mode** — full light/dark theming.
+- **PWA** — installable on mobile/desktop, works offline (app shell), with its own icon and splash.
+- **Auth & security** — JWT auth, password hashing (bcrypt), Helmet headers, rate limiting, and AES-encrypted amounts.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Tech stack
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **Frontend:** React (Create React App), Ant Design, Tailwind CSS, React Router, Chart.js, axios, dayjs
+- **Backend:** Node.js, Express, MongoDB (Mongoose), JWT, bcryptjs, Helmet, express-rate-limit, Multer
+- **AI:** Google Gemini (vision) for bill scanning
+- **Hosting:** Frontend on Vercel, backend on Render, database on MongoDB Atlas
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Architecture
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+This is a monorepo with two independent packages:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```
+expense-tracker-react/
+├── src/              # React frontend (root package.json)
+├── public/           # static assets, manifest, service worker output
+├── backend/          # Express API (its own package.json)
+│   ├── controllers/  # route handlers
+│   ├── models/       # Mongoose schemas
+│   ├── routes/       # Express routers
+│   ├── middleware/   # auth, validation, async + error handling
+│   ├── utils/        # AES encryption helpers
+│   └── cron/         # recurring-payment reminder job
+└── vercel.json       # SPA rewrite for client-side routing
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- The **frontend** is a static build served by Vercel and talks to the backend over HTTPS.
+- The **backend** is a standalone Express server on Render; it reads its own `backend/.env`.
+- Transaction amounts are **AES-256 encrypted** before being stored in MongoDB and decrypted on read.
+- Totals (income/expenses/net) are **derived from transactions** on demand rather than stored, to avoid drift.
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Local setup
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Prerequisites
+- Node.js (v18+ recommended)
+- A MongoDB connection string (e.g. a free MongoDB Atlas cluster)
+- A Google Gemini API key (free tier) from https://aistudio.google.com/apikey — only needed for bill scanning
 
-### Code Splitting
+### 1. Clone
+```bash
+git clone https://github.com/dineshkharah/expense-tracker-react.git
+cd expense-tracker-react
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 2. Backend
+```bash
+cd backend
+npm install
+```
+Create `backend/.env` — copy `backend/.env.example` and fill in your values. See the [Environment variables](#environment-variables) table for what each one is.
 
-### Analyzing the Bundle Size
+Run it:
+```bash
+npm run dev      # nodemon (development)
+# or
+npm start        # node server.js (production)
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 3. Frontend
+From the project root (open a second terminal):
+```bash
+npm install
+```
+Create a root `.env` — copy `.env.example` and set `REACT_APP_API_URL` to your backend URL.
 
-### Making a Progressive Web App
+Run it:
+```bash
+npm start
+```
+The app opens at http://localhost:3000.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+> **Note on `ENCRYPTION_KEY`:** it must be exactly 32 bytes (for AES-256). The server refuses to start otherwise. Don't change it once you have encrypted data — existing amounts become unreadable.
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Environment variables
 
-### Deployment
+| Variable | Where | Description |
+|---|---|---|
+| `MONGO_URI` | backend | MongoDB connection string |
+| `JWT_SECRET` | backend | Secret for signing JWTs |
+| `ENCRYPTION_KEY` | backend | 32-byte key for AES-256 encryption of amounts |
+| `GEMINI_API_KEY` | backend | Google Gemini API key for bill scanning |
+| `GEMINI_MODEL` | backend | Gemini model id (e.g. `gemini-2.5-flash`) |
+| `NOTIFICATION_RETENTION_DAYS` | backend | Days to keep notifications (default 60) |
+| `PORT` | backend | Server port (host provides this in production) |
+| `NODE_ENV` | backend | Set to `production` to lock CORS to `CLIENT_URL` |
+| `CLIENT_URL` | backend | Allowed frontend origin(s) in production |
+| `REACT_APP_API_URL` | frontend | Base URL of the backend API |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+## Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **Backend (Render):** root directory `backend`, build `npm install`, start `npm start`. Set all backend env vars plus `NODE_ENV=production` and `CLIENT_URL=<your Vercel URL>`. Allow access from anywhere in MongoDB Atlas network settings.
+- **Frontend (Vercel):** framework Create React App, root directory `./`. Set `REACT_APP_API_URL=<your Render URL>`.
+
+---
+
+## Screenshots
+
+_Coming soon._
+
+---
+
+## License
+
+[MIT](LICENSE)
