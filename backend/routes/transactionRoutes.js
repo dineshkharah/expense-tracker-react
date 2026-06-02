@@ -1,5 +1,6 @@
 const express = require("express");
 const multer = require("multer");
+const rateLimit = require("express-rate-limit");
 const {
   createTransaction,
   getTransactions,
@@ -24,6 +25,16 @@ const upload = multer({
   },
 });
 
+// Scanning calls an external AI API with quota, so cap it tighter than the
+// global limiter to protect the quota from a single abusive client.
+const scanLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  message: { message: "Too many scan attempts, please try again later" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // POST /api/v1/transactions - Add an transaction
 router.post("/", authenticateUser, createTransaction);
 
@@ -34,7 +45,13 @@ router.get("/", authenticateUser, getTransactions);
 router.get("/monthly-summary", authenticateUser, getMonthlySummary); // must be before /:id route, otherwise express treats 'monthly-summary' as an id
 
 // POST /api/v1/transactions/scan - Extract transaction details from a bill image
-router.post("/scan", authenticateUser, upload.single("bill"), scanBill); // also before /:id
+router.post(
+  "/scan",
+  authenticateUser,
+  scanLimiter,
+  upload.single("bill"),
+  scanBill,
+); // also before /:id
 
 // GET /api/v1/transactions/:id - Get a transaction by ID
 router.get("/:id", authenticateUser, getTransactionById);

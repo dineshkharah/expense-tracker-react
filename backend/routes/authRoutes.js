@@ -8,7 +8,11 @@ const {
   changePassword,
 } = require("../controllers/authController");
 const authenticateUser = require("../middleware/authenticateUser");
-const { validateRegister, validateLogin } = require("../middleware/validator");
+const {
+  validateRegister,
+  validateLogin,
+  validateChangePassword,
+} = require("../middleware/validator");
 const rateLimit = require("express-rate-limit");
 
 const router = express.Router();
@@ -32,6 +36,11 @@ router.get("/get-profile", authenticateUser, getUser);
 
 router.put("/update-profile", authenticateUser, updateProfile);
 
-router.put("/change-password", authenticateUser, changePassword);
+router.put(
+  "/change-password",
+  authenticateUser,
+  validateChangePassword,
+  changePassword,
+);
 
 module.exports = router;

@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const mongoSanitize = require("express-mongo-sanitize");
 
 const authRoutes = require("./routes/authRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
@@ -35,7 +36,11 @@ app.use(
     credentials: true,
   }),
 );
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
+
+// Strip out any keys containing $ or . from request payloads to block
+// MongoDB operator injection (e.g. { "email": { "$gt": "" } }).
+app.use(mongoSanitize());
 
 // Global rate limiter: a backstop so one IP can't hammer the whole API
 const apiLimiter = rateLimit({

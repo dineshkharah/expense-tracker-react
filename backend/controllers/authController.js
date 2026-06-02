@@ -8,6 +8,8 @@ const generateToken = (userId) => {
   }
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
     expiresIn: "1d",
+    issuer: "trackr",
+    audience: "trackr-app",
   });
 };
 
@@ -36,12 +38,12 @@ const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
-    return res.status(400).json({ message: "No account found with this email" });
+    return res.status(400).json({ message: "Invalid email or password" });
   }
 
   const isPasswordMatch = await user.matchPassword(password);
   if (!isPasswordMatch) {
-    return res.status(400).json({ message: "Credentials do not match" });
+    return res.status(400).json({ message: "Invalid email or password" });
   }
 
   res.json({
@@ -79,7 +81,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   }
 
   if (name) user.name = name;
-  if (email) user.email = email;
+  if (email) user.email = email.toLowerCase().trim();
 
   await user.save();
   res.json({
