@@ -16,6 +16,7 @@ Trackr is a full-stack personal finance app to track income, expenses, recurring
 - [Local setup](#local-setup)
 - [Environment variables](#environment-variables)
 - [Deployment](#deployment)
+- [Security](#security)
 - [License](#license)
 
 ---
@@ -133,6 +134,25 @@ The app opens at http://localhost:3000.
 
 - **Backend (Render):** root directory `backend`, build `npm install`, start `npm start`. Set all backend env vars plus `NODE_ENV=production` and `CLIENT_URL=<your Vercel URL>`. Allow access from anywhere in MongoDB Atlas network settings.
 - **Frontend (Vercel):** framework Create React App, root directory `./`. Set `REACT_APP_API_URL=<your Render URL>`.
+
+---
+
+## Security
+
+Measures in place:
+
+- **Passwords** hashed with bcrypt; never stored or returned in plaintext.
+- **Auth** via JWT with issuer/audience claims and a 1-day expiry.
+- **Transaction amounts** encrypted at rest with AES-256.
+- **NoSQL injection** blocked by sanitizing `$`/`.` keys from all request input.
+- **Brute-force / abuse** mitigated with rate limiting (global, stricter on auth and bill-scan endpoints).
+- **Hardening:** Helmet security headers, CORS locked to the configured origin in production, request body size limits, and generic auth errors to avoid user enumeration.
+- **Input validation** on auth routes (email normalization, password complexity).
+
+Known trade-offs (acceptable for this project's scope):
+
+- The JWT is stored in `localStorage` for simplicity. This is exposed to XSS; a production-grade app would use httpOnly cookies. React/Ant Design escape output by default, which keeps the XSS surface low.
+- `npm audit` reports advisories in Create React App's build-time tooling (webpack/dev-server, etc.). These are dev dependencies that do not ship to the browser or run in production, and `react-scripts` cannot be upgraded without breaking the build.
 
 ---
 
