@@ -13,12 +13,11 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import AddTransaction from "./pages/AddTransaction";
 import ScanBill from "./pages/ScanBill";
-import Transaction from "./pages/Transaction";
+import TransactionsHub from "./pages/TransactionsHub";
 import Insights from "./pages/Insights";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
-import RecurringTransactions from "./pages/RecurringTransaction";
 import Notifications from "./pages/Notification";
 import ProtectedRoute from "./components/ProtectedRoutes";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -89,7 +88,7 @@ const ThemedApp = () => {
                 path="/transactions"
                 element={
                   <ProtectedRoute>
-                    <Transaction />
+                    <TransactionsHub />
                   </ProtectedRoute>
                 }
               />
@@ -121,7 +120,7 @@ const ThemedApp = () => {
                 path="/recurring-transactions"
                 element={
                   <ProtectedRoute>
-                    <RecurringTransactions />
+                    <TransactionsHub />
                   </ProtectedRoute>
                 }
               />

@@ -65,13 +65,13 @@ const MobileBottomNav = () => {
         <div
           onClick={() => navigate("/transactions")}
           className={`flex flex-col items-center cursor-pointer transition ${
-            isActive("/transactions")
+            isActive("/transactions") || isActive("/recurring-transactions")
               ? "text-blue-600 scale-110"
               : "text-gray-500 dark:text-slate-400"
           }`}
         >
           <TableOutlined className="text-xl" />
-          <span className="text-xs">History</span>
+          <span className="text-xs">Transactions</span>
         </div>
 
         {/* CENTER FLOATING ACTION BUTTON */}

@@ -19,7 +19,7 @@ const { Option } = Select;
 
 dayjs.extend(isBetween);
 
-const Transactions = () => {
+const Transactions = ({ embedded = false }) => {
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -134,15 +134,23 @@ const Transactions = () => {
   };
 
   return (
-    <div className="flex flex-col w-full max-w-6xl mx-auto px-1 sm:px-4 py-2">
-      <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-slate-100 m-0">
-          Transactions
-        </h1>
-        <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 mb-0">
-          Search, filter and manage your transaction history.
-        </p>
-      </div>
+    <div
+      className={
+        embedded
+          ? "flex flex-col w-full"
+          : "flex flex-col w-full max-w-6xl mx-auto px-1 sm:px-4 py-2"
+      }
+    >
+      {!embedded && (
+        <div className="mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-slate-100 m-0">
+            Transactions
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 mb-0">
+            Search, filter and manage your transaction history.
+          </p>
+        </div>
+      )}
 
       {/* Filters */}
       <TransactionFilters

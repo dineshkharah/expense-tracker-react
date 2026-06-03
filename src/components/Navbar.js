@@ -78,7 +78,7 @@ const Navbar = () => {
       icon: <PlusOutlined />,
     },
     {
-      label: <Link to="/transactions">History</Link>,
+      label: <Link to="/transactions">Transanctions</Link>,
       key: "/transactions",
       icon: <TableOutlined />,
     },
@@ -98,7 +98,9 @@ const Navbar = () => {
           selectedKeys={[
             ["/insights", "/dashboard", "/report"].includes(location.pathname)
               ? "/insights"
-              : location.pathname,
+              : location.pathname === "/recurring-transactions"
+                ? "/transactions"
+                : location.pathname,
           ]}
           items={navItems}
           className="flex-1 border-none bg-transparent dark:bg-transparent"
