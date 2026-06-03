@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import api from "../utils/api";
 import dayjs from "dayjs";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Card, Row, Col } from "antd";
 
 import PageHeader from "../components/PageHeader";
@@ -30,7 +30,6 @@ const Home = () => {
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   // Onboarding tour
   const [tourOpen, setTourOpen] = useState(false);
@@ -38,19 +37,21 @@ const Home = () => {
   const calendarRef = useRef(null);
 
   useEffect(() => {
-    // Replay requested from Profile (via router state), or first-time visit.
-    const replay = location.state?.startTour;
+    // Replay requested from Profile (via sessionStorage), or first-time visit.
+    const replay = sessionStorage.getItem("trackr_replay");
     const firstTime = !localStorage.getItem(TOUR_FLAG);
     if (!replay && !firstTime) return;
 
-    if (replay) {
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-
     // Let the page lay out before opening so the spotlights land correctly.
-    const t = setTimeout(() => setTourOpen(true), 400);
+    // Clear the replay flag inside the timer (not before) so React StrictMode's
+    // double-invoke of this effect doesn't consume the flag before it fires.
+    const t = setTimeout(() => {
+      sessionStorage.removeItem("trackr_replay");
+      setTourOpen(true);
+    }, 400);
     return () => clearTimeout(t);
-  }, [location.state, location.pathname, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const closeTour = () => {
     setTourOpen(false);

@@ -413,7 +413,13 @@ const Profile = () => {
             </p>
           </div>
           <Button
-            onClick={() => navigate("/", { state: { startTour: true } })}
+            type="primary"
+            ghost
+            icon={<CompassOutlined />}
+            onClick={() => {
+              sessionStorage.setItem("trackr_replay", "1");
+              navigate("/");
+            }}
           >
             Replay Tour
           </Button>
