@@ -78,7 +78,7 @@ const Navbar = () => {
       icon: <PlusOutlined />,
     },
     {
-      label: <Link to="/transactions">Transanctions</Link>,
+      label: <Link to="/transactions">Transactions</Link>,
       key: "/transactions",
       icon: <TableOutlined />,
     },

@@ -29,9 +29,12 @@ const Login = () => {
       <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-lg dark:shadow-blue-900/30 p-8 border border-gray-100 dark:border-slate-700">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-slate-100">
+          <h1 className="text-xl font-bold text-gray-800 dark:text-slate-100 m-0">
             Welcome back 👋
           </h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 mb-0">
+            Log in to continue tracking your finances.
+          </p>
         </div>
 
         <Form layout="vertical" onFinish={handleLogin}>
