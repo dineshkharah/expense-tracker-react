@@ -5,7 +5,7 @@ const RecentTransactions = ({ transactions, columns, onViewAll }) => {
   return (
     <Card
       title="Recent Transactions"
-      className="mt-6"
+      className="mt-6 !rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm"
       extra={
         <Button type="link" onClick={onViewAll} className="!text-sm">
           View All

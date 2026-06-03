@@ -6,7 +6,7 @@ const UpcomingRecurrings = ({ recurrings, onSelectRecurring, onManage }) => {
   return (
     <Card
       title="Upcoming Recurring Payments & Income"
-      className="mt-6"
+      className="mt-6 !rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm"
       extra={
         <Button type="link" onClick={onManage} className="!text-sm !p-0">
           Manage Recurring

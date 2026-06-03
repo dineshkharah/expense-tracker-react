@@ -6,7 +6,6 @@ import {
   Select,
   DatePicker,
   message,
-  Typography,
 } from "antd";
 import api from "../utils/api";
 import dayjs from "dayjs";
@@ -15,8 +14,6 @@ import { exportCSV, exportPDF } from "../utils/exportUtils";
 
 import TransactionFilters from "../components/TransactionFilters";
 import TransactionTable from "../components/TransactionTable";
-
-const { Title } = Typography;
 
 const { Option } = Select;
 
@@ -137,10 +134,15 @@ const Transactions = () => {
   };
 
   return (
-    <div className="flex flex-col w-full px-4 py-6">
-      <Title level={2} className="!m-0 !mb-4">
-        All Transactions
-      </Title>
+    <div className="flex flex-col w-full max-w-6xl mx-auto px-1 sm:px-4 py-2">
+      <div className="mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-slate-100 m-0">
+          Transactions
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 mb-0">
+          Search, filter and manage your transaction history.
+        </p>
+      </div>
 
       {/* Filters */}
       <TransactionFilters

@@ -1,17 +1,30 @@
 import React from "react";
-import { Typography, Button } from "antd";
+import { Button } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
-const { Title } = Typography;
-
-const PageHeader = ({ title, onAdd }) => {
+const PageHeader = ({ title, subtitle, onAdd, addLabel = "Add Transaction" }) => {
   return (
-    <div className="flex justify-between items-center flex-wrap mb-4">
-      <Title level={2} className="!m-0">
-        {title}
-      </Title>
-      <Button type="primary" onClick={onAdd} className="ml-auto">
-        + Add Transaction
-      </Button>
+    <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-slate-100 m-0">
+          {title}
+        </h1>
+        {subtitle && (
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 mb-0">
+            {subtitle}
+          </p>
+        )}
+      </div>
+      {onAdd && (
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={onAdd}
+          className="!rounded-xl !h-10 !px-5 shadow-sm"
+        >
+          {addLabel}
+        </Button>
+      )}
     </div>
   );
 };

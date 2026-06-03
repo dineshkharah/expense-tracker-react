@@ -21,10 +21,15 @@ const Insights = () => {
   };
 
   return (
-    <div className="p-6">
-      <Title level={2} className="!m-0 !mb-4">
-        Insights
-      </Title>
+    <div className="max-w-6xl mx-auto px-1 sm:px-4 py-2">
+      <div className="mb-4">
+        <Title level={2} className="!m-0">
+          Insights
+        </Title>
+        <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 mb-0">
+          Visualize your spending patterns and monthly reports.
+        </p>
+      </div>
 
       <Tabs
         activeKey={activeKey}

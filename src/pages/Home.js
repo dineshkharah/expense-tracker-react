@@ -110,8 +110,12 @@ const Home = () => {
   ];
 
   return (
-    <div className="p-6">
-      <PageHeader title="Home" onAdd={() => navigate("/add-transaction")} />
+    <div className="max-w-6xl mx-auto px-1 sm:px-4 py-2">
+      <PageHeader
+        title="Overview"
+        subtitle="Here's what's happening with your money this month."
+        onAdd={() => navigate("/add-transaction")}
+      />
 
       <SummaryCards
         totalIncome={summary.totalIncome}
@@ -120,7 +124,10 @@ const Home = () => {
         month={summary.month}
       />
 
-      <Card title="Spending Calendar" className="mt-6">
+      <Card
+        title="Spending Calendar"
+        className="mt-6 !rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm"
+      >
         <Row gutter={16}>
           <Col xs={24} lg={14}>
             <SpendingCalendar

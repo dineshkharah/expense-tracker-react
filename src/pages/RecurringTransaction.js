@@ -10,14 +10,11 @@ import {
   message,
   Tag,
   Switch,
-  Typography,
 } from "antd";
 import api from "../utils/api";
 import dayjs from "dayjs";
 
 import RecurringTransactionsDetail from "./../components/RecurringTransactionDetail";
-
-const { Title } = Typography;
 
 const { Option } = Select;
 
@@ -182,10 +179,15 @@ const RecurringTransactions = () => {
   ];
 
   return (
-    <div className="flex flex-col w-full px-4 py-6">
-      <Title level={2} className="!m-0 !mb-4">
-        Recurring Transactions
-      </Title>
+    <div className="flex flex-col w-full max-w-6xl mx-auto px-1 sm:px-4 py-2">
+      <div className="mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-slate-100 m-0">
+          Recurring Transactions
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 mb-0">
+          Manage your scheduled payments and income.
+        </p>
+      </div>
       <Table
         dataSource={recurrings}
         columns={columns}
