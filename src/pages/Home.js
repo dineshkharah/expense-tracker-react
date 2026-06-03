@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import api from "../utils/api";
 import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Card, Row, Col } from "antd";
 
 import PageHeader from "../components/PageHeader";
@@ -11,6 +11,9 @@ import UpcomingRecurrings from "../components/UpcomingRecurrings";
 import RecurringTransactionDetail from "../components/RecurringTransactionDetail";
 import SpendingCalendar from "../components/SpendingCalendar";
 import DayTransactionsPanel from "../components/DayTransactionsPanel";
+import OnboardingTour from "../components/OnboardingTour";
+
+const TOUR_FLAG = "trackr_tour_done";
 
 const Home = () => {
   const [summary, setSummary] = useState({
@@ -27,6 +30,32 @@ const Home = () => {
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Onboarding tour
+  const [tourOpen, setTourOpen] = useState(false);
+  const summaryRef = useRef(null);
+  const calendarRef = useRef(null);
+
+  useEffect(() => {
+    // Replay requested from Profile (via router state), or first-time visit.
+    const replay = location.state?.startTour;
+    const firstTime = !localStorage.getItem(TOUR_FLAG);
+    if (!replay && !firstTime) return;
+
+    if (replay) {
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+
+    // Let the page lay out before opening so the spotlights land correctly.
+    const t = setTimeout(() => setTourOpen(true), 400);
+    return () => clearTimeout(t);
+  }, [location.state, location.pathname, navigate]);
+
+  const closeTour = () => {
+    setTourOpen(false);
+    localStorage.setItem(TOUR_FLAG, "1");
+  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -117,35 +146,39 @@ const Home = () => {
         onAdd={() => navigate("/add-transaction")}
       />
 
-      <SummaryCards
-        totalIncome={summary.totalIncome}
-        totalExpenses={summary.totalExpenses}
-        net={summary.net}
-        month={summary.month}
-      />
+      <div ref={summaryRef}>
+        <SummaryCards
+          totalIncome={summary.totalIncome}
+          totalExpenses={summary.totalExpenses}
+          net={summary.net}
+          month={summary.month}
+        />
+      </div>
 
-      <Card
-        title="Spending Calendar"
-        className="mt-6 !rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm"
-      >
-        <Row gutter={16}>
-          <Col xs={24} lg={14}>
-            <SpendingCalendar
-              transactions={transactions}
-              upcomingRecurrings={upcomingRecurrings}
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-            />
-          </Col>
+      <div ref={calendarRef}>
+        <Card
+          title="Spending Calendar"
+          className="mt-6 !rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm"
+        >
+          <Row gutter={16}>
+            <Col xs={24} lg={14}>
+              <SpendingCalendar
+                transactions={transactions}
+                upcomingRecurrings={upcomingRecurrings}
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+              />
+            </Col>
 
-          <Col xs={24} lg={10}>
-            <DayTransactionsPanel
-              selectedDate={selectedDate}
-              transactions={transactions}
-            />
-          </Col>
-        </Row>
-      </Card>
+            <Col xs={24} lg={10}>
+              <DayTransactionsPanel
+                selectedDate={selectedDate}
+                transactions={transactions}
+              />
+            </Col>
+          </Row>
+        </Card>
+      </div>
 
       <RecentTransactions
         transactions={transactions.slice(0, 5)}
@@ -170,6 +203,13 @@ const Home = () => {
           refreshList={fetchData}
         />
       )}
+
+      <OnboardingTour
+        open={tourOpen}
+        onClose={closeTour}
+        summaryRef={summaryRef}
+        calendarRef={calendarRef}
+      />
     </div>
   );
 };

@@ -73,7 +73,7 @@ const Navbar = () => {
       icon: <HomeOutlined />,
     },
     {
-      label: <Link to="/add-transaction">Add Transaction</Link>,
+      label: <Link to="/add-transaction" id="tour-add-desktop">Add Transaction</Link>,
       key: "/add-transaction",
       icon: <PlusOutlined />,
     },
@@ -83,7 +83,7 @@ const Navbar = () => {
       icon: <TableOutlined />,
     },
     {
-      label: <Link to="/insights">Insights</Link>,
+      label: <Link to="/insights" id="tour-insights-desktop">Insights</Link>,
       key: "/insights",
       icon: <BarChartOutlined />,
     },

@@ -27,6 +27,11 @@ code {
   margin-inline: 2px;
 }
 
+/* Keep the onboarding tour popover a comfortable width on mobile */
+.ant-tour {
+  max-width: min(320px, calc(100vw - 32px)) !important;
+}
+
 /* Remove the default sharp underline indicator on the selected item */
 .ant-menu-horizontal > .ant-menu-item::after,
 .ant-menu-horizontal > .ant-menu-submenu::after {

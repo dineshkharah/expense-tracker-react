@@ -83,7 +83,10 @@ const MobileBottomNav = () => {
           placement="top"
           arrow
         >
-          <div className="absolute left-1/2 -translate-x-1/2 -top-6 cursor-pointer">
+          <div
+            id="tour-add-mobile"
+            className="absolute left-1/2 -translate-x-1/2 -top-6 cursor-pointer"
+          >
             <div
               className={`w-14 h-14 bg-white dark:bg-slate-700 shadow-xl rounded-full flex items-center justify-center border-4 border-gray-100 dark:border-slate-600 hover:scale-110 transition ${
                 addOpen ? "scale-110" : ""
@@ -102,6 +105,7 @@ const MobileBottomNav = () => {
 
         {/* Insights */}
         <div
+          id="tour-insights-mobile"
           onClick={() => navigate("/insights")}
           className={`flex flex-col items-center cursor-pointer transition ${
             isInsights

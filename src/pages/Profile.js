@@ -22,6 +22,7 @@ import {
   DownOutlined,
   SunOutlined,
   MoonOutlined,
+  CompassOutlined,
 } from "@ant-design/icons";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -390,6 +391,32 @@ const Profile = () => {
             checkedChildren={<MoonOutlined />}
             unCheckedChildren={<SunOutlined />}
           />
+        </div>
+      </Card>
+
+      {/* Help & Tips */}
+      <Card
+        title={
+          <span className="flex items-center gap-2">
+            <CompassOutlined /> Help &amp; Tips
+          </span>
+        }
+        className="!rounded-2xl shadow-sm dark:shadow-blue-900/20 border border-gray-100 dark:border-slate-700"
+      >
+        <div className="flex justify-between items-center py-2">
+          <div>
+            <p className="text-sm font-medium text-gray-700 dark:text-slate-200">
+              Product Tour
+            </p>
+            <p className="text-xs text-gray-400 dark:text-slate-500">
+              Replay the quick walkthrough of Trackr's features
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate("/", { state: { startTour: true } })}
+          >
+            Replay Tour
+          </Button>
         </div>
       </Card>
 
