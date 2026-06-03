@@ -42,7 +42,7 @@ const TransactionTable = ({ data, loading, filters, onEdit, onDelete }) => {
       key: "type",
       align: "center",
       render: (type) => (
-        <Tag color={type === "income" ? "green" : "red"}>
+        <Tag color={type === "income" ? "green" : "red"} bordered={false}>
           {type.toUpperCase()}
         </Tag>
       ),
@@ -79,9 +79,11 @@ const TransactionTable = ({ data, loading, filters, onEdit, onDelete }) => {
       align: "center",
       render: (_, record) =>
         record.recurring ? (
-          <Tag color="blue">Recurring</Tag>
+          <Tag color="blue" bordered={false}>
+            Recurring
+          </Tag>
         ) : (
-          <Tag>Not-Recurring</Tag>
+          <span className="text-gray-300 dark:text-slate-600">—</span>
         ),
     },
     {
@@ -109,6 +111,7 @@ const TransactionTable = ({ data, loading, filters, onEdit, onDelete }) => {
   ];
 
   return (
+    <div className="rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800 overflow-hidden p-1">
     <Table
       dataSource={[...data].sort((a, b) => new Date(b.date) - new Date(a.date))}
       columns={columns}
@@ -136,6 +139,7 @@ const TransactionTable = ({ data, loading, filters, onEdit, onDelete }) => {
         ),
       }}
     />
+    </div>
   );
 };
 

@@ -122,7 +122,7 @@ const RecurringTransactions = ({ embedded = false }) => {
       key: "type",
       align: "center",
       render: (type) => (
-        <Tag color={type === "income" ? "green" : "red"}>
+        <Tag color={type === "income" ? "green" : "red"} bordered={false}>
           {type.toUpperCase()}
         </Tag>
       ),
@@ -196,14 +196,16 @@ const RecurringTransactions = ({ embedded = false }) => {
           </p>
         </div>
       )}
-      <Table
-        dataSource={recurrings}
-        columns={columns}
-        rowKey="_id"
-        loading={loading}
-        pagination={{ pageSize: 10 }}
-        scroll={{ x: "max-content" }}
-      />
+      <div className="rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800 overflow-hidden p-1">
+        <Table
+          dataSource={recurrings}
+          columns={columns}
+          rowKey="_id"
+          loading={loading}
+          pagination={{ pageSize: 10 }}
+          scroll={{ x: "max-content" }}
+        />
+      </div>
 
       {/* Edit Modal */}
       <Modal

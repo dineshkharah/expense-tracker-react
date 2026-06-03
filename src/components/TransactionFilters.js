@@ -1,5 +1,10 @@
 import React from "react";
 import { Select, Input, DatePicker, Button } from "antd";
+import {
+  FileExcelOutlined,
+  FilePdfOutlined,
+  ClearOutlined,
+} from "@ant-design/icons";
 import TransactionSearch from "./TransactionSearch";
 
 const { Option } = Select;
@@ -14,7 +19,7 @@ const TransactionFilters = ({
   onClearFilters,
 }) => {
   return (
-    <div className="mb-4">
+    <div className="mb-5 rounded-2xl border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4">
       {/* Filter Row */}
       <div className="flex flex-wrap gap-3 w-full">
         {/* Search */}
@@ -55,14 +60,29 @@ const TransactionFilters = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 mt-3">
-        <Button onClick={() => onExportCSV(transactions)} type="primary">
+      <div className="flex flex-wrap gap-2 mt-3">
+        <Button
+          onClick={() => onExportCSV(transactions)}
+          type="primary"
+          icon={<FileExcelOutlined />}
+        >
           Export CSV
         </Button>
 
-        <Button onClick={() => onExportPDF(transactions)}>Export PDF</Button>
+        <Button
+          onClick={() => onExportPDF(transactions)}
+          icon={<FilePdfOutlined />}
+        >
+          Export PDF
+        </Button>
 
-        <Button onClick={onClearFilters}>Clear Filters</Button>
+        <Button
+          onClick={onClearFilters}
+          icon={<ClearOutlined />}
+          className="sm:ml-auto"
+        >
+          Clear Filters
+        </Button>
       </div>
     </div>
   );
