@@ -20,6 +20,19 @@ code {
   animation: fadeSlide 0.25s ease;
 }
 
+/* Round the horizontal navbar menu items (selected + hover) */
+.ant-menu-horizontal .ant-menu-item,
+.ant-menu-horizontal .ant-menu-submenu {
+  border-radius: 8px !important;
+  margin-inline: 2px;
+}
+
+/* Remove the default sharp underline indicator on the selected item */
+.ant-menu-horizontal > .ant-menu-item::after,
+.ant-menu-horizontal > .ant-menu-submenu::after {
+  display: none !important;
+}
+
 @keyframes fadeSlide {
   from {
     opacity: 0;

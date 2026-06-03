@@ -15,4 +15,10 @@ export const getAntdTheme = (isDark) => ({
     : {
         colorPrimary: "#3b82f6",
       },
+  components: {
+    Menu: {
+      itemBorderRadius: 8,
+      horizontalItemSelectedBg: isDark ? "#1e3a5f" : "#eff6ff",
+    },
+  },
 });
