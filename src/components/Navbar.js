@@ -83,8 +83,8 @@ const Navbar = () => {
       icon: <TableOutlined />,
     },
     {
-      label: <Link to="/report">Report</Link>,
-      key: "/report",
+      label: <Link to="/insights">Insights</Link>,
+      key: "/insights",
       icon: <BarChartOutlined />,
     },
   ];
@@ -95,7 +95,11 @@ const Navbar = () => {
         {/* Nav Menu */}
         <Menu
           mode="horizontal"
-          selectedKeys={[location.pathname]}
+          selectedKeys={[
+            ["/insights", "/dashboard", "/report"].includes(location.pathname)
+              ? "/insights"
+              : location.pathname,
+          ]}
           items={navItems}
           className="flex-1 border-none bg-transparent dark:bg-transparent"
           theme={isDark ? "dark" : "light"}

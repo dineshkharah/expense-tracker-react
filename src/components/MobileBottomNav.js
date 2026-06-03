@@ -4,10 +4,10 @@ import { Popover } from "antd";
 import {
   HomeOutlined,
   TableOutlined,
-  BellOutlined,
   UserOutlined,
   EditOutlined,
   CameraOutlined,
+  BarChartOutlined,
 } from "@ant-design/icons";
 
 const MobileBottomNav = () => {
@@ -16,6 +16,9 @@ const MobileBottomNav = () => {
   const [addOpen, setAddOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
+  const isInsights = ["/insights", "/dashboard", "/report"].includes(
+    location.pathname,
+  );
 
   const goTo = (path) => {
     setAddOpen(false);
@@ -97,17 +100,17 @@ const MobileBottomNav = () => {
           </div>
         </Popover>
 
-        {/* Alerts */}
+        {/* Insights */}
         <div
-          onClick={() => navigate("/notifications")}
+          onClick={() => navigate("/insights")}
           className={`flex flex-col items-center cursor-pointer transition ${
-            isActive("/notifications")
+            isInsights
               ? "text-blue-600 scale-110"
               : "text-gray-500 dark:text-slate-400"
           }`}
         >
-          <BellOutlined className="text-xl" />
-          <span className="text-xs">Alerts</span>
+          <BarChartOutlined className="text-xl" />
+          <span className="text-xs">Insights</span>
         </div>
 
         {/* Profile */}

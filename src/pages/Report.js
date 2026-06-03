@@ -40,7 +40,7 @@ ChartJS.register(
 
 const { Title: PageTitle } = Typography;
 
-const Report = () => {
+const Report = ({ embedded = false }) => {
   const barChartRef = useRef(null);
 
   const [selectedMonth, setSelectedMonth] = useState(dayjs());
@@ -250,12 +250,16 @@ const Report = () => {
   const netPositive = summary.net >= 0;
 
   return (
-    <div className="p-6">
+    <div className={embedded ? "" : "p-6"}>
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <PageTitle level={2} className="!m-0 !mb-4">
-          Report
-        </PageTitle>
+      <div
+        className={`flex items-center mb-6 ${embedded ? "justify-end" : "justify-between"}`}
+      >
+        {!embedded && (
+          <PageTitle level={2} className="!m-0 !mb-4">
+            Report
+          </PageTitle>
+        )}
         <DatePicker
           picker="month"
           value={selectedMonth}

@@ -8,18 +8,18 @@ import {
 import { ConfigProvider } from "antd";
 import Navbar from "./components/Navbar";
 import MobileBottomNav from "./components/MobileBottomNav";
+import MobileTopBar from "./components/MobileTopBar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import AddTransaction from "./pages/AddTransaction";
 import ScanBill from "./pages/ScanBill";
 import Transaction from "./pages/Transaction";
-import Report from "./pages/Report";
+import Insights from "./pages/Insights";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import RecurringTransactions from "./pages/RecurringTransaction";
 import Notifications from "./pages/Notification";
-import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoutes";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
@@ -40,6 +40,8 @@ const ThemedApp = () => {
           <div className="hidden md:block">
             <Navbar />
           </div>
+
+          <MobileTopBar />
 
           <div className="px-5 pb-24 pt-5 flex-1">
             <Routes>
@@ -92,10 +94,18 @@ const ThemedApp = () => {
                 }
               />
               <Route
+                path="/insights"
+                element={
+                  <ProtectedRoute>
+                    <Insights />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/report"
                 element={
                   <ProtectedRoute>
-                    <Report />
+                    <Insights />
                   </ProtectedRoute>
                 }
               />
@@ -127,7 +137,7 @@ const ThemedApp = () => {
                 path="/dashboard"
                 element={
                   <ProtectedRoute>
-                    <Dashboard />
+                    <Insights />
                   </ProtectedRoute>
                 }
               />

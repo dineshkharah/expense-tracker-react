@@ -30,7 +30,7 @@ ChartJS.register(
   Legend,
 );
 
-const Dashboard = () => {
+const Dashboard = ({ embedded = false }) => {
   const navigate = useNavigate();
 
   const [summary, setSummary] = useState({
@@ -190,11 +190,13 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-6">
-      <PageHeader
-        title="Dashboard"
-        onAdd={() => navigate("/add-transaction")}
-      />
+    <div className={embedded ? "" : "p-6"}>
+      {!embedded && (
+        <PageHeader
+          title="Dashboard"
+          onAdd={() => navigate("/add-transaction")}
+        />
+      )}
 
       <SummaryCards
         totalIncome={summary.totalIncome}
