@@ -74,6 +74,18 @@ const TransactionTable = ({ data, loading, filters, onEdit, onDelete }) => {
       ),
     },
     {
+      title: "Wallet",
+      dataIndex: "wallet",
+      key: "wallet",
+      align: "center",
+      render: (wallet) =>
+        wallet ? (
+          <Tag bordered={false}>{wallet}</Tag>
+        ) : (
+          <span className="text-gray-300 dark:text-slate-600">—</span>
+        ),
+    },
+    {
       title: "Recurring",
       key: "recurring",
       align: "center",

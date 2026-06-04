@@ -14,6 +14,7 @@ const TransactionFilters = ({
   filters,
   setFilters,
   transactions,
+  wallets = [],
   onExportCSV,
   onExportPDF,
   onClearFilters,
@@ -47,6 +48,23 @@ const TransactionFilters = ({
           onChange={(e) => setFilters({ ...filters, category: e.target.value })}
           className="w-full sm:w-[180px]"
         />
+
+        {/* Wallet */}
+        {wallets.length > 0 && (
+          <Select
+            placeholder="Wallet"
+            allowClear
+            value={filters.wallet || undefined}
+            onChange={(value) =>
+              setFilters({ ...filters, wallet: value || "" })
+            }
+            className="w-full sm:w-[160px]"
+            options={[
+              ...wallets,
+              { value: "__none__", label: "No wallet" },
+            ]}
+          />
+        )}
 
         {/* Date range */}
         <RangePicker

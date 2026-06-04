@@ -24,6 +24,7 @@ const FinanceTracker = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [categories, setCategories] = useState([]);
+  const [wallets, setWallets] = useState([]);
   const [newCategory, setNewCategory] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
@@ -46,9 +47,20 @@ const FinanceTracker = () => {
     }
   }, []);
 
+  // Fetch wallets from backend
+  const fetchWallets = useCallback(async () => {
+    try {
+      const res = await api.get("/api/v1/wallets");
+      setWallets(res.data.map((w) => ({ value: w.name, label: w.name })));
+    } catch (error) {
+      console.error("Error fetching wallets", error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchCategories();
-  }, [fetchCategories]);
+    fetchWallets();
+  }, [fetchCategories, fetchWallets]);
 
   // Prefill the form when arriving from the bill scanner
   useEffect(() => {
@@ -130,6 +142,7 @@ const FinanceTracker = () => {
         nextDate:
           isRecurring && values.nextDate ? values.nextDate.toISOString() : null,
         notes: values.notes || "",
+        wallet: values.wallet || null,
       };
 
       await api.post("/api/v1/transactions", payload);
@@ -243,6 +256,24 @@ const FinanceTracker = () => {
               filterOption={(input, option) =>
                 option.label.toLowerCase().includes(input.toLowerCase())
               }
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="wallet"
+            label="Wallet"
+            extra={
+              wallets.length === 0
+                ? "Add wallets in Profile to track which account this came from."
+                : undefined
+            }
+          >
+            <Select
+              size="large"
+              allowClear
+              placeholder="Select a wallet (optional)"
+              options={wallets}
+              disabled={wallets.length === 0}
             />
           </Form.Item>
 

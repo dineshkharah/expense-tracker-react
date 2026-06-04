@@ -24,9 +24,11 @@ const Transactions = ({ embedded = false }) => {
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
+  const [wallets, setWallets] = useState([]);
   const [filters, setFilters] = useState({
     type: "",
     category: "",
+    wallet: "",
     dateRange: [],
     search: "",
   });
@@ -47,9 +49,19 @@ const Transactions = ({ embedded = false }) => {
     }
   }, []);
 
+  const fetchWallets = useCallback(async () => {
+    try {
+      const res = await api.get("/api/v1/wallets");
+      setWallets(res.data.map((w) => ({ value: w.name, label: w.name })));
+    } catch (error) {
+      console.error("Error fetching wallets:", error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchTransactions();
-  }, [fetchTransactions]);
+    fetchWallets();
+  }, [fetchTransactions, fetchWallets]);
 
   // Apply filters locally
   useEffect(() => {
@@ -61,6 +73,11 @@ const Transactions = ({ embedded = false }) => {
     if (filters.category) {
       data = data.filter((t) =>
         t.category.toLowerCase().includes(filters.category.toLowerCase()),
+      );
+    }
+    if (filters.wallet) {
+      data = data.filter((t) =>
+        filters.wallet === "__none__" ? !t.wallet : t.wallet === filters.wallet,
       );
     }
     if (filters.dateRange.length === 2) {
@@ -128,6 +145,7 @@ const Transactions = ({ embedded = false }) => {
     setFilters({
       type: "",
       category: "",
+      wallet: "",
       dateRange: [],
       search: "",
     });
@@ -157,6 +175,7 @@ const Transactions = ({ embedded = false }) => {
         filters={filters}
         setFilters={setFilters}
         transactions={transactions}
+        wallets={wallets}
         onExportCSV={exportCSV}
         onExportPDF={exportPDF}
         onClearFilters={clearFilters}
@@ -216,6 +235,15 @@ const Transactions = ({ embedded = false }) => {
             rules={[{ required: true }]}
           >
             <Input />
+          </Form.Item>
+
+          <Form.Item name="wallet" label="Wallet">
+            <Select
+              allowClear
+              placeholder="Select a wallet (optional)"
+              options={wallets}
+              disabled={wallets.length === 0}
+            />
           </Form.Item>
 
           <Form.Item name="notes" label="Notes">
