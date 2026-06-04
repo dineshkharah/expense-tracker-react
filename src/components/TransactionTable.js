@@ -1,5 +1,6 @@
 import React from "react";
-import { Table, Tag, Empty, Button, Popconfirm } from "antd";
+import { Table, Tag, Empty, Button, Popconfirm, Tooltip } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
 const TransactionTable = ({ data, loading, filters, onEdit, onDelete }) => {
@@ -103,19 +104,23 @@ const TransactionTable = ({ data, loading, filters, onEdit, onDelete }) => {
       key: "actions",
       align: "center",
       render: (_, record) => (
-        <div className="flex justify-center gap-2">
-          <Button type="link" onClick={() => onEdit(record)}>
-            Edit
-          </Button>
+        <div className="flex justify-center gap-1">
+          <Tooltip title="Edit">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => onEdit(record)}
+            />
+          </Tooltip>
           <Popconfirm
             title="Are you sure you want to delete this transaction?"
             onConfirm={() => onDelete(record._id)}
             okText="Yes"
             cancelText="No"
           >
-            <Button type="link" danger>
-              Delete
-            </Button>
+            <Tooltip title="Delete">
+              <Button type="text" danger icon={<DeleteOutlined />} />
+            </Tooltip>
           </Popconfirm>
         </div>
       ),

@@ -10,7 +10,9 @@ import {
   message,
   Tag,
   Switch,
+  Tooltip,
 } from "antd";
+import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import api from "../utils/api";
 import dayjs from "dayjs";
 
@@ -156,24 +158,32 @@ const RecurringTransactions = ({ embedded = false }) => {
       key: "actions",
       align: "center",
       render: (text, record) => (
-        <>
-          <Button type="link" onClick={() => handleEdit(record)}>
-            Edit
-          </Button>
+        <div className="flex justify-center gap-1">
+          <Tooltip title="Edit">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+            />
+          </Tooltip>
           <Popconfirm
             title="Delete this recurring transaction?"
             onConfirm={() => handleDelete(record._id)}
             okText="Yes"
             cancelText="No"
           >
-            <Button type="link" danger>
-              Delete
-            </Button>
+            <Tooltip title="Delete">
+              <Button type="text" danger icon={<DeleteOutlined />} />
+            </Tooltip>
           </Popconfirm>
-          <Button type="link" onClick={() => setDetail(record)}>
-            View
-          </Button>
-        </>
+          <Tooltip title="View">
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
+              onClick={() => setDetail(record)}
+            />
+          </Tooltip>
+        </div>
       ),
     },
   ];
