@@ -228,6 +228,60 @@ const getMonthlySummary = asyncHandler(async (req, res) => {
   });
 });
 
+const getWalletSummary = asyncHandler(async (req, res) => {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+  );
+
+  const transactions = await Transaction.find({ userId: req.user.userId });
+
+  // Group by wallet (untagged transactions fall under "Unassigned"),
+  // deriving totals on the fly — no stored per-wallet balances.
+  const map = {};
+  transactions.forEach((t) => {
+    const key = t.wallet || "Unassigned";
+    if (!map[key]) {
+      map[key] = {
+        wallet: key,
+        monthIncome: 0,
+        monthExpense: 0,
+        totalIncome: 0,
+        totalExpense: 0,
+        count: 0,
+      };
+    }
+    const amount = parseFloat(decrypt(t.amount));
+    if (!Number.isFinite(amount)) return;
+
+    const inMonth =
+      t.date && new Date(t.date) >= startOfMonth && new Date(t.date) <= endOfMonth;
+
+    if (t.type === "income") {
+      map[key].totalIncome += amount;
+      if (inMonth) map[key].monthIncome += amount;
+    } else {
+      map[key].totalExpense += amount;
+      if (inMonth) map[key].monthExpense += amount;
+    }
+    map[key].count += 1;
+  });
+
+  // Sort by most-used (transaction count), descending.
+  const summary = Object.values(map).sort((a, b) => b.count - a.count);
+
+  res.json({
+    month: now.toLocaleString("default", { month: "long" }),
+    wallets: summary,
+  });
+});
+
 const deleteAllTransactions = asyncHandler(async (req, res) => {
   const transactions = await Transaction.find({ userId: req.user.userId });
 
@@ -247,5 +301,6 @@ module.exports = {
   updateTransaction,
   deleteTransaction,
   getMonthlySummary,
+  getWalletSummary,
   deleteAllTransactions,
 };

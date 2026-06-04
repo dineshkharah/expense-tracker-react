@@ -8,6 +8,7 @@ const {
   updateTransaction,
   deleteTransaction,
   getMonthlySummary,
+  getWalletSummary,
   deleteAllTransactions,
 } = require("../controllers/transactionController");
 const { scanBill } = require("../controllers/scanController");
@@ -43,6 +44,9 @@ router.get("/", authenticateUser, getTransactions);
 
 // GET /api/v1/transactions/monthly-summary
 router.get("/monthly-summary", authenticateUser, getMonthlySummary); // must be before /:id route, otherwise express treats 'monthly-summary' as an id
+
+// GET /api/v1/transactions/wallet-summary - per-wallet spending breakdown
+router.get("/wallet-summary", authenticateUser, getWalletSummary); // also before /:id
 
 // POST /api/v1/transactions/scan - Extract transaction details from a bill image
 router.post(

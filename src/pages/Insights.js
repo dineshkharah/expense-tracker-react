@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { PieChartOutlined, FileTextOutlined } from "@ant-design/icons";
 import Dashboard from "./Dashboard";
 import Report from "./Report";
+import WalletSummary from "../components/WalletSummary";
 
 const { Title } = Typography;
 
@@ -42,7 +43,12 @@ const Insights = () => {
                 <PieChartOutlined /> Overview
               </span>
             ),
-            children: <Dashboard embedded />,
+            children: (
+              <>
+                <Dashboard embedded />
+                <WalletSummary />
+              </>
+            ),
           },
           {
             key: "report",
