@@ -28,6 +28,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import api from "../utils/api";
+import WalletManager from "../components/WalletManager";
 
 const Profile = () => {
   const { user, logout, login, token } = useAuth();
@@ -349,6 +350,9 @@ const Profile = () => {
           />
         </div>
       </Card>
+
+      {/* Wallets */}
+      <WalletManager />
 
       {/* 2FA Placeholder */}
       <Card
