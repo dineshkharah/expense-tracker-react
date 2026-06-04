@@ -23,8 +23,17 @@ function getNextDate(currentDate, frequency) {
 }
 
 const createTransaction = asyncHandler(async (req, res) => {
-  const { source, category, amount, type, date, notes, recurring, frequency } =
-    req.body;
+  const {
+    source,
+    category,
+    amount,
+    type,
+    date,
+    notes,
+    recurring,
+    frequency,
+    wallet,
+  } = req.body;
 
   if (!amount || !source || !category || !type) {
     return res.status(400).json({ message: "Missing required fields" });
@@ -58,6 +67,7 @@ const createTransaction = asyncHandler(async (req, res) => {
     frequency: recurring ? frequency : null,
     nextDate,
     notes,
+    wallet: wallet || null,
   });
 
   res.status(201).json(transaction);
@@ -120,6 +130,8 @@ const updateTransaction = asyncHandler(async (req, res) => {
   transaction.date = req.body.date || transaction.date;
   transaction.notes =
     req.body.notes !== undefined ? req.body.notes : transaction.notes;
+  transaction.wallet =
+    req.body.wallet !== undefined ? req.body.wallet : transaction.wallet;
 
   await transaction.save();
 

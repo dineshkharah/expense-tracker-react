@@ -44,6 +44,10 @@ const transactionSchema = new mongoose.Schema({
     notes: {
         type: String,
     },
+    wallet: {
+        type: String, // optional money source, e.g. "HDFC", "Cash"
+        default: null,
+    },
 }, { timestamps: true });
 
 const Transaction = mongoose.model('Transaction', transactionSchema);

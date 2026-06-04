@@ -18,6 +18,7 @@ const investmentRoutes = require("./routes/investmentRoutes");
 const savingRoutes = require("./routes/savingRoutes");
 const recurringTransactionsRoutes = require("./routes/recurringTransactionsRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const walletRoutes = require("./routes/walletRoutes");
 const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
@@ -69,6 +70,7 @@ app.use("/api/v1/investments", investmentRoutes);
 app.use("/api/v1/savings", savingRoutes);
 app.use("/api/v1/recurring-transactions", recurringTransactionsRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
+app.use("/api/v1/wallets", walletRoutes);
 
 require("./cron/recurringJob");
 
