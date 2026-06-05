@@ -26,7 +26,9 @@ Trackr is a full-stack personal finance app to track income, expenses, recurring
 - **Transactions** — add income/expenses with categories, notes and dates; amounts are encrypted at rest.
 - **AI bill scanning** — snap or upload a photo of a bill and Gemini Vision extracts the amount, merchant, category and date. You review and confirm before it's saved.
 - **Recurring transactions** — schedule daily/weekly/monthly/yearly payments, with skip/snooze/mark-paid and history.
+- **Wallets** — tag transactions with a money source (e.g. HDFC, Cash, Paytm), filter by wallet, and see a "Spending by Wallet" breakdown on Insights.
 - **Dashboard & reports** — monthly summaries, category breakdowns and 6-month trends (charts), plus CSV/PDF export.
+- **Guided tour** — a first-time onboarding walkthrough, replayable from Profile.
 - **Spending calendar** — see transactions and upcoming recurring payments by day.
 - **Notifications** — reminders for upcoming recurring payments.
 - **Dark mode** — full light/dark theming.
