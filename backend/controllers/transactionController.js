@@ -243,7 +243,7 @@ const getWalletSummary = asyncHandler(async (req, res) => {
   const transactions = await Transaction.find({ userId: req.user.userId });
 
   // Group by wallet (untagged transactions fall under "Unassigned"),
-  // deriving totals on the fly — no stored per-wallet balances.
+  // deriving totals on the fly - no stored per-wallet balances.
   const map = {};
   transactions.forEach((t) => {
     const key = t.wallet || "Unassigned";

@@ -191,7 +191,7 @@ export const exportPDF = ({
       { align: "right" },
     );
     doc.text(
-      "Expense Tracker — Confidential",
+      "Expense Tracker - Confidential",
       14,
       doc.internal.pageSize.getHeight() - 8,
     );

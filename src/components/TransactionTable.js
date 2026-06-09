@@ -83,7 +83,7 @@ const TransactionTable = ({ data, loading, filters, onEdit, onDelete }) => {
         wallet ? (
           <Tag bordered={false}>{wallet}</Tag>
         ) : (
-          <span className="text-gray-300 dark:text-slate-600">—</span>
+          <span className="text-gray-300 dark:text-slate-600">-</span>
         ),
     },
     {
@@ -96,7 +96,7 @@ const TransactionTable = ({ data, loading, filters, onEdit, onDelete }) => {
             Recurring
           </Tag>
         ) : (
-          <span className="text-gray-300 dark:text-slate-600">—</span>
+          <span className="text-gray-300 dark:text-slate-600">-</span>
         ),
     },
     {

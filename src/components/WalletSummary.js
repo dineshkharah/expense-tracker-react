@@ -3,7 +3,7 @@ import { Card, Empty } from "antd";
 import { WalletOutlined } from "@ant-design/icons";
 import api from "../utils/api";
 
-// "Spending by Wallet" — shows each wallet's spend this month and all-time,
+// "Spending by Wallet" - shows each wallet's spend this month and all-time,
 // sorted by most-used. Read-only; totals are derived server-side.
 const WalletSummary = () => {
   const [month, setMonth] = useState("");

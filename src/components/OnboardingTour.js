@@ -37,7 +37,7 @@ const OnboardingTour = ({ open, onClose, summaryRef, calendarRef }) => {
     {
       title: "Scan a bill with AI 📷",
       description:
-        "Short on time? From here you can choose Scan Bill — snap a photo and AI fills in the details for you to review.",
+        "Short on time? From here you can choose Scan Bill - snap a photo and AI fills in the details for you to review.",
       target: visibleEl("tour-add-desktop", "tour-add-mobile"),
     },
     {

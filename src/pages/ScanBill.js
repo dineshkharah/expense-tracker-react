@@ -60,18 +60,16 @@ const ScanBill = () => {
         amount != null || source != null || category != null || date != null;
 
       if (!gotSomething) {
-        // Nothing usable was extracted — let the user decide what to do
+        // Nothing usable was extracted - let the user decide what to do
         setFailModalOpen(true);
         return;
       }
 
-      message.success("Bill scanned — please review the details");
+      message.success("Bill scanned - please review the details");
       navigate("/add-transaction", { state: { scanned: res.data } });
     } catch (error) {
       console.error("Scan failed", error);
-      message.error(
-        error.response?.data?.message || "Could not scan the bill",
-      );
+      message.error(error.response?.data?.message || "Could not scan the bill");
     } finally {
       setScanning(false);
     }
@@ -87,7 +85,7 @@ const ScanBill = () => {
       </div>
 
       <Card className="!rounded-2xl shadow-md dark:shadow-blue-900/20 border border-gray-100 dark:border-slate-700">
-        {/* Hidden native input — no capture attr so phones offer camera AND gallery */}
+        {/* Hidden native input - no capture attr so phones offer camera AND gallery */}
         <input
           ref={fileInputRef}
           type="file"

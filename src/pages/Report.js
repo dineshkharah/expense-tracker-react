@@ -338,7 +338,7 @@ const Report = ({ embedded = false }) => {
 
       {/* Transactions Table */}
       <Card
-        title={`Transactions — ${selectedMonth.format("MMMM YYYY")}`}
+        title={`Transactions - ${selectedMonth.format("MMMM YYYY")}`}
         className="mb-6"
       >
         <Table

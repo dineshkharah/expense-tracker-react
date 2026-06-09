@@ -210,7 +210,7 @@ const FinanceTracker = () => {
             />
           </Form.Item>
 
-          {/* Amount — hero field */}
+          {/* Amount - hero field */}
           <Form.Item
             name="amount"
             label="Amount"

@@ -220,7 +220,7 @@ const Dashboard = ({ embedded = false }) => {
 
         {/* Bar Chart */}
         <Col xs={24} lg={12} className="flex">
-          <Card title="Income vs Expenses — Last 6 Months" className="w-full">
+          <Card title="Income vs Expenses - Last 6 Months" className="w-full">
             <div className="h-72">
               <Bar
                 data={barData}

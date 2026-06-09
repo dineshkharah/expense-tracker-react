@@ -1,10 +1,10 @@
-# Trackr — Expense Tracker
+# Trackr - Expense Tracker
 
-Trackr is a full-stack personal finance app to track income, expenses, recurring payments, debts, investments and savings — with **AI-powered bill scanning** and an installable **PWA** experience.
+Trackr is a full-stack personal finance app to track income, expenses, recurring payments, debts, investments and savings - with **AI-powered bill scanning** and an installable **PWA** experience.
 
 **Live demo:** https://trackr-finance.vercel.app
 
-> First load may take ~30–50 seconds — the backend runs on a free tier that sleeps when idle and needs a moment to wake up.
+> First load may take ~30-50 seconds - the backend runs on a free tier that sleeps when idle and needs a moment to wake up.
 
 ---
 
@@ -23,17 +23,17 @@ Trackr is a full-stack personal finance app to track income, expenses, recurring
 
 ## Features
 
-- **Transactions** — add income/expenses with categories, notes and dates; amounts are encrypted at rest.
-- **AI bill scanning** — snap or upload a photo of a bill and Gemini Vision extracts the amount, merchant, category and date. You review and confirm before it's saved.
-- **Recurring transactions** — schedule daily/weekly/monthly/yearly payments, with skip/snooze/mark-paid and history.
-- **Wallets** — tag transactions with a money source (e.g. HDFC, Cash, Paytm), filter by wallet, and see a "Spending by Wallet" breakdown on Insights.
-- **Dashboard & reports** — monthly summaries, category breakdowns and 6-month trends (charts), plus CSV/PDF export.
-- **Guided tour** — a first-time onboarding walkthrough, replayable from Profile.
-- **Spending calendar** — see transactions and upcoming recurring payments by day.
-- **Notifications** — reminders for upcoming recurring payments.
-- **Dark mode** — full light/dark theming.
-- **PWA** — installable on mobile/desktop, works offline (app shell), with its own icon and splash.
-- **Auth & security** — JWT auth, password hashing (bcrypt), Helmet headers, rate limiting, and AES-encrypted amounts.
+- **Transactions** - add income/expenses with categories, notes and dates; amounts are encrypted at rest.
+- **AI bill scanning** - snap or upload a photo of a bill and Gemini Vision extracts the amount, merchant, category and date. You review and confirm before it's saved.
+- **Recurring transactions** - schedule daily/weekly/monthly/yearly payments, with skip/snooze/mark-paid and history.
+- **Wallets** - tag transactions with a money source (e.g. HDFC, Cash, Paytm), filter by wallet, and see a "Spending by Wallet" breakdown on Insights.
+- **Dashboard & reports** - monthly summaries, category breakdowns and 6-month trends (charts), plus CSV/PDF export.
+- **Guided tour** - a first-time onboarding walkthrough, replayable from Profile.
+- **Spending calendar** - see transactions and upcoming recurring payments by day.
+- **Notifications** - reminders for upcoming recurring payments.
+- **Dark mode** - full light/dark theming.
+- **PWA** - installable on mobile/desktop, works offline (app shell), with its own icon and splash.
+- **Auth & security** - JWT auth, password hashing (bcrypt), Helmet headers, rate limiting, and AES-encrypted amounts.
 
 ---
 
@@ -76,7 +76,7 @@ expense-tracker-react/
 ### Prerequisites
 - Node.js (v18+ recommended)
 - A MongoDB connection string (e.g. a free MongoDB Atlas cluster)
-- A Google Gemini API key (free tier) from https://aistudio.google.com/apikey — only needed for bill scanning
+- A Google Gemini API key (free tier) from https://aistudio.google.com/apikey - only needed for bill scanning
 
 ### 1. Clone
 ```bash
@@ -89,7 +89,7 @@ cd expense-tracker-react
 cd backend
 npm install
 ```
-Create `backend/.env` — copy `backend/.env.example` and fill in your values. See the [Environment variables](#environment-variables) table for what each one is.
+Create `backend/.env` - copy `backend/.env.example` and fill in your values. See the [Environment variables](#environment-variables) table for what each one is.
 
 Run it:
 ```bash
@@ -103,7 +103,7 @@ From the project root (open a second terminal):
 ```bash
 npm install
 ```
-Create a root `.env` — copy `.env.example` and set `REACT_APP_API_URL` to your backend URL.
+Create a root `.env` - copy `.env.example` and set `REACT_APP_API_URL` to your backend URL.
 
 Run it:
 ```bash
@@ -111,7 +111,7 @@ npm start
 ```
 The app opens at http://localhost:3000.
 
-> **Note on `ENCRYPTION_KEY`:** it must be exactly 32 bytes (for AES-256). The server refuses to start otherwise. Don't change it once you have encrypted data — existing amounts become unreadable.
+> **Note on `ENCRYPTION_KEY`:** it must be exactly 32 bytes (for AES-256). The server refuses to start otherwise. Don't change it once you have encrypted data - existing amounts become unreadable.
 
 ---
 
